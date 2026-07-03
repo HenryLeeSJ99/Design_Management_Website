@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Formwork Beam Calculator | BS EN 1993</title>
+  <meta name="description" content="Multi-span formwork beam calculator to BS EN 1993-1-1 (Eurocode 3). Supports single span, cantilever, and continuous beams with S235/S355 steel sections and system beams.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header">
+    <div class="header-content">
+      <div class="logo">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <rect x="2" y="20" width="28" height="3" rx="1" fill="url(#beam-grad)"/>
+          <polygon points="6,23 3,29 9,29" fill="#78909C"/>
+          <polygon points="16,23 13,29 19,29" fill="#78909C"/>
+          <polygon points="26,23 23,29 29,29" fill="#78909C"/>
+          <line x1="4" y1="8" x2="4" y2="18" stroke="#EF5350" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <line x1="10" y1="8" x2="10" y2="18" stroke="#EF5350" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <line x1="16" y1="8" x2="16" y2="18" stroke="#EF5350" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <line x1="22" y1="8" x2="22" y2="18" stroke="#EF5350" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <line x1="28" y1="8" x2="28" y2="18" stroke="#EF5350" stroke-width="1.5" marker-end="url(#arrow)"/>
+          <line x1="2" y1="8" x2="30" y2="8" stroke="#EF5350" stroke-width="1.5"/>
+          <defs>
+            <linearGradient id="beam-grad" x1="2" y1="20" x2="30" y2="20">
+              <stop offset="0%" stop-color="#42A5F5"/>
+              <stop offset="100%" stop-color="#7E57C2"/>
+            </linearGradient>
+            <marker id="arrow" viewBox="0 0 6 6" refX="3" refY="6" markerWidth="6" markerHeight="6"><path d="M0,0 L3,6 L6,0" fill="#EF5350"/></marker>
+          </defs>
+        </svg>
+        <h1>Formwork Beam Calculator</h1>
+      </div>
+      <span class="badge">BS EN 1993-1-1</span>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <!-- ==================== INPUT PANEL ==================== -->
+    <section class="panel input-panel" id="input-panel">
+      <h2 class="panel-title"><span class="icon">⚙</span> Input Parameters</h2>
+
+      <div class="input-layout">
+        <div class="input-left">
+          <!-- Project Info -->
+          <fieldset class="input-group" id="group-project">
+            <legend>Project Info</legend>
+            <div class="field">
+              <label for="projectName">Project Name</label>
+              <input type="text" id="projectName" placeholder="e.g. Block A Level 3 Slab">
+            </div>
+            <div class="field">
+              <label for="engineerName">Engineer</label>
+              <input type="text" id="engineerName" placeholder="e.g. John Smith">
+            </div>
+          </fieldset>
+
+          <!-- Section Selection -->
+          <fieldset class="input-group" id="group-section">
+            <legend>Beam Section</legend>
+            <div class="field">
+              <label>Section Type</label>
+              <div class="toggle-group" id="sectionTypeToggle">
+                <button class="toggle-btn active" data-value="standard">Standard Section</button>
+                <button class="toggle-btn" data-value="system">System Beam</button>
+              </div>
+            </div>
+
+            <!-- Standard Section Inputs -->
+            <div id="standardSectionInputs">
+              <div class="field">
+                <label for="steelGrade">Steel Grade</label>
+                <select id="steelGrade">
+                  <option value="S235">S235 (fy = 235 MPa)</option>
+                  <option value="S355" selected>S355 (fy = 355 MPa)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="sectionCategory">Section Category</label>
+                <select id="sectionCategory">
+                  <option value="IPE">IPE (European I-Beam)</option>
+                  <option value="UB">UB (Universal Beam)</option>
+                  <option value="SHS">SHS (Square Hollow)</option>
+                  <option value="RHS">RHS (Rectangular Hollow)</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="sectionName">Section Size</label>
+                <select id="sectionName">
+                  <!-- Populated dynamically -->
+                </select>
+              </div>
+              <div class="section-preview" id="sectionPreview">
+                <!-- Section properties preview -->
+              </div>
+            </div>
+
+            <!-- System Beam Inputs -->
+            <div id="systemBeamInputs" class="hidden">
+              <div class="field">
+                <label for="systemBeamName">System Beam Name</label>
+                <input type="text" id="systemBeamName" value="PLYTEC Alpha-Beam" placeholder="e.g. PLYTEC Alpha-Beam">
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label for="systemMallow">Allowable Moment (kNm)</label>
+                  <input type="number" id="systemMallow" min="0.01" value="5.0" step="0.1">
+                </div>
+                <div class="field">
+                  <label for="systemVallow">Allowable Shear (kN)</label>
+                  <input type="number" id="systemVallow" min="0.01" value="30.0" step="0.1">
+                </div>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label for="systemI">Moment of Inertia, I (cm⁴)</label>
+                  <input type="number" id="systemI" min="0.1" value="150" step="0.1">
+                </div>
+                <div class="field">
+                  <label for="systemE">Elastic Modulus, E (MPa)</label>
+                  <input type="number" id="systemE" min="1000" value="210000" step="1000">
+                </div>
+              </div>
+              <div class="field">
+                <label for="systemWeight">Self-weight (kg/m)</label>
+                <input type="number" id="systemWeight" min="0" value="6.5" step="0.1">
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- Deflection Limit -->
+          <fieldset class="input-group" id="group-defl">
+            <legend>Serviceability</legend>
+            <div class="field">
+              <label for="deflLimit">Deflection Limit</label>
+              <select id="deflLimit">
+                <option value="360" selected>L / 360</option>
+                <option value="250">L / 250</option>
+                <option value="200">L / 200</option>
+                <option value="500">L / 500</option>
+                <option value="custom">Custom</option>
+              </select>
+            </div>
+            <div class="field hidden" id="customDeflField">
+              <label for="customDeflLimit">Custom Limit (L / ?)</label>
+              <input type="number" id="customDeflLimit" min="50" value="360" step="10">
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="input-right">
+          <!-- Interactive Beam Builder -->
+          <fieldset class="input-group" id="group-builder">
+            <legend>Geometry & Supports</legend>
+            <div class="mini-beam-preview" style="margin-bottom: 12px; background: var(--bg-primary); border: 1px solid var(--border-default); border-radius: var(--radius-sm);">
+              <canvas id="canvasMiniBeam" style="width: 100%; height: 200px; display: block;"></canvas>
+            </div>
+            <div class="builder-toolbar">
+              <button type="button" class="btn-tool" id="btnAddSpanRight"><span class="icon">➕</span> Add Span</button>
+              <button type="button" class="btn-tool" id="btnRemoveSpan"><span class="icon">➖</span> Remove Span</button>
+            </div>
+            <div class="table-container">
+              <table class="builder-table" id="tableGeometry">
+                <thead>
+                  <tr>
+                    <th>Span</th>
+                    <th>Length L (mm)</th>
+                    <th>Left Support</th>
+                    <th>Right Support</th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyGeometry">
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+          </fieldset>
+
+          <fieldset class="input-group" id="group-loads">
+            <legend>Loads</legend>
+            <div class="builder-toolbar">
+              <button type="button" class="btn-tool" id="btnAddLoad"><span class="icon">➕</span> Add Load</button>
+            </div>
+            <div class="table-container">
+              <table class="builder-table" id="tableLoads">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Span</th>
+                    <th>Start (mm)</th>
+                    <th>End (mm)</th>
+                    <th>Value</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="tbodyLoads">
+                  <!-- Dynamic rows -->
+                </tbody>
+              </table>
+            </div>
+            <p class="hint">Value in kN for Point Loads, and kN/m for UDLs. Leave End blank for a full-span UDL.</p>
+          </fieldset>
+        </div>
+      </div>
+
+      <!-- Calculate Button -->
+      <button class="btn-calculate" id="btnCalculate">
+        <span class="btn-text">Calculate & Check</span>
+        <span class="btn-icon">→</span>
+      </button>
+    </section>
+
+    <!-- ==================== RESULTS PANEL ==================== -->
+    <section class="panel results-panel hidden" id="results-panel">
+      <h2 class="panel-title"><span class="icon">📊</span> Results</h2>
+
+      <!-- Summary Cards -->
+      <div class="summary-cards" id="summaryCards">
+        <div class="card" id="cardMoment">
+          <div class="card-label">Max Bending Moment</div>
+          <div class="card-value" id="valMoment">—</div>
+          <div class="card-unit">kNm</div>
+          <div class="card-ratio" id="ratioMoment">—</div>
+        </div>
+        <div class="card" id="cardShear">
+          <div class="card-label">Max Shear Force</div>
+          <div class="card-value" id="valShear">—</div>
+          <div class="card-unit">kN</div>
+          <div class="card-ratio" id="ratioShear">—</div>
+        </div>
+        <div class="card" id="cardDeflection">
+          <div class="card-label">Max Deflection</div>
+          <div class="card-value" id="valDeflection">—</div>
+          <div class="card-unit">mm</div>
+          <div class="card-ratio" id="ratioDeflection">—</div>
+        </div>
+        <div class="card card-verdict" id="cardVerdict">
+          <div class="card-label">Overall</div>
+          <div class="card-value verdict-text" id="valVerdict">—</div>
+        </div>
+      </div>
+
+
+
+      <!-- Design Checks Table -->
+      <div class="result-section" id="designChecksSection">
+        <h3>Design Checks — BS EN 1993-1-1</h3>
+        <div class="table-container">
+          <table class="result-table" id="checksTable">
+            <thead>
+              <tr><th>Check</th><th>Demand</th><th>Capacity</th><th>Utilisation</th><th>Status</th></tr>
+            </thead>
+            <tbody id="checksBody">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Diagrams -->
+      <div class="result-section">
+        <h3>Beam Diagram</h3>
+        <div class="canvas-container">
+          <canvas id="canvasBeam" width="800" height="240"></canvas>
+        </div>
+      </div>
+      <div class="result-section">
+        <h3>Shear Force Diagram</h3>
+        <div class="canvas-container">
+          <canvas id="canvasSFD" width="800" height="220"></canvas>
+        </div>
+      </div>
+      <div class="result-section">
+        <h3>Bending Moment Diagram</h3>
+        <div class="canvas-container">
+          <canvas id="canvasBMD" width="800" height="220"></canvas>
+        </div>
+      </div>
+      <div class="result-section">
+        <h3>Deflection Diagram</h3>
+        <div class="canvas-container">
+          <canvas id="canvasDeflection" width="800" height="220"></canvas>
+        </div>
+      </div>
+
+      <!-- Download Button -->
+      <button class="btn-download" id="btnDownload">
+        <span class="btn-icon">📄</span>
+        <span class="btn-text">Download PDF Report</span>
+      </button>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <p>Formwork Beam Calculator &bull; Design Code: BS EN 1993-1-1 &bull; For verification purposes only</p>
+  </footer>
+
+  <script type="module" src="./app.js"></script>
+</body>
+</html>
