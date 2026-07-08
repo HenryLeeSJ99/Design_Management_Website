@@ -1,8 +1,8 @@
 /**
- * Quick verification of solver.js against known analytical solutions.
+ * Quick verification of the beam solver against known analytical solutions.
  * Run with: node --experimental-modules solver.test.mjs
  */
-import { solveBeam } from './solver.js';
+import { solveBeam } from './src/engine/beam/solver.js';
 
 const E = 210000;  // MPa
 const I = 1000;    // cm⁴
@@ -27,7 +27,8 @@ test('Simply supported beam — M_max = wL²/8', () => {
   const result = solveBeam({
     spans: [L],
     supports: [{ type: 'pin' }, { type: 'roller' }],
-    loadPerMeter: w,
+    nodalLoads: [0, 0],
+    elementLoads: [w],
     E, I,
   });
 
@@ -60,7 +61,8 @@ test('Cantilever — M_max = wL²/2 at fixed end', () => {
   const result = solveBeam({
     spans: [L],
     supports: [{ type: 'fixed' }, { type: 'free' }],
-    loadPerMeter: w,
+    nodalLoads: [0, 0],
+    elementLoads: [w],
     E, I,
   });
 
@@ -91,7 +93,8 @@ test('2-span continuous — center reaction = 5wL/4', () => {
   const result = solveBeam({
     spans: [L, L],
     supports: [{ type: 'pin' }, { type: 'roller' }, { type: 'roller' }],
-    loadPerMeter: w,
+    nodalLoads: [0, 0, 0],
+    elementLoads: [w, w],
     E, I,
   });
 

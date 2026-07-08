@@ -1,0 +1,191 @@
+import { useMemo } from 'react';
+
+export default function DynamicBeamDiagram({ spans = [], loads = [] }) {
+  // Constants for drawing
+  const svgWidth = 800;
+  const svgHeight = 240;
+  const margin = { top: 60, right: 40, bottom: 60, left: 40 };
+  const drawWidth = svgWidth - margin.left - margin.right;
+  const beamY = svgHeight / 2;
+
+  // Calculate total length
+  const totalLength = useMemo(() => {
+    return spans.reduce((sum, span) => sum + Number(span.length || 0), 0) || 1;
+  }, [spans]);
+
+  const scale = drawWidth / totalLength;
+
+  // Calculate support positions
+  const supports = useMemo(() => {
+    const sups = [];
+    let currentX = 0;
+    
+    spans.forEach((span, index) => {
+      // Left support of the span
+      if (span.leftSupport !== 'free') {
+        sups.push({ x: currentX, type: span.leftSupport, id: `sup-${index}-L` });
+      }
+      
+      currentX += Number(span.length || 0);
+      
+      // Right support of the span (only if it's the last span, or handled by next span's left)
+      if (index === spans.length - 1 && span.rightSupport !== 'free') {
+        sups.push({ x: currentX, type: span.rightSupport, id: `sup-${index}-R` });
+      }
+    });
+
+    // Remove duplicates at the same coordinate
+    const uniqueSups = [];
+    const seenX = new Set();
+    sups.forEach(s => {
+      if (!seenX.has(s.x)) {
+        seenX.add(s.x);
+        uniqueSups.push(s);
+      }
+    });
+    
+    return uniqueSups;
+  }, [spans]);
+
+
+  // Helper to draw a support icon
+  const renderSupport = (x, type, key) => {
+    const sx = margin.left + x * scale;
+    const sy = beamY;
+    const size = 16;
+    
+    if (type === 'pin') {
+      return (
+        <g key={key} transform={`translate(${sx}, ${sy})`}>
+          <polygon points={`0,0 ${size/2},${size} -${size/2},${size}`} fill="#64748b" />
+          <line x1={-size/2 - 4} y1={size} x2={size/2 + 4} y2={size} stroke="#334155" strokeWidth={2} />
+        </g>
+      );
+    } else if (type === 'roller') {
+      return (
+        <g key={key} transform={`translate(${sx}, ${sy})`}>
+           <polygon points={`0,0 ${size/2},${size-4} -${size/2},${size-4}`} fill="#64748b" />
+           <circle cx={-size/4} cy={size} r={4} fill="#64748b" />
+           <circle cx={size/4} cy={size} r={4} fill="#64748b" />
+           <line x1={-size/2 - 4} y1={size+4} x2={size/2 + 4} y2={size+4} stroke="#334155" strokeWidth={2} />
+        </g>
+      );
+    } else if (type === 'fixed') {
+      return (
+        <g key={key} transform={`translate(${sx}, ${sy})`}>
+          <rect x={-4} y={-size} width={8} height={size*2} fill="#64748b" />
+          {/* Hatches */}
+          <path d="M 4 -12 L 12 -4 M 4 -4 L 12 4 M 4 4 L 12 12" stroke="#334155" strokeWidth={1} />
+        </g>
+      );
+    }
+    return null;
+  };
+
+  // Helper to draw loads
+  const renderLoad = (load, index) => {
+    // Calculate global X start based on spanIndex
+    let spanStartX = 0;
+    for (let i = 0; i < load.spanIndex; i++) {
+      spanStartX += Number(spans[i]?.length || 0);
+    }
+
+    if (load.type === 'point') {
+      const pos = spanStartX + Number(load.pos || 0);
+      const x = margin.left + pos * scale;
+      const mag = Number(load.magnitude || 0);
+      const isUp = mag < 0;
+      const arrowLen = 40;
+      
+      const startY = isUp ? beamY + 10 + arrowLen : beamY - 10 - arrowLen;
+      const endY = isUp ? beamY + 10 : beamY - 10;
+      
+      return (
+        <g key={`load-${index}`}>
+          <line x1={x} y1={startY} x2={x} y2={endY} stroke="#dc2626" strokeWidth="2" markerEnd="url(#arrow)" />
+          <text x={x} y={isUp ? startY + 15 : startY - 5} fill="#dc2626" fontSize="12" textAnchor="middle" fontWeight="bold">
+            {mag} kN
+          </text>
+        </g>
+      );
+    } else if (load.type === 'udl') {
+      const startX = margin.left + (spanStartX + Number(load.posStart || 0)) * scale;
+      const endX = margin.left + (spanStartX + Number(load.posEnd || 0)) * scale;
+      const mag = Number(load.magnitude || 0);
+      const height = 20;
+      const isUp = mag < 0;
+      const yPos = isUp ? beamY + 10 : beamY - 10 - height;
+      
+      // Draw a box for UDL
+      return (
+        <g key={`load-${index}`}>
+          <rect x={startX} y={yPos} width={Math.max(1, endX - startX)} height={height} fill="rgba(220, 38, 38, 0.2)" stroke="#dc2626" strokeWidth="1" />
+          {/* UDL arrows */}
+          {Array.from({length: Math.max(2, Math.floor((endX - startX) / 20))}).map((_, i, arr) => {
+            const px = startX + (endX - startX) * (i / (arr.length - 1));
+            return (
+              <line key={i} x1={px} y1={isUp ? yPos + height : yPos} x2={px} y2={isUp ? yPos : yPos + height} stroke="#dc2626" strokeWidth="1" markerEnd="url(#arrow)" />
+            )
+          })}
+          <text x={(startX + endX)/2} y={isUp ? yPos + height + 15 : yPos - 5} fill="#dc2626" fontSize="12" textAnchor="middle" fontWeight="bold">
+            {mag} kN/m
+          </text>
+        </g>
+      );
+    }
+  };
+
+  return (
+    <div style={{ width: '100%', overflowX: 'auto', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1rem 0' }}>
+      <svg width={svgWidth} height={svgHeight} style={{ minWidth: '800px', display: 'block', margin: '0 auto' }}>
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+          </marker>
+        </defs>
+
+        {/* Beam Line */}
+        <line 
+          x1={margin.left} 
+          y1={beamY} 
+          x2={margin.left + drawWidth} 
+          y2={beamY} 
+          stroke="#1e293b" 
+          strokeWidth="6" 
+          strokeLinecap="round" 
+        />
+
+        {/* Dimension Lines */}
+        <g transform={`translate(0, ${svgHeight - 20})`}>
+          {spans.map((span, i) => {
+            let startX = margin.left;
+            for(let j=0; j<i; j++) startX += Number(spans[j].length) * scale;
+            const width = Number(span.length) * scale;
+            return (
+              <g key={`dim-${i}`}>
+                {/* vertical ticks */}
+                <line x1={startX} y1={-10} x2={startX} y2={5} stroke="#94a3b8" strokeWidth="1" />
+                {i === spans.length - 1 && (
+                  <line x1={startX + width} y1={-10} x2={startX + width} y2={5} stroke="#94a3b8" strokeWidth="1" />
+                )}
+                {/* horizontal line */}
+                <line x1={startX} y1={0} x2={startX + width} y2={0} stroke="#94a3b8" strokeWidth="1" />
+                {/* text */}
+                <text x={startX + width/2} y={-5} fill="#64748b" fontSize="11" textAnchor="middle">
+                  {span.length} mm
+                </text>
+              </g>
+            )
+          })}
+        </g>
+
+        {/* Supports */}
+        {supports.map(sup => renderSupport(sup.x, sup.type, sup.id))}
+
+        {/* Loads */}
+        {loads.map((load, index) => renderLoad(load, index))}
+        
+      </svg>
+    </div>
+  );
+}
