@@ -270,11 +270,23 @@
 }
 
 /* Results Overrides */
+.resultsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
 .resultsGrid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 1.5rem;
   margin-bottom: 1.5rem;
+}
+
+@media (max-width: 900px) {
+  .resultsGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .resultCard {

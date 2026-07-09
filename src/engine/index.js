@@ -10,6 +10,12 @@ export {
   SECTIONS,
   getSectionByName,
   getAllSectionNames,
+  FORMWORK_BEAMS,
+  FORMWORK_PANELS,
+  SHORING_TOWERS,
+  getFormworkBeam,
+  getFormworkPanel,
+  getShoringTower,
 } from './materials/index.js';
 export { performAllChecks } from './design/ec3/index.js';
 export {
@@ -18,3 +24,5 @@ export {
   buildResultChartData,
   createSchematicLayout,
 } from './graphics/index.js';
+export { computeSlabAreaLoad } from './loads/index.js';
+export { calculateSlabFormwork } from './formwork/index.js';

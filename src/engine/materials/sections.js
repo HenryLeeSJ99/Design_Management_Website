@@ -35,7 +35,7 @@ export const STEEL_GRADES = {
 // ────────────────────────────────────────────────────────────────────────────
 
 /** Supported section families. */
-export const SECTION_TYPES = ['IPE', 'UB', 'SHS', 'RHS'];
+export const SECTION_TYPES = ['IPE', 'UB', 'SHS', 'RHS', 'System Beam'];
 
 // ────────────────────────────────────────────────────────────────────────────
 // Section database
@@ -248,6 +248,32 @@ export const SECTIONS = {
       h: 200, b: 100, tw: 5.0, tf: 5.0, r: 5.0,
       A: 28.0, Iy: 1370, Wel_y: 137, Wpl_y: 168,
       Av: 14.0, mass: 22.0, type: 'hollow'
+    }
+  ],
+  'System Beam': [
+    {
+      name: 'Alpha-Beam',
+      material: 'Steel',
+      E: 210000,
+      h: 150, b: 100, tw: 0, tf: 0, r: 0, A: 15.0,
+      Iy: 396, Wel_y: 52.8, Wpl_y: 52.8, Av: 8.0,
+      mass: 5.1, Mallow: 8.1, Vallow: 25.5, type: 'system'
+    },
+    {
+      name: 'Alu150',
+      material: 'Aluminum',
+      E: 70000,
+      h: 150, b: 100, tw: 0, tf: 0, r: 0, A: 12.0,
+      Iy: 504, Wel_y: 67.2, Wpl_y: 67.2, Av: 7.5,
+      mass: 6.5, Mallow: 5.2, Vallow: 20.0, type: 'system'
+    },
+    {
+      name: 'Alu225',
+      material: 'Aluminum',
+      E: 70000,
+      h: 225, b: 120, tw: 0, tf: 0, r: 0, A: 18.0,
+      Iy: 1620, Wel_y: 144, Wpl_y: 144, Av: 11.0,
+      mass: 9.8, Mallow: 12.5, Vallow: 35.0, type: 'system'
     }
   ]
 };

@@ -182,3 +182,94 @@
   align-items: center;
   height: 300px;
 }
+
+.contentWrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.wipOverlay {
+  position: absolute;
+  top: -1rem;
+  left: -1rem;
+  right: -1rem;
+  bottom: -1rem;
+  background: rgba(248, 250, 252, 0.45); /* slightly lighter slaty tint */
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 20;
+  border-radius: 16px;
+  padding: 2rem;
+}
+
+.wipCard {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 1px 1px rgba(0,0,0,0.02);
+  border-radius: 16px;
+  padding: 3rem 2.5rem;
+  max-width: 480px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  animation: float 5s ease-in-out infinite;
+}
+
+.wipIconWrapper {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #fef3c7; /* amber-100 */
+  border: 1px solid #fde68a; /* amber-200 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.wipIcon {
+  color: #d97706; /* amber-600 */
+}
+
+.wipTitle {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.wipDescription {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: #475569;
+  margin: 0;
+}
+
+.wipBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #eff6ff; /* blue-50 */
+  color: #2563eb; /* blue-600 */
+  border: 1px solid #bfdbfe; /* blue-200 */
+  border-radius: 9999px;
+  font-size: 0.825rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 0.25rem;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0px); }
+}

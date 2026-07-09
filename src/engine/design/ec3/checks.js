@@ -183,9 +183,10 @@ function classifyHollowSection(section, epsilon) {
  * @param {string} gradeName
  * @returns {BendingCheckResult}
  */
-export function checkBending(Med, section, gradeName) {
+export function checkBending(Med, section, gradeName, materialFactor = null) {
   const grade = resolveGrade(gradeName);
-  const { fy, gammaM0 } = grade;
+  const { fy } = grade;
+  const gammaM = materialFactor != null ? materialFactor : grade.gammaM0;
   const classification = classifySection(section, gradeName);
   const sectionClass = classification.sectionClass;
 
@@ -193,7 +194,7 @@ export function checkBending(Med, section, gradeName) {
   const W = (sectionClass <= 2) ? section.Wpl_y : section.Wel_y;
 
   // Convert: W (cm³) → mm³  (* 1e3),  result Nmm → kNm (/ 1e6)
-  const Mc_Rd = (W * 1e3) * fy / gammaM0 / 1e6;
+  const Mc_Rd = (W * 1e3) * fy / gammaM / 1e6;
 
   const absMed = Math.abs(Med);
   const ratio = Mc_Rd > 0 ? absMed / Mc_Rd : Infinity;
@@ -226,12 +227,13 @@ export function checkBending(Med, section, gradeName) {
  * @param {string} gradeName
  * @returns {ShearCheckResult}
  */
-export function checkShear(Ved, section, gradeName) {
+export function checkShear(Ved, section, gradeName, materialFactor = null) {
   const grade = resolveGrade(gradeName);
-  const { fy, gammaM0 } = grade;
+  const { fy } = grade;
+  const gammaM = materialFactor != null ? materialFactor : grade.gammaM0;
 
   // Av in cm² → mm² (* 100);  result in N → kN (/ 1000)
-  const Vc_Rd = (section.Av * 100) * (fy / Math.sqrt(3)) / gammaM0 / 1000;
+  const Vc_Rd = (section.Av * 100) * (fy / Math.sqrt(3)) / gammaM / 1000;
 
   const absVed = Math.abs(Ved);
   const ratio = Vc_Rd > 0 ? absVed / Vc_Rd : Infinity;
@@ -270,12 +272,13 @@ export function checkShear(Ved, section, gradeName) {
  * @param {string} gradeName
  * @returns {InteractionResult}
  */
-export function checkBendingShearInteraction(Med, Ved, section, gradeName) {
+export function checkBendingShearInteraction(Med, Ved, section, gradeName, materialFactor = null) {
   const grade = resolveGrade(gradeName);
-  const { fy, gammaM0 } = grade;
+  const { fy } = grade;
+  const gammaM = materialFactor != null ? materialFactor : grade.gammaM0;
 
-  const bendingResult = checkBending(Med, section, gradeName);
-  const shearResult = checkShear(Ved, section, gradeName);
+  const bendingResult = checkBending(Med, section, gradeName, gammaM);
+  const shearResult = checkShear(Ved, section, gradeName, gammaM);
   const classification = classifySection(section, gradeName);
 
   const Mc_Rd = bendingResult.Mc_Rd;
@@ -311,7 +314,7 @@ export function checkBendingShearInteraction(Med, Ved, section, gradeName) {
     const W_mm3 = W * 1e3;                            // mm³
 
     const reducedW_mm3 = W_mm3 - rho * (Aw * Aw) / (4 * section.tw);
-    reducedMcRd = reducedW_mm3 * fy / gammaM0 / 1e6;  // kNm
+    reducedMcRd = reducedW_mm3 * fy / gammaM / 1e6;  // kNm
   } else {
     // Hollow sections: apply ρ reduction directly to moment capacity
     reducedMcRd = Mc_Rd * (1 - rho);
@@ -469,7 +472,8 @@ export function performAllChecks(
   gradeName,
   deflLimitRatio,
   isSystemBeam = false,
-  systemCapacities = null
+  systemCapacities = null,
+  materialFactor = null
 ) {
   const { maxMoment, maxShear, spans: internalSpans, physicalSpans } = results;
 
@@ -542,9 +546,9 @@ export function performAllChecks(
 
   // ── EC3 mode ──
   const classificationResult = classifySection(section, gradeName);
-  const bendingResult = checkBending(maxMomentVal, section, gradeName);
-  const shearResult = checkShear(maxShearVal, section, gradeName);
-  const interactionResult = checkBendingShearInteraction(maxMomentVal, maxShearVal, section, gradeName);
+  const bendingResult = checkBending(maxMomentVal, section, gradeName, materialFactor);
+  const shearResult = checkShear(maxShearVal, section, gradeName, materialFactor);
+  const interactionResult = checkBendingShearInteraction(maxMomentVal, maxShearVal, section, gradeName, materialFactor);
 
   const overallPass =
     bendingResult.pass &&

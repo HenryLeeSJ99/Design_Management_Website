@@ -1,6 +1,6 @@
 /**
  * @module @engine/materials
- * @description Steel section database and grade properties.
+ * @description Steel section database, grade properties, and formwork components.
  */
 
 export {
@@ -10,3 +10,12 @@ export {
   getSectionByName,
   getAllSectionNames,
 } from './sections.js';
+
+export {
+  FORMWORK_BEAMS,
+  FORMWORK_PANELS,
+  SHORING_TOWERS,
+  getFormworkBeam,
+  getFormworkPanel,
+  getShoringTower,
+} from './formworkBeams.js';

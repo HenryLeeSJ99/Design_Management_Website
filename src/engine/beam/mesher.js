@@ -46,7 +46,8 @@ export function buildMesh(spans, loads) {
     
     // Add slice points to exactly match load boundaries
     if (load.type === 'point') {
-      spanSlicePoints[load.spanIndex].add(load.posStart);
+      const pos = load.pos ?? load.posStart;
+      if (pos != null) spanSlicePoints[load.spanIndex].add(pos);
     } else if (load.type === 'udl') {
       spanSlicePoints[load.spanIndex].add(load.posStart);
       if (load.posEnd !== undefined && load.posEnd !== null) {
@@ -123,6 +124,8 @@ export function buildMesh(spans, loads) {
   // 3. Apply Point Loads
   loads.forEach(load => {
     if (load.type === 'point') {
+      const loadPos = load.pos ?? load.posStart;
+      if (loadPos == null) return;
       // Find which internal node this corresponds to
       let nodeIdx = physicalNodeIndices[load.spanIndex]; // Start of physical span
       
@@ -135,13 +138,13 @@ export function buildMesh(spans, loads) {
       
       let foundNode = nodeIdx;
       for (let i = elemIdx; i < internalSpans.length; i++) {
-        if (Math.abs(currentX - load.posStart) < 1e-5) {
+        if (Math.abs(currentX - loadPos) < 1e-5) {
           foundNode = nodeIdx;
           break;
         }
         currentX += internalSpans[i];
         nodeIdx++;
-        if (Math.abs(currentX - load.posStart) < 1e-5) {
+        if (Math.abs(currentX - loadPos) < 1e-5) {
           foundNode = nodeIdx;
           break;
         }

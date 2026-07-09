@@ -53,6 +53,21 @@
   transition: all 0.2s;
 }
 
+.btnSecondary,
+.btnCalculate {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 38px;
+  padding: 0.55rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
 .btnSecondary {
   background: #ffffff;
   border: 1px solid #cbd5e1;
@@ -63,14 +78,17 @@
   background: #f1f5f9;
 }
 
-.btnPrimary {
-  background: #0f172a;
-  border: 1px solid #0f172a;
+.btnCalculate {
+  background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 100%);
+  border: 1px solid #1d4ed8;
   color: #ffffff;
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.22);
 }
 
-.btnPrimary:hover {
-  background: #1e293b;
+.btnCalculate:hover {
+  background: linear-gradient(180deg, #1d4ed8 0%, #1e40af 100%);
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.3);
+  transform: translateY(-1px);
 }
 
 .tabs {
@@ -150,4 +168,584 @@
   color: #94a3b8;
   font-weight: 500;
   min-height: 200px;
+}
+
+.formStack {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.field,
+.fieldInline,
+.gridSpacingRow {
+  color: #334155;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.field {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.fieldInline,
+.gridSpacingRow {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) minmax(110px, 0.8fr);
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.field select,
+.field input,
+.fieldInline input,
+.gridSpacingRow input {
+  width: 100%;
+  min-height: 36px;
+  border: 1px solid #cbd5e1;
+  border-radius: 5px;
+  background: #ffffff;
+  color: #0f172a;
+  font: inherit;
+  padding: 0.45rem 0.65rem;
+}
+
+.field select:focus,
+.field input:focus,
+.fieldInline input:focus,
+.gridSpacingRow input:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+.unitInput {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.unitInput span {
+  color: #475569;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.gridInputs {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0.45rem;
+  align-items: center;
+}
+
+.gridInputs strong {
+  color: #64748b;
+}
+
+.planDiagram,
+.elevationDiagram {
+  position: relative;
+  min-height: 350px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.planGrid {
+  position: absolute;
+  inset: 54px 56px 92px 86px;
+  border: 2px solid #334155;
+  background-image:
+    linear-gradient(90deg, rgba(148, 163, 184, 0.2) 1px, transparent 1px),
+    linear-gradient(rgba(148, 163, 184, 0.2) 1px, transparent 1px);
+  background-size: 12.5% 14.2%;
+}
+
+.secondaryBeam,
+.primaryBeam,
+.towerNode {
+  position: absolute;
+  display: block;
+}
+
+.secondaryBeam {
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #92400e;
+}
+
+.primaryBeam {
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: #eab308;
+  transform: translateX(-2px);
+}
+
+.towerNode {
+  top: -10px;
+  width: 12px;
+  height: 12px;
+  border: 1px solid #64748b;
+  background: #a3a3a3;
+  transform: translateX(-6px);
+}
+
+.dimensionY,
+.dimensionX {
+  position: absolute;
+  color: #1d4ed8;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.dimensionY {
+  left: 14px;
+  top: 126px;
+  width: 64px;
+  text-align: right;
+}
+
+.dimensionX {
+  left: 210px;
+  bottom: 56px;
+  text-align: center;
+}
+
+.dimensionY strong,
+.dimensionX strong {
+  display: block;
+  color: #0f172a;
+  margin-top: 0.15rem;
+}
+
+.legend {
+  position: absolute;
+  bottom: 22px;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  transform: translateX(-50%);
+  color: #334155;
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.legend i {
+  width: 18px;
+  height: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.25);
+}
+
+.legendSecondary {
+  background: #92400e;
+}
+
+.legendPrimary {
+  background: #eab308;
+}
+
+.legendTower {
+  background: #a3a3a3;
+}
+
+.elevationDiagram {
+  display: grid;
+  grid-template-columns: 1fr 170px;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.elevationStack {
+  position: relative;
+  height: 280px;
+  max-width: 520px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.slabLayer,
+.deckLayer,
+.secondaryLayer,
+.primaryLayer,
+.baseLayer {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  border: 1px solid #334155;
+}
+
+.slabLayer {
+  top: 8px;
+  height: 30px;
+  background: #c7c7c7;
+}
+
+.deckLayer {
+  top: 40px;
+  height: 10px;
+  background: #475569;
+}
+
+.secondaryLayer {
+  top: 52px;
+  height: 18px;
+  background: #92400e;
+}
+
+.primaryLayer {
+  top: 74px;
+  height: 22px;
+  background: #eab308;
+}
+
+.baseLayer {
+  bottom: 8px;
+  height: 13px;
+  background: #d4d4d8;
+}
+
+.towerFrame {
+  position: absolute;
+  left: 14%;
+  right: 14%;
+  top: 96px;
+  bottom: 21px;
+}
+
+.towerLeg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  background: #71717a;
+}
+
+.towerLeg:nth-child(1) { left: 0; }
+.towerLeg:nth-child(2) { left: 33%; }
+.towerLeg:nth-child(3) { left: 66%; }
+.towerLeg:nth-child(4) { right: 0; }
+
+.towerLeg span {
+  display: block;
+  width: 16px;
+  height: 5px;
+  margin: 36px 0 0 -5px;
+  background: #52525b;
+}
+
+.braceLeft,
+.braceRight {
+  position: absolute;
+  top: 14px;
+  left: 8%;
+  right: 8%;
+  height: 2px;
+  background: #52525b;
+  transform-origin: center;
+}
+
+.braceLeft {
+  transform: rotate(28deg);
+}
+
+.braceRight {
+  transform: rotate(-28deg);
+}
+
+.elevationLabels {
+  display: grid;
+  gap: 0.75rem;
+  color: #1d4ed8;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.elevationLabels strong {
+  display: block;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.heightDimension {
+  position: absolute;
+  right: 20px;
+  top: 108px;
+  bottom: 32px;
+  display: flex;
+  align-items: center;
+  color: #1d4ed8;
+  border-right: 2px solid #60a5fa;
+  padding-right: 0.75rem;
+  font-size: 0.82rem;
+}
+
+/* ── Error banner ── */
+.errorBanner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #991b1b;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+/* ── Results table ── */
+.resultsTable {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.resultsTableHeader {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr 1fr 1fr 0.8fr 0.7fr;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.resultsTableRow {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr 1fr 1fr 0.8fr 0.7fr;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.82rem;
+  color: #334155;
+  align-items: center;
+}
+
+.resultsTableRow:last-child {
+  border-bottom: none;
+}
+
+.resultComponent {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.textDanger {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+/* ── Status badges ── */
+.statusPass {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  background: #dcfce7;
+  color: #166534;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.statusFail {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  background: #fef2f2;
+  color: #991b1b;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+/* ── Summary card ── */
+.summaryCard {
+  border: none;
+}
+
+.overallStatus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border-radius: 10px;
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  margin-bottom: 1.25rem;
+}
+
+.statusPassBg {
+  background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+  color: #166534;
+}
+
+.statusFailBg {
+  background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+  color: #991b1b;
+}
+
+.summaryGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.summaryLabel {
+  font-size: 0.72rem;
+  color: #64748b;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.summaryValue {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+/* ── Load breakdown ── */
+.loadBreakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.loadRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+.loadRow strong {
+  color: #0f172a;
+}
+
+.loadRowTotal {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
+.loadRowDivider {
+  height: 1px;
+  background: #e2e8f0;
+}
+
+.loadTier {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 0.25rem;
+  font-style: italic;
+}
+
+/* ── Notes list ── */
+.notesList {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: #475569;
+}
+
+@media (max-width: 1100px) {
+  .gridLayout,
+  .resultsGridLayout {
+    grid-template-columns: 1fr;
+  }
+
+  .headerActions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
+@media (max-width: 760px) {
+  .pageHeader {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  /* Hide project select and save on mobile – they're in the sidebar */
+  .projectSelect,
+  .headerActions > .btnSecondary:first-of-type {
+    display: none;
+  }
+
+  .headerActions {
+    width: 100%;
+    gap: 0.5rem;
+  }
+
+  .btnSecondary,
+  .btnCalculate {
+    flex: 1;
+  }
+
+  .fieldInline,
+  .gridSpacingRow,
+  .elevationDiagram {
+    grid-template-columns: 1fr;
+  }
+
+  .legend {
+    flex-wrap: wrap;
+    justify-content: center;
+    width: calc(100% - 2rem);
+  }
+
+  .planGrid {
+    inset: 54px 32px 118px 70px;
+  }
+
+  /* Results table responsive */
+  .resultsTableHeader {
+    display: none;
+  }
+
+  .resultsTableRow {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.35rem 0.75rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #e2e8f0;
+  }
+
+  .summaryGrid {
+    grid-template-columns: 1fr;
+  }
 }

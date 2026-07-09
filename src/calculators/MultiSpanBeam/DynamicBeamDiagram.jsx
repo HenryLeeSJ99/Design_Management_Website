@@ -1,12 +1,28 @@
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 
 export default function DynamicBeamDiagram({ spans = [], loads = [] }) {
-  // Constants for drawing
-  const svgWidth = 800;
-  const svgHeight = 240;
-  const margin = { top: 60, right: 40, bottom: 60, left: 40 };
+  // Constants for drawing - matched to AnalysisDiagram for alignment
+  const svgWidth = 860;
+  const svgHeight = 160;
+  const margin = { top: 40, right: 20, bottom: 40, left: 62 };
   const drawWidth = svgWidth - margin.left - margin.right;
-  const beamY = svgHeight / 2;
+  const beamY = svgHeight / 2 + 10; // offset slightly down to leave room for loads
+
+  const [textScale, setTextScale] = useState(1);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (let entry of entries) {
+        const width = entry.contentRect.width || svgWidth;
+        const ratio = svgWidth / Math.max(width, 100);
+        setTextScale(Math.max(1, Math.pow(ratio, 0.5) * 1.2));
+      }
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [svgWidth]);
 
   // Calculate total length
   const totalLength = useMemo(() => {
@@ -18,33 +34,22 @@ export default function DynamicBeamDiagram({ spans = [], loads = [] }) {
   // Calculate support positions
   const supports = useMemo(() => {
     const sups = [];
+    if (spans.length === 0) return sups;
+
+    // Leftmost support of the entire beam
+    if (spans[0].leftSupport && spans[0].leftSupport !== 'free') {
+      sups.push({ x: 0, type: spans[0].leftSupport, id: 'sup-start' });
+    }
+
     let currentX = 0;
-    
     spans.forEach((span, index) => {
-      // Left support of the span
-      if (span.leftSupport !== 'free') {
-        sups.push({ x: currentX, type: span.leftSupport, id: `sup-${index}-L` });
-      }
-      
       currentX += Number(span.length || 0);
-      
-      // Right support of the span (only if it's the last span, or handled by next span's left)
-      if (index === spans.length - 1 && span.rightSupport !== 'free') {
+      if (span.rightSupport && span.rightSupport !== 'free') {
         sups.push({ x: currentX, type: span.rightSupport, id: `sup-${index}-R` });
       }
     });
 
-    // Remove duplicates at the same coordinate
-    const uniqueSups = [];
-    const seenX = new Set();
-    sups.forEach(s => {
-      if (!seenX.has(s.x)) {
-        seenX.add(s.x);
-        uniqueSups.push(s);
-      }
-    });
-    
-    return uniqueSups;
+    return sups;
   }, [spans]);
 
 
@@ -103,7 +108,7 @@ export default function DynamicBeamDiagram({ spans = [], loads = [] }) {
       return (
         <g key={`load-${index}`}>
           <line x1={x} y1={startY} x2={x} y2={endY} stroke="#dc2626" strokeWidth="2" markerEnd="url(#arrow)" />
-          <text x={x} y={isUp ? startY + 15 : startY - 5} fill="#dc2626" fontSize="12" textAnchor="middle" fontWeight="bold">
+          <text x={x} y={isUp ? startY + 15 * textScale : startY - 5 * textScale} fill="#dc2626" fontSize={Math.round(12 * textScale)} textAnchor="middle" fontWeight="bold">
             {mag} kN
           </text>
         </g>
@@ -127,7 +132,7 @@ export default function DynamicBeamDiagram({ spans = [], loads = [] }) {
               <line key={i} x1={px} y1={isUp ? yPos + height : yPos} x2={px} y2={isUp ? yPos : yPos + height} stroke="#dc2626" strokeWidth="1" markerEnd="url(#arrow)" />
             )
           })}
-          <text x={(startX + endX)/2} y={isUp ? yPos + height + 15 : yPos - 5} fill="#dc2626" fontSize="12" textAnchor="middle" fontWeight="bold">
+          <text x={(startX + endX)/2} y={isUp ? yPos + height + 15 * textScale : yPos - 5 * textScale} fill="#dc2626" fontSize={Math.round(12 * textScale)} textAnchor="middle" fontWeight="bold">
             {mag} kN/m
           </text>
         </g>
@@ -136,8 +141,13 @@ export default function DynamicBeamDiagram({ spans = [], loads = [] }) {
   };
 
   return (
-    <div style={{ width: '100%', overflowX: 'auto', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1rem 0' }}>
-      <svg width={svgWidth} height={svgHeight} style={{ minWidth: '800px', display: 'block', margin: '0 auto' }}>
+    <div ref={containerRef} style={{ width: '100%', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1rem 0' }}>
+      <svg 
+        width="100%" 
+        height="100%" 
+        viewBox={`0 0 ${svgWidth} ${svgHeight}`} 
+        style={{ display: 'block', width: '100%', height: 'auto', maxHeight: svgHeight }}
+      >
         <defs>
           <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
             <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
@@ -171,7 +181,7 @@ export default function DynamicBeamDiagram({ spans = [], loads = [] }) {
                 {/* horizontal line */}
                 <line x1={startX} y1={0} x2={startX + width} y2={0} stroke="#94a3b8" strokeWidth="1" />
                 {/* text */}
-                <text x={startX + width/2} y={-5} fill="#64748b" fontSize="11" textAnchor="middle">
+                <text x={startX + width/2} y={-5} fill="#64748b" fontSize={Math.round(11 * textScale)} textAnchor="middle">
                   {span.length} mm
                 </text>
               </g>

@@ -1,12 +1,19 @@
+import { useState, useEffect } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import styles from './Layout.module.css';
 import Logo from './Logo';
-import { LayoutDashboard, LogOut, Search, Bell, SquareMenu, Layers, Building, ChevronsUp, Columns, Cuboid } from 'lucide-react';
+import { LayoutDashboard, LogOut, Search, Bell, Menu, X, SquareMenu, Layers, Building, ChevronsUp, Columns, Cuboid, Save, FolderOpen } from 'lucide-react';
 
 export default function Layout() {
   const { currentUser, logout } = useAuth();
   const location = useLocation();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Close sidebar on route change (mobile nav tap)
+  useEffect(() => {
+    setSidebarOpen(false);
+  }, [location.pathname]);
 
   const navItems = [
     { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
@@ -23,9 +30,25 @@ export default function Layout() {
 
   return (
     <div className={styles.layoutContainer}>
-      <aside className={styles.sidebar}>
+      {/* Mobile overlay backdrop */}
+      {sidebarOpen && (
+        <div
+          className={styles.overlay}
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
         <div className={styles.sidebarHeader}>
           <Logo width={160} light={true} />
+          {/* Close button visible only on mobile */}
+          <button
+            className={styles.sidebarCloseBtn}
+            onClick={() => setSidebarOpen(false)}
+            aria-label="Close menu"
+          >
+            <X size={22} />
+          </button>
         </div>
         <nav className={styles.navLinks}>
           {navItems.map((item) => (
@@ -59,6 +82,21 @@ export default function Layout() {
               )
             ))}
           </div>
+
+          {/* Mobile-only: Project & Save actions */}
+          <div className={styles.navSection + ' ' + styles.mobileProjectSection}>
+            <span className={styles.navSectionTitle}>PROJECT</span>
+            <div className={styles.mobileProjectSelect}>
+              <FolderOpen size={16} className={styles.navIcon} />
+              <select>
+                <option>Hospital Block A - Level 3</option>
+              </select>
+            </div>
+            <button className={styles.mobileActionBtn}>
+              <Save size={16} />
+              Save
+            </button>
+          </div>
         </nav>
         <div className={styles.sidebarFooter}>
           <div className={styles.userInfo}>
@@ -74,6 +112,14 @@ export default function Layout() {
       
       <div className={styles.mainWrapper}>
         <header className={styles.topHeader}>
+          {/* Hamburger button – visible only on mobile */}
+          <button
+            className={styles.hamburgerBtn}
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open menu"
+          >
+            <Menu size={22} />
+          </button>
           <div className={styles.searchBar}>
             <Search className={styles.searchIcon} size={18} />
             <input type="text" placeholder="Search projects or calculations..." />

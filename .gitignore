@@ -22,3 +22,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Graphify local config and cache
+graphify-out/.*
+graphify-out/cache/
+
