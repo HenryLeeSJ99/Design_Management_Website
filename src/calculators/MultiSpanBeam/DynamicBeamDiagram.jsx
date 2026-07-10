@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect, useRef } from 'react';
 
-export default function DynamicBeamDiagram({ spans = [], loads = [] }) {
+export default function DynamicBeamDiagram({ spans = [], loads = [], reactions = [] }) {
   // Constants for drawing - matched to AnalysisDiagram for alignment
   const svgWidth = 860;
   const svgHeight = 160;
@@ -59,16 +59,21 @@ export default function DynamicBeamDiagram({ spans = [], loads = [] }) {
     const sy = beamY;
     const size = 16;
     
+    // Find reaction matching this support coordinates (within 10mm tolerance)
+    const rxn = reactions.find(r => Math.abs(r.x - x) < 10);
+    const rxnText = rxn ? `${Math.abs(rxn.value).toFixed(2)} kN` : null;
+    
+    let supportIcon = null;
     if (type === 'pin') {
-      return (
-        <g key={key} transform={`translate(${sx}, ${sy})`}>
+      supportIcon = (
+        <g>
           <polygon points={`0,0 ${size/2},${size} -${size/2},${size}`} fill="#64748b" />
           <line x1={-size/2 - 4} y1={size} x2={size/2 + 4} y2={size} stroke="#334155" strokeWidth={2} />
         </g>
       );
     } else if (type === 'roller') {
-      return (
-        <g key={key} transform={`translate(${sx}, ${sy})`}>
+      supportIcon = (
+        <g>
            <polygon points={`0,0 ${size/2},${size-4} -${size/2},${size-4}`} fill="#64748b" />
            <circle cx={-size/4} cy={size} r={4} fill="#64748b" />
            <circle cx={size/4} cy={size} r={4} fill="#64748b" />
@@ -76,15 +81,29 @@ export default function DynamicBeamDiagram({ spans = [], loads = [] }) {
         </g>
       );
     } else if (type === 'fixed') {
-      return (
-        <g key={key} transform={`translate(${sx}, ${sy})`}>
+      supportIcon = (
+        <g>
           <rect x={-4} y={-size} width={8} height={size*2} fill="#64748b" />
           {/* Hatches */}
           <path d="M 4 -12 L 12 -4 M 4 -4 L 12 4 M 4 4 L 12 12" stroke="#334155" strokeWidth={1} />
         </g>
       );
     }
-    return null;
+
+    return (
+      <g key={key} transform={`translate(${sx}, ${sy})`}>
+        {supportIcon}
+        {rxnText && (
+          <g transform={`translate(0, ${size + 4})`}>
+            {/* Upward green reaction force arrow */}
+            <line x1={0} y1={14} x2={0} y2={2} stroke="#16a34a" strokeWidth={1.5} markerEnd="url(#rxn-arrow)" />
+            <text x={0} y={24} fill="#15803d" fontSize={Math.round(10 * textScale)} textAnchor="middle" fontWeight="bold">
+              {rxnText}
+            </text>
+          </g>
+        )}
+      </g>
+    );
   };
 
   // Helper to draw loads
@@ -96,7 +115,9 @@ export default function DynamicBeamDiagram({ spans = [], loads = [] }) {
     }
 
     if (load.type === 'point') {
-      const pos = spanStartX + Number(load.pos || 0);
+      const spanLength = spans[load.spanIndex] ? Number(spans[load.spanIndex].length || 0) : 0;
+      const clampedPos = Math.max(0, Math.min(Number(load.pos || 0), spanLength));
+      const pos = spanStartX + clampedPos;
       const x = margin.left + pos * scale;
       const mag = Number(load.magnitude || 0);
       const isUp = mag < 0;
@@ -114,8 +135,11 @@ export default function DynamicBeamDiagram({ spans = [], loads = [] }) {
         </g>
       );
     } else if (load.type === 'udl') {
-      const startX = margin.left + (spanStartX + Number(load.posStart || 0)) * scale;
-      const endX = margin.left + (spanStartX + Number(load.posEnd || 0)) * scale;
+      const spanLength = spans[load.spanIndex] ? Number(spans[load.spanIndex].length || 0) : 0;
+      const clampedStart = Math.max(0, Math.min(Number(load.posStart || 0), spanLength));
+      const clampedEnd = Math.max(clampedStart, Math.min(Number(load.posEnd || 0), spanLength));
+      const startX = margin.left + (spanStartX + clampedStart) * scale;
+      const endX = margin.left + (spanStartX + clampedEnd) * scale;
       const mag = Number(load.magnitude || 0);
       const height = 20;
       const isUp = mag < 0;
@@ -151,6 +175,9 @@ export default function DynamicBeamDiagram({ spans = [], loads = [] }) {
         <defs>
           <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
             <path d="M 0 0 L 10 5 L 0 10 z" fill="#dc2626" />
+          </marker>
+          <marker id="rxn-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#16a34a" />
           </marker>
         </defs>
 

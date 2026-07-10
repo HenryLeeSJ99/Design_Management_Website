@@ -45,9 +45,9 @@
     "semantic_hash": "6e2e7ba27ae90b0d8e7d4485cfde9e47"
   },
   "package.json": {
-    "mtime": 1783500786.77464,
-    "ast_hash": "0c51efdc4b80ac43d482c4b8d2e7165f",
-    "semantic_hash": "0c51efdc4b80ac43d482c4b8d2e7165f"
+    "mtime": 1783662957.4509456,
+    "ast_hash": "3c2031db17a4bae1f3791022f0fac7c1",
+    "semantic_hash": ""
   },
   "solver.test.mjs": {
     "mtime": 1783500786.7822115,
@@ -55,14 +55,14 @@
     "semantic_hash": "8566360453d46795feabf60a5f65a049"
   },
   "src/App.jsx": {
-    "mtime": 1783500786.786103,
-    "ast_hash": "684defddbc6c91c98c01c29087c85210",
-    "semantic_hash": "684defddbc6c91c98c01c29087c85210"
+    "mtime": 1783663071.2240639,
+    "ast_hash": "07eca50bc70a57ad2d2fd669bab00f72",
+    "semantic_hash": ""
   },
   "src/calculators/MultiSpanBeam/DynamicBeamDiagram.jsx": {
-    "mtime": 1783565927.8937001,
-    "ast_hash": "eeee820c05f4a8500c1b2a0757827f68",
-    "semantic_hash": "eeee820c05f4a8500c1b2a0757827f68"
+    "mtime": 1783584107.0022838,
+    "ast_hash": "df1f88e76da99926716e2021bbe81386",
+    "semantic_hash": ""
   },
   "src/calculators/MultiSpanBeam/GeometryInput.jsx": {
     "mtime": 1783500786.794212,
@@ -85,14 +85,14 @@
     "semantic_hash": "f1e91c15bb5a92facec02a0f33bc4968"
   },
   "src/components/Layout.jsx": {
-    "mtime": 1783505675.779055,
-    "ast_hash": "c6a566ab30ba8f27d6e948b38e90ae76",
-    "semantic_hash": "c6a566ab30ba8f27d6e948b38e90ae76"
+    "mtime": 1783666919.3127658,
+    "ast_hash": "5e785f619ab0a2695c3151237a25313f",
+    "semantic_hash": ""
   },
   "src/components/Logo.jsx": {
-    "mtime": 1783500786.81354,
-    "ast_hash": "e08af9424e2b0b7a546eb7a844ba4b8e",
-    "semantic_hash": "e08af9424e2b0b7a546eb7a844ba4b8e"
+    "mtime": 1783656282.2734153,
+    "ast_hash": "bc07d351c3a75c6c0c149afd8dfe8c0b",
+    "semantic_hash": ""
   },
   "src/contexts/AuthContext.jsx": {
     "mtime": 1783500786.8162005,
@@ -200,9 +200,9 @@
     "semantic_hash": "b10a2ab3038db5d49b7e4cfaaa9c3369"
   },
   "src/engine/materials/sections.js": {
-    "mtime": 1783577230.9340596,
-    "ast_hash": "9e121bcde40ecfa6a93a33ef5db91ab2",
-    "semantic_hash": "9e121bcde40ecfa6a93a33ef5db91ab2"
+    "mtime": 1783589443.374296,
+    "ast_hash": "e724a22dd362f2e53fc2472425f30bcd",
+    "semantic_hash": ""
   },
   "src/firebase.js": {
     "mtime": 1783500786.8788922,
@@ -215,9 +215,9 @@
     "semantic_hash": "51fd21c378330142b61bf8d1ef3795ef"
   },
   "src/pages/Dashboard.jsx": {
-    "mtime": 1783566645.4162102,
-    "ast_hash": "d71ed63558de53c2aaa7dc7bc3ddc10d",
-    "semantic_hash": "d71ed63558de53c2aaa7dc7bc3ddc10d"
+    "mtime": 1783656303.9439151,
+    "ast_hash": "21c7c8d134f99f3b25b17951d489cc12",
+    "semantic_hash": ""
   },
   "src/pages/Library.jsx": {
     "mtime": 1783500786.900161,
@@ -225,14 +225,14 @@
     "semantic_hash": "55db131a150c80fb393b5bde5d2dec3b"
   },
   "src/pages/Login.jsx": {
-    "mtime": 1783500786.9029021,
-    "ast_hash": "96e01dc9f63f7fc3cfd6e51279fedd35",
-    "semantic_hash": "96e01dc9f63f7fc3cfd6e51279fedd35"
+    "mtime": 1783656295.6304657,
+    "ast_hash": "bc93e3d0a3cd650e3fb3539656ea4de7",
+    "semantic_hash": ""
   },
   "src/pages/MultiBeamCalculator.jsx": {
-    "mtime": 1783578231.578255,
-    "ast_hash": "59fdb6ce018493cb5c6d35ed919c4b93",
-    "semantic_hash": "59fdb6ce018493cb5c6d35ed919c4b93"
+    "mtime": 1783666621.8651805,
+    "ast_hash": "68e6e1f9e1f184025838f390b5a5caa5",
+    "semantic_hash": ""
   },
   "src/pages/ProjectDetails.jsx": {
     "mtime": 1783500786.917227,
@@ -245,9 +245,9 @@
     "semantic_hash": "7fbaf8387ae55be5ee58eb8ab176dfa3"
   },
   "src/pages/SlabFormworkCalculator.jsx": {
-    "mtime": 1783563171.6466255,
-    "ast_hash": "d38f1eef7d02ed3aaa78447cd0756850",
-    "semantic_hash": "d38f1eef7d02ed3aaa78447cd0756850"
+    "mtime": 1783665380.4246664,
+    "ast_hash": "432ebfa84d9dc87283b3fdaa3df6a476",
+    "semantic_hash": ""
   },
   "src/services/localDb.js": {
     "mtime": 1783500786.932738,
@@ -293,5 +293,130 @@
     "mtime": 1783500786.7881343,
     "ast_hash": "f0402b67b6ce880f65666bb49e841696",
     "semantic_hash": "f0402b67b6ce880f65666bb49e841696"
+  },
+  ".agents/skills/animation-vocabulary/SKILL.md": {
+    "mtime": 1783656056.0852704,
+    "ast_hash": "4d2af9df547011caadccca327cb7a2a5",
+    "semantic_hash": ""
+  },
+  ".agents/skills/apple-design/SKILL.md": {
+    "mtime": 1783656056.0879774,
+    "ast_hash": "ce2d2df8d26e4596d27c541c99454c6a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/brandkit/SKILL.md": {
+    "mtime": 1783656061.0796707,
+    "ast_hash": "7491f8fb77b0ebf517b758d096ac4ab4",
+    "semantic_hash": ""
+  },
+  ".agents/skills/brutalist-skill/SKILL.md": {
+    "mtime": 1783656061.081177,
+    "ast_hash": "da7f92d7e3b8b526ecbd71009fe973ca",
+    "semantic_hash": ""
+  },
+  ".agents/skills/emil-design-eng/SKILL.md": {
+    "mtime": 1783656056.089605,
+    "ast_hash": "1c9207b371c22bd1dc336b1349edeebf",
+    "semantic_hash": ""
+  },
+  ".agents/skills/gpt-tasteskill/SKILL.md": {
+    "mtime": 1783656061.082299,
+    "ast_hash": "e2a7560cbfce7a853dd8f65eca12c103",
+    "semantic_hash": ""
+  },
+  ".agents/skills/image-to-code-skill/SKILL.md": {
+    "mtime": 1783656061.0843942,
+    "ast_hash": "b18a810930da9c6b558b15c85bc74007",
+    "semantic_hash": ""
+  },
+  ".agents/skills/imagegen-frontend-mobile/SKILL.md": {
+    "mtime": 1783656061.0874913,
+    "ast_hash": "6253c18387ca5d561a945ffe14e70d54",
+    "semantic_hash": ""
+  },
+  ".agents/skills/imagegen-frontend-web/SKILL.md": {
+    "mtime": 1783656061.0898507,
+    "ast_hash": "728f55ab7e44330e78aac4ca8331d83a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/llms.txt": {
+    "mtime": 1783656061.0927396,
+    "ast_hash": "61d8fc3c75c851052f7e9c88c4af4328",
+    "semantic_hash": ""
+  },
+  ".agents/skills/minimalist-skill/SKILL.md": {
+    "mtime": 1783656061.0957966,
+    "ast_hash": "32f8681f79a681d00a4b72ddce4415b1",
+    "semantic_hash": ""
+  },
+  ".agents/skills/output-skill/SKILL.md": {
+    "mtime": 1783656061.097013,
+    "ast_hash": "2072dc2c1357dc9cd6384d1f441e05c3",
+    "semantic_hash": ""
+  },
+  ".agents/skills/redesign-skill/SKILL.md": {
+    "mtime": 1783656061.0984626,
+    "ast_hash": "c8d729e3e807df37dcd5e6262c9b8843",
+    "semantic_hash": ""
+  },
+  ".agents/skills/review-animations/SKILL.md": {
+    "mtime": 1783656056.091107,
+    "ast_hash": "4746f2b5881d1a8aa1b98ce2f7c5ddc1",
+    "semantic_hash": ""
+  },
+  ".agents/skills/review-animations/STANDARDS.md": {
+    "mtime": 1783656056.093437,
+    "ast_hash": "51943392b3346f34060956a68306a0c3",
+    "semantic_hash": ""
+  },
+  ".agents/skills/soft-skill/SKILL.md": {
+    "mtime": 1783656061.101049,
+    "ast_hash": "64f7c1069a5a3d18797950d8fac7b63a",
+    "semantic_hash": ""
+  },
+  ".agents/skills/stitch-skill/DESIGN.md": {
+    "mtime": 1783656061.104143,
+    "ast_hash": "7f8c91aeecc8983b687965c2fc23438c",
+    "semantic_hash": ""
+  },
+  ".agents/skills/stitch-skill/SKILL.md": {
+    "mtime": 1783656061.11007,
+    "ast_hash": "fcbb4f37d67a66a53013b484dcfc9f25",
+    "semantic_hash": ""
+  },
+  ".agents/skills/taste-skill-v1/SKILL.md": {
+    "mtime": 1783656061.1144135,
+    "ast_hash": "05b271f9985412ac9c081a0511bb6cbe",
+    "semantic_hash": ""
+  },
+  ".agents/skills/taste-skill/SKILL.md": {
+    "mtime": 1783656061.119596,
+    "ast_hash": "648c8bf98f84fbe7f14bf2da035c57fe",
+    "semantic_hash": ""
+  },
+  "src/components/SplashScreen.jsx": {
+    "mtime": 1783662960.2577152,
+    "ast_hash": "c5dbc89de8d6f746e91cb21c478feac4",
+    "semantic_hash": ""
+  },
+  "src/components/StandardChart.jsx": {
+    "mtime": 1783664596.0233767,
+    "ast_hash": "d2194f46f16bfbe576eb96cbb9fead30",
+    "semantic_hash": ""
+  },
+  "src/engine/formwork/wallFormwork.js": {
+    "mtime": 1783665661.4269505,
+    "ast_hash": "2b2854642372e06187580ce4d32f45c2",
+    "semantic_hash": ""
+  },
+  "src/pages/WallFormworkCalculator.jsx": {
+    "mtime": 1783665665.4950695,
+    "ast_hash": "1512ff5eeaabd052a20b6d11f18dd8e3",
+    "semantic_hash": ""
+  },
+  "src/assets/slab-diagram.png": {
+    "mtime": 1783664332.9124758,
+    "ast_hash": "9cb71023cab4ed26bfc6d2d6d61c0958",
+    "semantic_hash": ""
   }
 }

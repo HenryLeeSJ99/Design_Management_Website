@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { FileText, Minus, Play, Plus, Save, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { FileText, Minus, Play, Plus, Save, Trash2, CheckCircle, XCircle, Box, Layers } from 'lucide-react';
 import DynamicBeamDiagram from '../calculators/MultiSpanBeam/DynamicBeamDiagram';
 import styles from './MultiBeamCalculator.module.css';
 import { analyzeBeam } from '@engine/beam';
@@ -108,8 +108,12 @@ function AnalysisDiagram({ unit, points, fillColor, lineColor, invertFill = fals
     label: roundN(f * absMax, 2),
   }));
 
-  const step = Math.max(1, Math.floor(points.length / 7));
-  const xTicks = points.filter((_, i) => i % step === 0 || i === points.length - 1);
+  // Generate 5 evenly-spaced x-axis ticks to prevent clustering
+  const xTicks = [];
+  const numXTicks = 5;
+  for (let i = 0; i < numXTicks; i++) {
+    xTicks.push(xMin + (i / (numXTicks - 1)) * (xMax - xMin));
+  }
 
   // Peak logic: Find local extrema (change of direction)
   const getLocalExtrema = (pts) => {
@@ -142,6 +146,20 @@ function AnalysisDiagram({ unit, points, fillColor, lineColor, invertFill = fals
   };
 
   const extremes = getLocalExtrema(points);
+
+  // Always include global absolute peaks (max & min) to support cantilevers/boundary peaks
+  let globMax = points[0];
+  let globMin = points[0];
+  for (let i = 1; i < points.length; i++) {
+    if (points[i].value > globMax.value) globMax = points[i];
+    if (points[i].value < globMin.value) globMin = points[i];
+  }
+  if (globMax && !extremes.some((e) => Math.abs(e.x - globMax.x) < (xMax - xMin) * 0.02)) {
+    extremes.push({ ...globMax, type: 'max' });
+  }
+  if (globMin && !extremes.some((e) => Math.abs(e.x - globMin.x) < (xMax - xMin) * 0.02)) {
+    extremes.push({ ...globMin, type: 'min' });
+  }
   
   const getDistinctExtremes = (sortedPts, count) => {
     const results = [];
@@ -225,8 +243,8 @@ function AnalysisDiagram({ unit, points, fillColor, lineColor, invertFill = fals
         <line x1={ML} y1={MT + drawH} x2={ML + drawW} y2={MT + drawH} stroke={CLR.dim} strokeWidth={1} />
         {xTicks.map((p, i) => (
           <g key={i}>
-            <line x1={px(p.x)} y1={MT + drawH} x2={px(p.x)} y2={MT + drawH + 4} stroke={CLR.dim} strokeWidth={1} />
-            <text x={px(p.x)} y={MT + drawH + 16} textAnchor="middle" fontSize={Math.round(12 * textScale)} fill={CLR.label}>{roundN(p.x / 1000, 2)}m</text>
+            <line x1={px(p)} y1={MT + drawH} x2={px(p)} y2={MT + drawH + 4} stroke={CLR.dim} strokeWidth={1} />
+            <text x={px(p)} y={MT + drawH + 16} textAnchor="middle" fontSize={Math.round(12 * textScale)} fill={CLR.label}>{roundN(p / 1000, 2)}m</text>
           </g>
         ))}
         <path d={fillPath} fill={fillColor} />
@@ -362,12 +380,12 @@ export default function MultiBeamCalculator() {
   const [results, setResults] = useState(() => getSessionData('tempworks_multibeam_results', null));
   const [calcError, setCalcError] = useState(null);
   const [isCalculating, setIsCalculating] = useState(false);
-  const [loadingStage, setLoadingStage] = useState(0);
+  const [systemCompany, setSystemCompany] = useState(() => initialInputs.systemCompany || 'PLYTEC');
 
   // Save inputs and invalidate results if any input changes after initial load
   useEffect(() => {
     const savedInputs = getSessionData('tempworks_multibeam_inputs', null);
-    const currentInputs = { material, sectionType, steelGrade, sectionSize, isTwinProfile, includeSelfWeight, loadFactor, materialFactor, deflectionLimit, spans, loads };
+    const currentInputs = { material, sectionType, steelGrade, sectionSize, systemCompany, isTwinProfile, includeSelfWeight, loadFactor, materialFactor, deflectionLimit, spans, loads };
 
     if (savedInputs && JSON.stringify(currentInputs) === JSON.stringify(savedInputs)) {
       return;
@@ -431,7 +449,7 @@ export default function MultiBeamCalculator() {
       if (field === 'type' && value === 'point') return { type: 'point', spanIndex: load.spanIndex, pos: Math.round((spans[load.spanIndex]?.length || 3000) / 2), magnitude: load.magnitude || 5 };
       if (field === 'spanIndex') {
         const si = Number(value);
-        if (load.type === 'udl') return { ...next, spanIndex: si, posEnd: spans[si]?.length || 3000 };
+        if (load.type === 'udl') return { ...next, spanIndex: si, posStart: 0, posEnd: spans[si]?.length || 3000 };
         return { ...next, spanIndex: si, pos: Math.round((spans[si]?.length || 3000) / 2) };
       }
       return next;
@@ -447,7 +465,20 @@ export default function MultiBeamCalculator() {
       setSectionSize('IPE 200');
     } else {
       setSectionType('System Beam');
-      setSectionSize('Alpha-Beam');
+      const filtered = (SECTIONS['System Beam'] || []).filter((s) => s.company === systemCompany);
+      if (filtered.length > 0) {
+        setSectionSize(filtered[0].name);
+      } else {
+        setSectionSize('Alpha-Beam');
+      }
+    }
+  };
+
+  const handleCompanyChange = (company) => {
+    setSystemCompany(company);
+    const filtered = (SECTIONS['System Beam'] || []).filter((s) => s.company === company);
+    if (filtered.length > 0) {
+      setSectionSize(filtered[0].name);
     }
   };
 
@@ -522,13 +553,6 @@ export default function MultiBeamCalculator() {
 
   const validationError = getValidationError();
 
-  const LOADING_STAGES = [
-    'Initializing finite element boundary conditions...',
-    'Assembling beam global stiffness matrix [K]...',
-    'Solving nodal displacements & force vectors...',
-    'Executing Eurocode 3 & allowable capacity verification...'
-  ];
-
   const handleCalculate = () => {
     try {
       setCalcError(null);
@@ -536,18 +560,8 @@ export default function MultiBeamCalculator() {
       if (!section) throw new Error(`Section "${sectionSize}" not found. Please select a valid section.`);
 
       setIsCalculating(true);
-      setLoadingStage(0);
-
-      // Cycle loading stages for high fidelity engineering experience
-      const stageTimer1 = setTimeout(() => setLoadingStage(1), 100);
-      const stageTimer2 = setTimeout(() => setLoadingStage(2), 220);
-      const stageTimer3 = setTimeout(() => setLoadingStage(3), 350);
 
       setTimeout(() => {
-        // Clear stage timers
-        clearTimeout(stageTimer1);
-        clearTimeout(stageTimer2);
-        clearTimeout(stageTimer3);
 
         const N = isTwinProfile ? 2 : 1;
         const w_sw = includeSelfWeight ? (N * section.mass * 9.80665 / 1000) : 0;
@@ -657,7 +671,12 @@ export default function MultiBeamCalculator() {
     ? SECTION_TYPES.filter((t) => t !== 'System Beam')
     : ['System Beam'];
 
-  const availableSections = SECTIONS[sectionType] || [];
+  const availableSections = (SECTIONS[sectionType] || []).filter((s) => {
+    if (material === 'system') {
+      return s.company === systemCompany;
+    }
+    return true;
+  });
 
   return (
     <div className={styles.pageContainer}>
@@ -669,9 +688,6 @@ export default function MultiBeamCalculator() {
         <div className={styles.headerActions}>
           <button className={styles.btnSecondary}>
             <Save size={16} /> Save
-          </button>
-          <button className={styles.btnSecondary}>
-            <FileText size={16} /> Export PDF
           </button>
           <button 
             className={styles.btnCalculate} 
@@ -706,7 +722,7 @@ export default function MultiBeamCalculator() {
         {isCalculating ? (
           <div className={styles.loaderOverlay}>
             <div className={styles.spinner}></div>
-            <div className={styles.loadingText}>{LOADING_STAGES[loadingStage]}</div>
+            <div className={styles.loadingText}>Calculating...</div>
             <div style={{ fontSize: '11px', color: '#64748b', fontStyle: 'italic', fontWeight: 500 }}>
               Iterating 2D finite element stiffness relations...
             </div>
@@ -721,13 +737,38 @@ export default function MultiBeamCalculator() {
                   <div className={styles.card}>
                     <h3 className={styles.cardTitle}>1. Beam Properties</h3>
                     <div className={styles.formStack}>
-                      <label className={styles.field}>
-                        <span>Material Selection</span>
-                        <select value={material} onChange={(e) => handleMaterialChange(e.target.value)}>
-                          <option value="steel">Standard Steel</option>
-                          <option value="system">Proprietary System Beam</option>
-                        </select>
-                      </label>
+                      <div className={styles.materialSelectorContainer}>
+                        <span className={styles.materialSelectorLabel}>Material Selection</span>
+                        <div className={styles.materialGrid}>
+                          <button
+                            type="button"
+                            className={`${styles.materialSquareBtn} ${material === 'steel' ? styles.activeSquareBtn : ''}`}
+                            onClick={() => handleMaterialChange('steel')}
+                          >
+                            <Box size={24} className={styles.materialBtnIcon} />
+                            <div className={styles.materialBtnTitle}>Profile Beam</div>
+                            <div className={styles.materialBtnSubtitle}>Standard steel profiles (IPE, UB, etc.)</div>
+                          </button>
+                          <button
+                            type="button"
+                            className={`${styles.materialSquareBtn} ${material === 'system' ? styles.activeSquareBtn : ''}`}
+                            onClick={() => handleMaterialChange('system')}
+                          >
+                            <Layers size={24} className={styles.materialBtnIcon} />
+                            <div className={styles.materialBtnTitle}>System Beam</div>
+                            <div className={styles.materialBtnSubtitle}>Proprietary formwork (Alpha, Alu)</div>
+                          </button>
+                        </div>
+                      </div>
+                      {material === 'system' && (
+                        <label className={styles.field}>
+                          <span>System Provider / Company</span>
+                          <select value={systemCompany} onChange={(e) => handleCompanyChange(e.target.value)}>
+                            <option value="PLYTEC">PLYTEC</option>
+                            <option value="Doka">Doka</option>
+                          </select>
+                        </label>
+                      )}
                       {material === 'steel' && (
                         <label className={styles.field}>
                           <span>Section Type</span>
@@ -899,8 +940,8 @@ export default function MultiBeamCalculator() {
                     <div className={styles.loadTable}>
                       <div className={styles.tableHeader}>Type</div>
                       <div className={styles.tableHeader}>Span</div>
-                      <div className={styles.tableHeader}>Start (mm)</div>
-                      <div className={styles.tableHeader}>End / Pos (mm)</div>
+                      <div className={styles.tableHeader}>Start / Pos (mm)</div>
+                      <div className={styles.tableHeader}>End (mm)</div>
                       <div className={styles.tableHeader}>Magnitude</div>
                       <div />
                       {loads.map((load, i) => (
@@ -912,8 +953,57 @@ export default function MultiBeamCalculator() {
                           <select value={load.spanIndex} onChange={(e) => updateLoad(i, 'spanIndex', e.target.value)}>
                             {spans.map((_, si) => <option key={si} value={si}>Span {si + 1}</option>)}
                           </select>
-                          <input type="number" value={load.type === 'udl' ? load.posStart : load.pos || 0} onChange={(e) => updateLoad(i, load.type === 'udl' ? 'posStart' : 'pos', e.target.value)} />
-                          <input type="number" value={load.type === 'udl' ? load.posEnd : load.pos || 0} disabled={load.type === 'point'} onChange={(e) => updateLoad(i, 'posEnd', e.target.value)} />
+                          {load.type === 'udl' ? (
+                            <input 
+                              type="number" 
+                              value={load.posStart} 
+                              onChange={(e) => updateLoad(i, 'posStart', e.target.value)} 
+                            />
+                          ) : (
+                            <input 
+                              type="number" 
+                              value={load.pos || ''} 
+                              onChange={(e) => updateLoad(i, 'pos', e.target.value)} 
+                            />
+                          )}
+                          {load.type === 'udl' ? (
+                            <div style={{ display: 'flex', gap: '4px', alignItems: 'center', width: '100%' }}>
+                              <input 
+                                type="number" 
+                                value={load.posEnd} 
+                                onChange={(e) => updateLoad(i, 'posEnd', e.target.value)} 
+                                style={{ flex: 1, minWidth: 0 }}
+                              />
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const spanL = Number(spans[load.spanIndex]?.length || 3000);
+                                  updateLoad(i, 'posStart', 0);
+                                  updateLoad(i, 'posEnd', spanL);
+                                }}
+                                style={{ 
+                                  padding: '4px 8px', 
+                                  fontSize: '11px', 
+                                  fontWeight: 700, 
+                                  color: '#2563eb', 
+                                  background: '#f0f6ff', 
+                                  border: '1px solid #bfdbfe', 
+                                  borderRadius: '4px', 
+                                  cursor: 'pointer',
+                                  whiteSpace: 'nowrap',
+                                  height: '36px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center'
+                                }}
+                                title="Set to full span length"
+                              >
+                                Full
+                              </button>
+                            </div>
+                          ) : (
+                            <div style={{ color: '#cbd5e1', textAlign: 'center', fontSize: '14px', width: '100%', userSelect: 'none' }}>—</div>
+                          )}
                           <label className={styles.unitInput}>
                             <input type="number" value={load.magnitude} onChange={(e) => updateLoad(i, 'magnitude', e.target.value)} />
                             <span>{load.type === 'udl' ? 'kN/m' : 'kN'}</span>
@@ -941,10 +1031,15 @@ export default function MultiBeamCalculator() {
     
             {/* ─── REPORT TAB ─── */}
             {activeTab === 'report' && (
-              <div className={styles.card} style={{ maxWidth: '800px', margin: '0 auto', width: '100%' }}>
-                <h3 className={styles.cardTitle}>Generated Report Preview</h3>
-                <div className={styles.placeholderBox} style={{ minHeight: '600px' }}>Full PDF Report Preview — Coming Soon</div>
-              </div>
+              results ? (
+                <PDFReportPreview results={results} spans={spans} loads={loads} />
+              ) : (
+                <div className={styles.card} style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
+                  <div style={{ fontSize: 48, marginBottom: 12 }}>📋</div>
+                  <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>No Report Preview Available</div>
+                  <div style={{ fontSize: 13 }}>Click <strong>Calculate</strong> in the header to run the analysis.</div>
+                </div>
+              )
             )}
           </>
         )}
@@ -1070,12 +1165,16 @@ function ResultsPanel({ results, spans, loads }) {
             <span style={{ width: 12, height: 3, background: '#64748b', borderRadius: 2, display: 'inline-block' }} />
             <span style={{ fontSize: 12, fontWeight: 700, color: '#64748b' }}>Beam Layout</span>
           </div>
-          <DynamicBeamDiagram spans={spans} loads={loads} />
+          <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', width: '100%' }}>
+            <div style={{ minWidth: '600px', paddingBottom: '8px' }}>
+              <DynamicBeamDiagram spans={spans} loads={loads} reactions={reactions} />
+            </div>
+          </div>
         </div>
  
         {[
-          { label: 'Bending Moment Diagram (BMD)', unit: 'kNm', pts: bmdPts, lc: CLR.bmd, fc: CLR.bmdFill, inv: true, rxns: reactions },
-          { label: 'Shear Force Diagram (SFD)', unit: 'kN', pts: sfdPts, lc: CLR.sfd, fc: CLR.sfdFill, inv: false, rxns: [] },
+          { label: 'Bending Moment Diagram (BMD)', unit: 'kNm', pts: bmdPts, lc: CLR.bmd, fc: CLR.bmdFill, inv: true, rxns: [] },
+          { label: 'Shear Force Diagram (SFD)', unit: 'kN', pts: sfdPts, lc: CLR.sfd, fc: CLR.sfdFill, inv: false, rxns: reactions },
           { label: 'Deflected Shape', unit: 'mm', pts: deflPts, lc: CLR.defl, fc: CLR.deflFill, inv: true, rxns: [] },
         ].map((d, i) => (
           <div key={i} style={{ padding: '16px 14px 8px', borderBottom: i < 2 ? '1px solid #f1f5f9' : 'none' }}>
@@ -1083,7 +1182,11 @@ function ResultsPanel({ results, spans, loads }) {
               <span style={{ width: 12, height: 3, background: d.lc, borderRadius: 2, display: 'inline-block' }} />
               <span style={{ fontSize: 12, fontWeight: 700, color: d.lc }}>{d.label}</span>
             </div>
-            <AnalysisDiagram unit={d.unit} points={d.pts} lineColor={d.lc} fillColor={d.fc} invertFill={d.inv} reactions={d.rxns} height={i === 0 ? 220 : 180} />
+            <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', width: '100%' }}>
+              <div style={{ minWidth: '600px', paddingBottom: '8px' }}>
+                <AnalysisDiagram unit={d.unit} points={d.pts} lineColor={d.lc} fillColor={d.fc} invertFill={d.inv} reactions={d.rxns} height={i === 0 ? 220 : 180} />
+              </div>
+            </div>
           </div>
         ))}
       </div>
@@ -1256,6 +1359,356 @@ function ResultsPanel({ results, spans, loads }) {
             </div>
           </div>
 
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── PDF Report Preview Component ─────────────────────────────────────────────
+function PDFReportPreview({ results, spans, loads }) {
+  const {
+    analysis,
+    checks,
+    maxM,
+    maxV,
+    maxDefl,
+    section,
+    isTwinProfile,
+    includeSelfWeight,
+    loadFactor,
+    materialFactor,
+    material,
+    w_sw
+  } = results;
+
+  const overallPass = checks.overallPass;
+  const cls = checks.classification;
+  const deflectionLimit = checks.deflection?.limitRatio || 360;
+  const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+
+  // Helpers to round numbers
+  const roundN = (num, decimals = 2) => {
+    if (num == null || isNaN(num)) return '-';
+    return Number(num).toFixed(decimals);
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', paddingBottom: '40px', width: '100%' }}>
+      {/* Export Action Area */}
+      <div style={{ width: '210mm', display: 'flex', justifyContent: 'flex-end' }}>
+        <button 
+          onClick={() => window.print()}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            backgroundColor: 'var(--primary)',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '999px',
+            padding: '10px 24px',
+            fontSize: '14px',
+            fontWeight: '800',
+            cursor: 'pointer',
+            boxShadow: '0 4px 14px rgba(37, 99, 235, 0.2)',
+            transition: 'transform 160ms cubic-bezier(0.23, 1, 0.32, 1)'
+          }}
+          onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.97)'}
+          onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+        >
+          <FileText size={16} /> Export PDF
+        </button>
+      </div>
+
+      <div style={{
+        width: '210mm',
+        minHeight: '297mm',
+        backgroundColor: '#ffffff',
+        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+        border: '1px solid #cbd5e1',
+        padding: '28px 36px',
+        boxSizing: 'border-box',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '14px',
+        fontSize: '11px',
+        color: '#1e293b',
+        fontFamily: 'Inter, system-ui, -apple-system, sans-serif'
+      }}>
+        {/* Header Block */}
+        <div style={{ borderBottom: '2.5px solid #2563eb', paddingBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div>
+            <div style={{ fontSize: '18px', fontWeight: 800, color: '#2563eb', letterSpacing: '0.02em' }}>TEMPWORKS</div>
+            <div style={{ fontSize: '9px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Structural Design Solutions</div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>Multi-Span Beam Calculation Report</div>
+            <div style={{ fontSize: '9px', color: '#64748b', marginTop: '2px' }}>
+              Standard: BS EN 1993-1-1 (EC3) & Proprietary Catalogues
+            </div>
+          </div>
+        </div>
+
+        {/* Metadata Details Row */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', background: '#f8fafc', padding: '10px 16px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+          <div>
+            <span style={{ color: '#64748b', fontSize: '9px', textTransform: 'uppercase', fontWeight: 700 }}>Project ID</span>
+            <div style={{ fontWeight: 600, fontSize: '11px', color: '#0f172a' }}>TW-2026-MULTI</div>
+          </div>
+          <div>
+            <span style={{ color: '#64748b', fontSize: '9px', textTransform: 'uppercase', fontWeight: 700 }}>Calculated By</span>
+            <div style={{ fontWeight: 600, fontSize: '11px', color: '#0f172a' }}>Antigravity AI</div>
+          </div>
+          <div>
+            <span style={{ color: '#64748b', fontSize: '9px', textTransform: 'uppercase', fontWeight: 700 }}>Verification Date</span>
+            <div style={{ fontWeight: 600, fontSize: '11px', color: '#0f172a' }}>{dateStr}</div>
+          </div>
+          <div>
+            <span style={{ color: '#64748b', fontSize: '9px', textTransform: 'uppercase', fontWeight: 700 }}>Design Status</span>
+            <div style={{ fontWeight: 800, fontSize: '11px', color: overallPass ? '#16a34a' : '#ef4444' }}>
+              {overallPass ? '✅ PASS' : '❌ FAIL'}
+            </div>
+          </div>
+        </div>
+
+        {/* 1. Geometry & Support Conditions (Dynamic Diagram) */}
+        <div>
+          <div style={{ fontSize: '11px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', marginBottom: '4px', borderBottom: '1px solid #cbd5e1', paddingBottom: '3px' }}>
+            1. Structural Geometry & Support Reactions
+          </div>
+          <div style={{ background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0', padding: '6px' }}>
+            <DynamicBeamDiagram spans={spans} loads={loads} reactions={analysis.reactions ?? []} />
+          </div>
+        </div>
+
+        {/* 2. Material & Profile details vs Design Safety factors */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          <div>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', marginBottom: '4px', borderBottom: '1px solid #cbd5e1', paddingBottom: '3px' }}>
+              2. Section & Material Properties
+            </div>
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '4px' }}>
+              <tbody>
+                <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <td style={{ padding: '4px 0', color: '#64748b' }}>Profile Name</td>
+                  <td style={{ padding: '4px 0', fontWeight: 700, textAlign: 'right' }}>{isTwinProfile ? 'Twin ' : ''}{section.name}</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <td style={{ padding: '4px 0', color: '#64748b' }}>Material Classification</td>
+                  <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{material === 'steel' ? 'Structural Steel' : `Proprietary System (${section.material})`}</td>
+                </tr>
+                {material === 'steel' && cls && (
+                  <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '4px 0', color: '#64748b' }}>Section Class</td>
+                    <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>Class {cls.sectionClass}</td>
+                  </tr>
+                )}
+                <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <td style={{ padding: '4px 0', color: '#64748b' }}>Moment of Inertia (Iy)</td>
+                  <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{roundN(section.Iy * (isTwinProfile ? 2 : 1), 1)} cm⁴</td>
+                </tr>
+                {material === 'steel' ? (
+                  <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '4px 0', color: '#64748b' }}>Plastic Modulus (Wpl,y)</td>
+                    <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{roundN(section.Wpl_y * (isTwinProfile ? 2 : 1), 1)} cm³</td>
+                  </tr>
+                ) : (
+                  <>
+                    <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                      <td style={{ padding: '4px 0', color: '#64748b' }}>Allow. Bending Capacity</td>
+                      <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{roundN(section.Mallow * (isTwinProfile ? 2 : 1), 2)} kNm</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                      <td style={{ padding: '4px 0', color: '#64748b' }}>Allow. Shear Capacity</td>
+                      <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{roundN(section.Vallow * (isTwinProfile ? 2 : 1), 2)} kN</td>
+                    </tr>
+                  </>
+                )}
+                <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <td style={{ padding: '4px 0', color: '#64748b' }}>Profile Weight</td>
+                  <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{roundN(section.mass * (isTwinProfile ? 2 : 1), 1)} kg/m</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', marginBottom: '4px', borderBottom: '1px solid #cbd5e1', paddingBottom: '3px' }}>
+              3. Design Factors & Safety Limits
+            </div>
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '4px' }}>
+              <tbody>
+                <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <td style={{ padding: '4px 0', color: '#64748b' }}>ULS Load Factor (γF)</td>
+                  <td style={{ padding: '4px 0', fontWeight: 700, textAlign: 'right' }}>{Number(loadFactor).toFixed(2)}</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <td style={{ padding: '4px 0', color: '#64748b' }}>ULS Material Factor (γM)</td>
+                  <td style={{ padding: '4px 0', fontWeight: 700, textAlign: 'right' }}>{material === 'system' ? 'N/A (Allowable Check)' : Number(materialFactor).toFixed(2)}</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <td style={{ padding: '4px 0', color: '#64748b' }}>SLS Deflection Limit</td>
+                  <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>L / {deflectionLimit}</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <td style={{ padding: '4px 0', color: '#64748b' }}>Selfweight Inclusion</td>
+                  <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{includeSelfWeight ? `YES (${roundN(w_sw, 3)} kN/m)` : 'NO'}</td>
+                </tr>
+                <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <td style={{ padding: '4px 0', color: '#64748b' }}>Active Load Cases</td>
+                  <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{loads.length} Case(s)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* 3. Load cases details vs Design verification check results */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '20px' }}>
+          <div>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', marginBottom: '4px', borderBottom: '1px solid #cbd5e1', paddingBottom: '3px' }}>
+              4. Load Case Details
+            </div>
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '4px' }}>
+              <thead>
+                <tr style={{ borderBottom: '1.5px solid #cbd5e1', color: '#64748b', fontSize: '9px', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '4px 0', textAlign: 'left' }}>Span</th>
+                  <th style={{ padding: '4px 0', textAlign: 'left' }}>Type</th>
+                  <th style={{ padding: '4px 0', textAlign: 'left' }}>Interval (mm)</th>
+                  <th style={{ padding: '4px 0', textAlign: 'right' }}>Mag</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loads.map((l, idx) => (
+                  <tr style={{ borderBottom: '1px solid #f1f5f9' }} key={idx}>
+                    <td style={{ padding: '4px 0' }}>Span {l.spanIndex + 1}</td>
+                    <td style={{ padding: '4px 0', textTransform: 'uppercase' }}>{l.type}</td>
+                    <td style={{ padding: '4px 0' }}>{l.type === 'udl' ? `${l.posStart}-${l.posEnd === '' ? 'End' : l.posEnd}` : `${l.pos}`}</td>
+                    <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{l.magnitude} {l.type === 'udl' ? 'kN/m' : 'kN'}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+
+          <div>
+            <div style={{ fontSize: '11px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', marginBottom: '4px', borderBottom: '1px solid #cbd5e1', paddingBottom: '3px' }}>
+              5. Limit State Checks & Utilization Summary
+            </div>
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '4px' }}>
+              <thead>
+                <tr style={{ borderBottom: '1.5px solid #cbd5e1', color: '#64748b', fontSize: '9px', textTransform: 'uppercase' }}>
+                  <th style={{ padding: '4px 0', textAlign: 'left' }}>Design Check</th>
+                  <th style={{ padding: '4px 0', textAlign: 'center' }}>Applied Force</th>
+                  <th style={{ padding: '4px 0', textAlign: 'center' }}>Design Capacity</th>
+                  <th style={{ padding: '4px 0', textAlign: 'center' }}>Ratio</th>
+                  <th style={{ padding: '4px 0', textAlign: 'right' }}>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {/* Bending */}
+                <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <td style={{ padding: '5px 0', fontWeight: 600 }}>Bending (ULS)</td>
+                  <td style={{ padding: '5px 0', textAlign: 'center' }}>{roundN(maxM, 2)} kNm</td>
+                  <td style={{ padding: '5px 0', textAlign: 'center' }}>
+                    {material === 'steel' ? roundN(checks.bending?.Mc_Rd, 2) : roundN(section.Mallow * (isTwinProfile ? 2 : 1), 2)} kNm
+                  </td>
+                  <td style={{ padding: '5px 0', textAlign: 'center', fontWeight: 700 }}>
+                    {((material === 'steel' ? checks.bending?.ratio : checks.systemBeam?.bendingCheck?.ratio) * 100).toFixed(1)}%
+                  </td>
+                  <td style={{ padding: '5px 0', textAlign: 'right', fontWeight: 800, color: (material === 'steel' ? checks.bending?.pass : checks.systemBeam?.bendingCheck?.pass) ? '#16a34a' : '#ef4444' }}>
+                    {(material === 'steel' ? checks.bending?.pass : checks.systemBeam?.bendingCheck?.pass) ? 'PASS' : 'FAIL'}
+                  </td>
+                </tr>
+                {/* Shear */}
+                <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <td style={{ padding: '5px 0', fontWeight: 600 }}>Shear Resistance (ULS)</td>
+                  <td style={{ padding: '5px 0', textAlign: 'center' }}>{roundN(maxV, 2)} kN</td>
+                  <td style={{ padding: '5px 0', textAlign: 'center' }}>
+                    {material === 'steel' ? roundN(checks.shear?.Vc_Rd, 2) : roundN(section.Vallow * (isTwinProfile ? 2 : 1), 2)} kN
+                  </td>
+                  <td style={{ padding: '5px 0', textAlign: 'center', fontWeight: 700 }}>
+                    {((material === 'steel' ? checks.shear?.ratio : checks.systemBeam?.shearCheck?.ratio) * 100).toFixed(1)}%
+                  </td>
+                  <td style={{ padding: '5px 0', textAlign: 'right', fontWeight: 800, color: (material === 'steel' ? checks.shear?.pass : checks.systemBeam?.shearCheck?.pass) ? '#16a34a' : '#ef4444' }}>
+                    {(material === 'steel' ? checks.shear?.pass : checks.systemBeam?.shearCheck?.pass) ? 'PASS' : 'FAIL'}
+                  </td>
+                </tr>
+                {/* Deflection */}
+                <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                  <td style={{ padding: '5px 0', fontWeight: 600 }}>Deflection (SLS)</td>
+                  <td style={{ padding: '5px 0', textAlign: 'center' }}>{roundN(checks.deflection?.actual, 1)} mm</td>
+                  <td style={{ padding: '5px 0', textAlign: 'center' }}>{roundN(checks.deflection?.allowable, 1)} mm</td>
+                  <td style={{ padding: '5px 0', textAlign: 'center', fontWeight: 700 }}>{((checks.deflection?.ratio || 0) * 100).toFixed(1)}%</td>
+                  <td style={{ padding: '5px 0', textAlign: 'right', fontWeight: 800, color: checks.deflection?.pass ? '#16a34a' : '#ef4444' }}>
+                    {checks.deflection?.pass ? 'PASS' : 'FAIL'}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Hand Calculation Formulations Block */}
+        <div style={{ flexGrow: 1 }}>
+          <div style={{ fontSize: '11px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', marginBottom: '4px', borderBottom: '1px solid #cbd5e1', paddingBottom: '3px' }}>
+            6. Mathematical Formulations & Capacity Checks
+          </div>
+          <div style={{ 
+            background: '#fafaf9', 
+            borderRadius: '6px', 
+            border: '1px solid #e7e5e4', 
+            padding: '10px 14px', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: '8px', 
+            fontSize: '9.5px',
+            color: '#44403c',
+            fontFamily: 'SFMono-Regular, Consolas, Monaco, monospace',
+            lineHeight: '1.4'
+          }}>
+            {material === 'steel' ? (
+              <>
+                <div>
+                  <strong>Bending Moment Check (ULS):</strong><br />
+                  M_Ed = {roundN(maxM, 2)} kNm &le; M_Rd = N &middot; W_pl,y &middot; f_y / (&gamma;_M &middot; 10^6)<br />
+                  M_Rd = {(isTwinProfile ? '2' : '1')} &middot; {section.Wpl_y} cm³ &middot; {checks.bending?.details?.fy} N/mm² / ({materialFactor} &middot; 10^6) = {roundN(checks.bending?.Mc_Rd, 2)} kNm &rArr; Ratio = {((checks.bending?.ratio || 0) * 100).toFixed(2)}%
+                </div>
+                <div>
+                  <strong>Shear Capacity Check (ULS):</strong><br />
+                  V_Ed = {roundN(maxV, 2)} kN &le; V_Rd = N &middot; A_v &middot; f_y / (&gamma;_M &middot; &radic;3 &middot; 10^3)<br />
+                  V_Rd = {(isTwinProfile ? '2' : '1')} &middot; {roundN(checks.shear?.details?.Av, 1)} mm² &middot; {checks.shear?.details?.fy} N/mm² / ({materialFactor} &middot; 1.732 &middot; 10^3) = {roundN(checks.shear?.Vc_Rd, 2)} kN &rArr; Ratio = {((checks.shear?.ratio || 0) * 100).toFixed(2)}%
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <strong>Bending Moment Check (ULS - Allowable):</strong><br />
+                  M_Ed = {roundN(maxM, 2)} kNm &le; M_allow = N &middot; M_allow,db = {(isTwinProfile ? '2' : '1')} &middot; {section.Mallow} kNm = {roundN(section.Mallow * (isTwinProfile ? 2 : 1), 2)} kNm &rArr; Ratio = {((checks.systemBeam?.bendingCheck?.ratio || 0) * 100).toFixed(2)}%
+                </div>
+                <div>
+                  <strong>Shear Force Check (ULS - Allowable):</strong><br />
+                  V_Ed = {roundN(maxV, 2)} kN &le; V_allow = N &middot; V_allow,db = {(isTwinProfile ? '2' : '1')} &middot; {section.Vallow} kN = {roundN(section.Vallow * (isTwinProfile ? 2 : 1), 2)} kN &rArr; Ratio = {((checks.systemBeam?.shearCheck?.ratio || 0) * 100).toFixed(2)}%
+                </div>
+              </>
+            )}
+            <div>
+              <strong>Deflection Shape Check (SLS):</strong><br />
+              &delta;_max = {roundN(checks.deflection?.actual, 2)} mm &le; &delta;_allow = L_span / {deflectionLimit} = {roundN(checks.deflection?.allowable, 2)} mm &rArr; Ratio = {((checks.deflection?.ratio || 0) * 100).toFixed(2)}% (Stiffness: EI_eff = {(section.E || 210000)} &middot; {roundN(section.Iy * (isTwinProfile ? 2 : 1), 1)} cm⁴)
+            </div>
+          </div>
+        </div>
+
+        {/* Footer / Sign-off Block */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px solid #e2e8f0', paddingTop: '10px', marginTop: '6px' }}>
+          <div>
+            <div style={{ color: '#94a3b8', fontSize: '8px', textTransform: 'uppercase' }}>Report Signature</div>
+            <div style={{ fontStyle: 'italic', fontWeight: 600, fontSize: '10px', color: '#64748b', marginTop: '2px' }}>Verified Electronically via TempWorks Web Portal</div>
+          </div>
+          <div style={{ textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94a3b8', fontSize: '9px', fontWeight: 700 }}>
+            Page 1 of 1
+          </div>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
-import { Save, FileText, Play, CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Save, FileText, Play, CheckCircle, XCircle, AlertTriangle, Info } from 'lucide-react';
 import { calculateSlabFormwork } from '../engine/formwork/slabFormwork.js';
 import styles from './SlabFormworkCalculator.module.css';
 
@@ -24,26 +24,26 @@ export default function SlabFormworkCalculator() {
     unitWeight: 25,
     panelType: 'WONDERBoard MG Series',
     panelThickness: '12 mm',
-    panelSpanCount: 3,
     panelDirection: 'Perpendicular to Secondary Beam',
     secondaryBeamType: 'WONDERBeam Alpha-Beam',
     secondarySpacing: 0.4,
-    secondarySpanCount: 1,
+    secondarySpanCount: 3,
     primaryBeamType: 'WONDERBeam Alpha-Beam',
     primarySpacing: 1.5,
-    primarySpanCount: 1,
+    primarySpanCount: 3,
+    primarySpanLength: 1.5, // Replaces towerGrid
+    shoringSystem: 'tower', // tower or prop
     shoringType: 'WonderCrab M',
     towerHeight: 3,
-    towerGridX: 1.5,
-    towerGridY: 1.5
   });
 
   const [activeTab, setActiveTab] = useState(() => getSessionData('tempworks_slabformwork_active_tab', 'configuration'));
+  const [activeMarker, setActiveMarker] = useState(null); // Which diagram marker is clicked
+
   const [slabThickness, setSlabThickness] = useState(initialInputs.slabThickness);
   const [unitWeight, setUnitWeight] = useState(initialInputs.unitWeight);
   const [panelType, setPanelType] = useState(initialInputs.panelType);
   const [panelThickness, setPanelThickness] = useState(initialInputs.panelThickness);
-  const [panelSpanCount, setPanelSpanCount] = useState(initialInputs.panelSpanCount);
   const [panelDirection, setPanelDirection] = useState(initialInputs.panelDirection);
   const [secondaryBeamType, setSecondaryBeamType] = useState(initialInputs.secondaryBeamType);
   const [secondarySpacing, setSecondarySpacing] = useState(initialInputs.secondarySpacing);
@@ -51,63 +51,35 @@ export default function SlabFormworkCalculator() {
   const [primaryBeamType, setPrimaryBeamType] = useState(initialInputs.primaryBeamType);
   const [primarySpacing, setPrimarySpacing] = useState(initialInputs.primarySpacing);
   const [primarySpanCount, setPrimarySpanCount] = useState(initialInputs.primarySpanCount);
+  const [primarySpanLength, setPrimarySpanLength] = useState(initialInputs.primarySpanLength);
+  const [shoringSystem, setShoringSystem] = useState(initialInputs.shoringSystem);
   const [shoringType, setShoringType] = useState(initialInputs.shoringType);
   const [towerHeight, setTowerHeight] = useState(initialInputs.towerHeight);
-  const [towerGridX, setTowerGridX] = useState(initialInputs.towerGridX);
-  const [towerGridY, setTowerGridY] = useState(initialInputs.towerGridY);
 
   const [results, setResults] = useState(() => getSessionData('tempworks_slabformwork_results', null));
   const [calcError, setCalcError] = useState(null);
 
-  // Save inputs and invalidate results if any input changes after initial load
   useEffect(() => {
     const savedInputs = getSessionData('tempworks_slabformwork_inputs', null);
     const currentInputs = {
-      slabThickness,
-      unitWeight,
-      panelType,
-      panelThickness,
-      panelSpanCount,
-      panelDirection,
-      secondaryBeamType,
-      secondarySpacing,
-      secondarySpanCount,
-      primaryBeamType,
-      primarySpacing,
-      primarySpanCount,
-      shoringType,
-      towerHeight,
-      towerGridX,
-      towerGridY
+      slabThickness, unitWeight, panelType, panelThickness, panelDirection,
+      secondaryBeamType, secondarySpacing, secondarySpanCount,
+      primaryBeamType, primarySpacing, primarySpanCount, primarySpanLength,
+      shoringSystem, shoringType, towerHeight
     };
 
-    if (savedInputs && JSON.stringify(currentInputs) === JSON.stringify(savedInputs)) {
-      return;
-    }
+    if (savedInputs && JSON.stringify(currentInputs) === JSON.stringify(savedInputs)) return;
 
     setResults(null);
     sessionStorage.removeItem('tempworks_slabformwork_results');
     saveSessionData('tempworks_slabformwork_inputs', currentInputs);
   }, [
-    slabThickness,
-    unitWeight,
-    panelType,
-    panelThickness,
-    panelSpanCount,
-    panelDirection,
-    secondaryBeamType,
-    secondarySpacing,
-    secondarySpanCount,
-    primaryBeamType,
-    primarySpacing,
-    primarySpanCount,
-    shoringType,
-    towerHeight,
-    towerGridX,
-    towerGridY
+    slabThickness, unitWeight, panelType, panelThickness, panelDirection,
+    secondaryBeamType, secondarySpacing, secondarySpanCount,
+    primaryBeamType, primarySpacing, primarySpanCount, primarySpanLength,
+    shoringSystem, shoringType, towerHeight
   ]);
 
-  // Save active tab to session storage
   useEffect(() => {
     saveSessionData('tempworks_slabformwork_active_tab', activeTab);
   }, [activeTab]);
@@ -115,12 +87,16 @@ export default function SlabFormworkCalculator() {
   const handleCalculate = () => {
     try {
       setCalcError(null);
+      // Auto-calculate grid spacing based on primary beam span length and spacing
+      const gridX = Number(primarySpacing);
+      const gridY = Number(primarySpanLength);
+
       const res = calculateSlabFormwork({
         slabThickness: Number(slabThickness),
         concreteDensity: Number(unitWeight),
         panelType,
         panelThickness,
-        panelSpanCount: Number(panelSpanCount),
+        panelSpanCount: 3, // Always multi-span
         panelDirection,
         secondaryBeamType,
         secondarySpacing: Number(secondarySpacing),
@@ -128,8 +104,10 @@ export default function SlabFormworkCalculator() {
         primaryBeamType,
         primarySpacing: Number(primarySpacing),
         primarySpanCount: Number(primarySpanCount),
-        shoringType,
+        shoringType: shoringType, // Use actual tower or prop
         towerHeight: Number(towerHeight),
+        towerGridX: gridX,
+        towerGridY: gridY,
         deflLimitRatio: 360,
       });
       setResults(res);
@@ -154,9 +132,6 @@ export default function SlabFormworkCalculator() {
           </select>
           <button className={styles.btnSecondary}>
             <Save size={16} /> Save
-          </button>
-          <button className={styles.btnSecondary}>
-            <FileText size={16} /> Export PDF
           </button>
           <button className={styles.btnCalculate} onClick={handleCalculate}>
             <Play size={16} fill="currentColor" /> Calculate
@@ -193,174 +168,196 @@ export default function SlabFormworkCalculator() {
 
       <div className={styles.contentArea}>
         {activeTab === 'configuration' && (
-          <div className={styles.gridLayout}>
-            {/* Left Column */}
-            <div>
+          <div className={styles.diagramLayout}>
+            {/* Interactive SVG Diagram Area */}
+            <div className={styles.interactiveDiagramContainer}>
+              <InteractiveDiagram 
+                activeMarker={activeMarker}
+                setActiveMarker={setActiveMarker}
+                slabThickness={slabThickness}
+                secondarySpacing={secondarySpacing}
+                primarySpacing={primarySpacing}
+                primarySpanLength={primarySpanLength}
+                secondaryBeamType={secondaryBeamType}
+                primaryBeamType={primaryBeamType}
+                panelType={panelType}
+                shoringSystem={shoringSystem}
+                shoringType={shoringType}
+              />
+            </div>
+
+            {/* Contextual Input Panel */}
+            <div className={styles.inputPanel}>
               <div className={styles.card}>
-                <h3 className={styles.cardTitle}>1. Slab</h3>
-                <div className={styles.formStack}>
-                  <label className={styles.fieldInline}>
-                    <span>Slab Thickness</span>
-                    <div className={styles.unitInput}>
-                      <input type="number" value={slabThickness} onChange={(e) => setSlabThickness(e.target.value)} />
-                      <span>mm</span>
-                    </div>
-                  </label>
-                  <label className={styles.fieldInline}>
-                    <span>Unit Weight of Concrete</span>
-                    <div className={styles.unitInput}>
-                      <input type="number" value={unitWeight} onChange={(e) => setUnitWeight(e.target.value)} />
-                      <span>kN/m3</span>
-                    </div>
-                  </label>
-                </div>
-              </div>
-              <div className={styles.card}>
-                <h3 className={styles.cardTitle}>2. Formwork Deck (Panel)</h3>
-                <div className={styles.formStack}>
-                  <label className={styles.field}>
-                    <span>Panel Type</span>
-                    <select value={panelType} onChange={(e) => setPanelType(e.target.value)}>
-                      <option>WONDERBoard MG Series</option>
-                      <option>Plywood 18 mm</option>
-                      <option>Phenolic Board</option>
-                    </select>
-                  </label>
-                  <label className={styles.field}>
-                    <span>Panel Thickness</span>
-                    <select value={panelThickness} onChange={(e) => setPanelThickness(e.target.value)}>
-                      <option>12 mm</option>
-                      <option>15 mm</option>
-                      <option>18 mm</option>
-                    </select>
-                  </label>
-                  <label className={styles.field}>
-                    <span>Span Configuration</span>
-                    <select value={panelSpanCount} onChange={(e) => setPanelSpanCount(Number(e.target.value))}>
-                      <option value={1}>Single Span</option>
-                      <option value={2}>Two Span</option>
-                      <option value={3}>Three Span and above</option>
-                    </select>
-                  </label>
-                  <label className={styles.field}>
-                    <span>Panel Direction</span>
-                    <select value={panelDirection} onChange={(e) => setPanelDirection(e.target.value)}>
-                      <option>Perpendicular to Secondary Beam</option>
-                      <option>Parallel to Secondary Beam</option>
-                    </select>
-                  </label>
-                </div>
-              </div>
-              <div className={styles.card}>
-                <h3 className={styles.cardTitle}>3. Secondary Beam</h3>
-                <div className={styles.formStack}>
-                  <label className={styles.field}>
-                    <span>Beam Type</span>
-                    <select value={secondaryBeamType} onChange={(e) => setSecondaryBeamType(e.target.value)}>
-                      <option>WONDERBeam Alpha-Beam</option>
-                      <option>Timber H20 Beam</option>
-                      <option>Aluminium Joist</option>
-                    </select>
-                  </label>
-                  <label className={styles.field}>
-                    <span>Span Configuration</span>
-                    <select value={secondarySpanCount} onChange={(e) => setSecondarySpanCount(Number(e.target.value))}>
-                      <option value={1}>Single Span</option>
-                      <option value={2}>Two Span</option>
-                      <option value={3}>Three Span and above</option>
-                    </select>
-                  </label>
-                  <label className={styles.fieldInline}>
-                    <span>Spacing (Center to Center)</span>
-                    <div className={styles.unitInput}>
-                      <input type="number" step="0.05" value={secondarySpacing} onChange={(e) => setSecondarySpacing(e.target.value)} />
-                      <span>m</span>
-                    </div>
-                  </label>
-                </div>
-              </div>
-              <div className={styles.card}>
-                <h3 className={styles.cardTitle}>4. Primary Beam</h3>
-                <div className={styles.formStack}>
-                  <label className={styles.field}>
-                    <span>Beam Type</span>
-                    <select value={primaryBeamType} onChange={(e) => setPrimaryBeamType(e.target.value)}>
-                      <option>WONDERBeam Alpha-Beam</option>
-                      <option>Timber H20 Beam</option>
-                      <option>Aluminium Joist</option>
-                    </select>
-                  </label>
-                  <label className={styles.field}>
-                    <span>Span Configuration</span>
-                    <select value={primarySpanCount} onChange={(e) => setPrimarySpanCount(Number(e.target.value))}>
-                      <option value={1}>Single Span</option>
-                      <option value={2}>Two Span</option>
-                      <option value={3}>Three Span and above</option>
-                    </select>
-                  </label>
-                  <label className={styles.fieldInline}>
-                    <span>Spacing (Center to Center)</span>
-                    <div className={styles.unitInput}>
-                      <input type="number" step="0.1" value={primarySpacing} onChange={(e) => setPrimarySpacing(e.target.value)} />
-                      <span>m</span>
-                    </div>
-                  </label>
-                </div>
-              </div>
-              <div className={styles.card}>
-                <h3 className={styles.cardTitle}>5. Shoring (Tower)</h3>
-                <div className={styles.formStack}>
-                  <label className={styles.field}>
-                    <span>Shoring Type</span>
-                    <select value={shoringType} onChange={(e) => setShoringType(e.target.value)}>
-                      <option>WonderCrab M</option>
-                      <option>Ringlock Tower</option>
-                      <option>Frame Tower</option>
-                    </select>
-                  </label>
-                  <label className={styles.fieldInline}>
-                    <span>Tower Height</span>
-                    <div className={styles.unitInput}>
-                      <input type="number" step="0.1" value={towerHeight} onChange={(e) => setTowerHeight(e.target.value)} />
-                      <span>m</span>
-                    </div>
-                  </label>
-                  <div className={styles.gridSpacingRow}>
-                    <span>Grid Spacing (X x Y)</span>
-                    <div className={styles.gridInputs}>
-                      <select value={towerGridX} onChange={(e) => setTowerGridX(e.target.value)} style={{ padding: '6px' }}>
-                        <option value={0.7}>0.7 m</option>
-                        <option value={0.9}>0.9 m</option>
-                        <option value={1.2}>1.2 m</option>
-                        <option value={1.5}>1.5 m</option>
-                        <option value={1.8}>1.8 m</option>
+                <div className={styles.cardHeader}>Configuration details</div>
+                
+                {!activeMarker && (
+                  <div className={styles.placeholderPanel}>
+                    <Info size={24} style={{ color: '#94a3b8', marginBottom: '1rem' }} />
+                    <p>Click on the circular markers in the diagram to configure specific formwork components and dimensions.</p>
+                  </div>
+                )}
+
+                {activeMarker === 'slab' && (
+                  <div className={styles.formStack}>
+                    <h3 className={styles.panelTitle}>Slab Properties</h3>
+                    <label className={styles.fieldInline}>
+                      <span>1. Slab Thickness</span>
+                      <div className={styles.unitInput}>
+                        <input type="number" value={slabThickness} onChange={(e) => setSlabThickness(e.target.value)} />
+                        <span>mm</span>
+                      </div>
+                    </label>
+                    <label className={styles.fieldInline}>
+                      <span>Unit Weight of Concrete</span>
+                      <div className={styles.unitInput}>
+                        <input type="number" value={unitWeight} onChange={(e) => setUnitWeight(e.target.value)} />
+                        <span>kN/m³</span>
+                      </div>
+                    </label>
+                  </div>
+                )}
+
+                {activeMarker === 'panel' && (
+                  <div className={styles.formStack}>
+                    <h3 className={styles.panelTitle}>Formwork Panel</h3>
+                    <label className={styles.field}>
+                      <span>Panel Type</span>
+                      <select value={panelType} onChange={(e) => setPanelType(e.target.value)}>
+                        <option>WONDERBoard MG Series</option>
+                        <option>Plywood 18 mm</option>
+                        <option>Phenolic Board</option>
                       </select>
-                      <strong>x</strong>
-                      <select value={towerGridY} onChange={(e) => setTowerGridY(e.target.value)} style={{ padding: '6px' }}>
-                        <option value={0.7}>0.7 m</option>
-                        <option value={0.9}>0.9 m</option>
-                        <option value={1.2}>1.2 m</option>
-                        <option value={1.5}>1.5 m</option>
-                        <option value={1.8}>1.8 m</option>
+                    </label>
+                    <label className={styles.field}>
+                      <span>Panel Thickness</span>
+                      <select value={panelThickness} onChange={(e) => setPanelThickness(e.target.value)}>
+                        <option>12 mm</option>
+                        <option>15 mm</option>
+                        <option>18 mm</option>
                       </select>
+                    </label>
+                    <label className={styles.field}>
+                      <span>Panel Direction</span>
+                      <select value={panelDirection} onChange={(e) => setPanelDirection(e.target.value)}>
+                        <option>Perpendicular to Secondary Beam</option>
+                        <option>Parallel to Secondary Beam</option>
+                      </select>
+                    </label>
+                    <p className={styles.noteText}>* Panel assumed as multi-span configuration.</p>
+                  </div>
+                )}
+
+                {activeMarker === 'secondary' && (
+                  <div className={styles.formStack}>
+                    <h3 className={styles.panelTitle}>Secondary Beams</h3>
+                    <label className={styles.field}>
+                      <span>Beam Type</span>
+                      <select value={secondaryBeamType} onChange={(e) => setSecondaryBeamType(e.target.value)}>
+                        <option>WONDERBeam Alpha-Beam</option>
+                        <option>Timber H20 Beam</option>
+                        <option>Aluminium Joist</option>
+                      </select>
+                    </label>
+                    <label className={styles.field}>
+                      <span>Span Configuration</span>
+                      <select value={secondarySpanCount} onChange={(e) => setSecondarySpanCount(Number(e.target.value))}>
+                        <option value={1}>Single Span</option>
+                        <option value={2}>Two Span</option>
+                        <option value={3}>Three Span and above</option>
+                      </select>
+                    </label>
+                    <label className={styles.fieldInline}>
+                      <span>2. Spacing (C/C)</span>
+                      <div className={styles.unitInput}>
+                        <input type="number" step="0.05" value={secondarySpacing} onChange={(e) => setSecondarySpacing(e.target.value)} />
+                        <span>m</span>
+                      </div>
+                    </label>
+                  </div>
+                )}
+
+                {activeMarker === 'primary' && (
+                  <div className={styles.formStack}>
+                    <h3 className={styles.panelTitle}>Primary Beams</h3>
+                    <label className={styles.field}>
+                      <span>Beam Type</span>
+                      <select value={primaryBeamType} onChange={(e) => setPrimaryBeamType(e.target.value)}>
+                        <option>WONDERBeam Alpha-Beam</option>
+                        <option>Timber H20 Beam</option>
+                        <option>Aluminium Joist</option>
+                      </select>
+                    </label>
+                    <label className={styles.field}>
+                      <span>Span Configuration</span>
+                      <select value={primarySpanCount} onChange={(e) => setPrimarySpanCount(Number(e.target.value))}>
+                        <option value={1}>Single Span</option>
+                        <option value={2}>Two Span</option>
+                        <option value={3}>Three Span and above</option>
+                      </select>
+                    </label>
+                    <label className={styles.fieldInline}>
+                      <span>3. Spacing (C/C)</span>
+                      <div className={styles.unitInput}>
+                        <input type="number" step="0.1" value={primarySpacing} onChange={(e) => setPrimarySpacing(e.target.value)} />
+                        <span>m</span>
+                      </div>
+                    </label>
+                  </div>
+                )}
+
+                {activeMarker === 'shoring' && (
+                  <div className={styles.formStack}>
+                    <h3 className={styles.panelTitle}>Shoring System</h3>
+                    
+                    <div className={styles.radioGroup} style={{ marginBottom: '1rem' }}>
+                      <label className={styles.radioLabel}>
+                        <input type="radio" checked={shoringSystem === 'tower'} onChange={() => { setShoringSystem('tower'); setShoringType('WonderCrab M'); }} /> Tower
+                      </label>
+                      <label className={styles.radioLabel}>
+                        <input type="radio" checked={shoringSystem === 'prop'} onChange={() => { setShoringSystem('prop'); setShoringType('Prop'); }} /> Prop
+                      </label>
+                    </div>
+
+                    <label className={styles.field}>
+                      <span>Shoring Type</span>
+                      <select value={shoringType} onChange={(e) => setShoringType(e.target.value)}>
+                        {shoringSystem === 'tower' ? (
+                          <>
+                            <option>WonderCrab M</option>
+                            <option>Ringlock Tower</option>
+                            <option>Frame Tower</option>
+                          </>
+                        ) : (
+                          <>
+                            <option>Prop (Light duty)</option>
+                            <option>Prop (Heavy duty)</option>
+                          </>
+                        )}
+                      </select>
+                    </label>
+
+                    <label className={styles.fieldInline}>
+                      <span>4. Distance between supports (Span Length)</span>
+                      <div className={styles.unitInput}>
+                        <input type="number" step="0.1" value={primarySpanLength} onChange={(e) => setPrimarySpanLength(e.target.value)} />
+                        <span>m</span>
+                      </div>
+                    </label>
+                    
+                    <label className={styles.fieldInline}>
+                      <span>Height</span>
+                      <div className={styles.unitInput}>
+                        <input type="number" step="0.1" value={towerHeight} onChange={(e) => setTowerHeight(e.target.value)} />
+                        <span>m</span>
+                      </div>
+                    </label>
+
+                    <div className={styles.infoBox}>
+                      Grid spacing is automatically derived: <strong>{primarySpacing} m × {primarySpanLength} m</strong>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
-            {/* Right Column */}
-            <div>
-              <div className={styles.card}>
-                <h3 className={styles.cardTitle}>System Layout (Plan View)</h3>
-                <PlanViewDiagram secondarySpacing={secondarySpacing} primarySpacing={primarySpacing} />
-              </div>
-              <div className={styles.card}>
-                <h3 className={styles.cardTitle}>System Elevation (Typical Section)</h3>
-                <ElevationDiagram
-                  slabThickness={slabThickness}
-                  panelThickness={panelThickness}
-                  towerHeight={towerHeight}
-                />
+                )}
               </div>
             </div>
           </div>
@@ -371,12 +368,20 @@ export default function SlabFormworkCalculator() {
         )}
 
         {activeTab === 'report' && (
-          <div className={styles.card} style={{ maxWidth: '800px', margin: '0 auto', width: '100%' }}>
-            <h3 className={styles.cardTitle}>Generated Report Preview</h3>
-            <div className={styles.placeholderBox} style={{ minHeight: '600px' }}>
-              Full PDF Report Preview
+          results ? (
+            <SlabPDFReportPreview results={results} inputs={{
+              slabThickness, unitWeight, panelType, panelThickness, panelDirection,
+              secondaryBeamType, secondarySpacing, secondarySpanCount,
+              primaryBeamType, primarySpacing, primarySpanCount, primarySpanLength,
+              shoringSystem, shoringType, towerHeight
+            }} />
+          ) : (
+            <div className={styles.card} style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
+              <div style={{ fontSize: 48, marginBottom: 12 }}>📋</div>
+              <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 8 }}>No Report Preview Available</div>
+              <div style={{ fontSize: 13 }}>Click <strong>Calculate</strong> in the header to run the analysis first.</div>
             </div>
-          </div>
+          )
         )}
       </div>
     </div>
@@ -384,9 +389,52 @@ export default function SlabFormworkCalculator() {
 }
 
 // ────────────────────────────────────────────────────────────────────────────
+// Interactive Diagram Component
+// ────────────────────────────────────────────────────────────────────────────
+function InteractiveDiagram({ activeMarker, setActiveMarker, slabThickness, secondarySpacing, primarySpacing, primarySpanLength, secondaryBeamType, primaryBeamType, panelType, shoringType }) {
+  return (
+    <div className={styles.diagramWrapper}>
+      {/* A stylized SVG isometric representation of the formwork system */}
+      <svg viewBox="0 0 800 600" className={styles.svgDiagram}>
+        <image href="/src/assets/slab-diagram.png" x="0" y="0" width="800" height="600" preserveAspectRatio="xMidYMid meet" />
+
+        {/* Markers overlaid on the image */}
+        {/* 1 Slab Thickness (Right edge) */}
+        <Marker x="680" y="160" id="slab" label="1" active={activeMarker === 'slab'} onClick={() => setActiveMarker('slab')} text={`Slab: ${slabThickness} mm`} />
+        
+        {/* 2 Distance between Secondary Beams (Top center) */}
+        <Marker x="460" y="140" id="secondary" label="2" active={activeMarker === 'secondary'} onClick={() => setActiveMarker('secondary')} text={`Sec: ${secondarySpacing} m`} type="blue" />
+        
+        {/* 3 Distance between Primary Beams (Left side) */}
+        <Marker x="140" y="440" id="primary" label="3" active={activeMarker === 'primary'} onClick={() => setActiveMarker('primary')} text={`Pri: ${primarySpacing} m`} type="blue" />
+        
+        {/* 4 Distance between Primary Beam Supports (Bottom center) */}
+        <Marker x="420" y="550" id="shoring" label="4" active={activeMarker === 'shoring'} onClick={() => setActiveMarker('shoring')} text={`Span: ${primarySpanLength} m`} />
+        
+        {/* Component Markers */}
+        <Marker x="360" y="200" id="panel" active={activeMarker === 'panel'} onClick={() => setActiveMarker('panel')} text={panelType} type="blue" noLabel={true} />
+        <Marker x="246" y="500" id="shoring_comp" active={activeMarker === 'shoring'} onClick={() => setActiveMarker('shoring')} text={shoringType} type="blue" noLabel={true} />
+      </svg>
+    </div>
+  );
+}
+
+function Marker({ x, y, label, text, active, onClick, id, type = 'yellow', noLabel = false }) {
+  const isYellow = type === 'yellow';
+  return (
+    <g transform={`translate(${x}, ${y})`} onClick={onClick} style={{ cursor: 'pointer' }} className={styles.markerGroup}>
+      {active && <circle cx="0" cy="0" r={noLabel ? "20" : "24"} fill={isYellow ? "#fbbf24" : "#2563eb"} className={styles.pulseCircle} />}
+      <circle cx="0" cy="0" r={noLabel ? "14" : "18"} fill={isYellow ? "#fbbf24" : "#2563eb"} stroke="white" strokeWidth="3" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }} />
+      {!noLabel && <text x="0" y="5" textAnchor="middle" fill={isYellow ? "#000" : "#fff"} fontSize="14" fontWeight="bold">{label}</text>}
+      <rect x={noLabel ? "18" : "24"} y="-12" width={text.length * 7 + 10} height="24" rx="4" fill="white" stroke="#e2e8f0" />
+      <text x={noLabel ? "23" : "29"} y="4" fontSize="12" fill="#334155" fontWeight="500">{text}</text>
+    </g>
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────────────
 // Results Tab Component
 // ────────────────────────────────────────────────────────────────────────────
-
 function ResultsTab({ results }) {
   if (!results) {
     return (
@@ -416,85 +464,18 @@ function ResultsTab({ results }) {
               <span>Status</span>
             </div>
 
-            {/* Panel */}
-            <ResultRow
-              component="Formwork Panel"
-              check="Bending"
-              applied={`${panel.bending.applied} kNm/m`}
-              capacity={`${panel.bending.capacity} kNm/m`}
-              utilization={panel.bending.ratio}
-              pass={panel.bending.pass}
-            />
-            <ResultRow
-              component=""
-              check="Deflection"
-              applied={`${panel.deflection.actual} mm`}
-              capacity={`${panel.deflection.allowable} mm`}
-              utilization={panel.deflection.ratio}
-              pass={panel.deflection.pass}
-            />
+            <ResultRow component="Formwork Panel" check="Bending" applied={`${panel.bending.applied} kNm/m`} capacity={`${panel.bending.capacity} kNm/m`} utilization={panel.bending.ratio} pass={panel.bending.pass} />
+            <ResultRow component="" check="Deflection" applied={`${panel.deflection.actual} mm`} capacity={`${panel.deflection.allowable} mm`} utilization={panel.deflection.ratio} pass={panel.deflection.pass} />
+            
+            <ResultRow component="Secondary Beam" check="Bending" applied={`${secondary.bending.applied} kNm`} capacity={`${secondary.bending.capacity} kNm`} utilization={secondary.bending.ratio} pass={secondary.bending.pass} />
+            <ResultRow component="" check="Shear" applied={`${secondary.shear.applied} kN`} capacity={`${secondary.shear.capacity} kN`} utilization={secondary.shear.ratio} pass={secondary.shear.pass} />
+            <ResultRow component="" check="Deflection" applied={`${secondary.deflection.actual} mm`} capacity={`${secondary.deflection.allowable} mm`} utilization={secondary.deflection.ratio} pass={secondary.deflection.pass} />
 
-            {/* Secondary Beam */}
-            <ResultRow
-              component="Secondary Beam"
-              check="Bending"
-              applied={`${secondary.bending.applied} kNm`}
-              capacity={`${secondary.bending.capacity} kNm`}
-              utilization={secondary.bending.ratio}
-              pass={secondary.bending.pass}
-            />
-            <ResultRow
-              component=""
-              check="Shear"
-              applied={`${secondary.shear.applied} kN`}
-              capacity={`${secondary.shear.capacity} kN`}
-              utilization={secondary.shear.ratio}
-              pass={secondary.shear.pass}
-            />
-            <ResultRow
-              component=""
-              check="Deflection"
-              applied={`${secondary.deflection.actual} mm`}
-              capacity={`${secondary.deflection.allowable} mm`}
-              utilization={secondary.deflection.ratio}
-              pass={secondary.deflection.pass}
-            />
+            <ResultRow component="Primary Beam" check="Bending" applied={`${primary.bending.applied} kNm`} capacity={`${primary.bending.capacity} kNm`} utilization={primary.bending.ratio} pass={primary.bending.pass} />
+            <ResultRow component="" check="Shear" applied={`${primary.shear.applied} kN`} capacity={`${primary.shear.capacity} kN`} utilization={primary.shear.ratio} pass={primary.shear.pass} />
+            <ResultRow component="" check="Deflection" applied={`${primary.deflection.actual} mm`} capacity={`${primary.deflection.allowable} mm`} utilization={primary.deflection.ratio} pass={primary.deflection.pass} />
 
-            {/* Primary Beam */}
-            <ResultRow
-              component="Primary Beam"
-              check="Bending"
-              applied={`${primary.bending.applied} kNm`}
-              capacity={`${primary.bending.capacity} kNm`}
-              utilization={primary.bending.ratio}
-              pass={primary.bending.pass}
-            />
-            <ResultRow
-              component=""
-              check="Shear"
-              applied={`${primary.shear.applied} kN`}
-              capacity={`${primary.shear.capacity} kN`}
-              utilization={primary.shear.ratio}
-              pass={primary.shear.pass}
-            />
-            <ResultRow
-              component=""
-              check="Deflection"
-              applied={`${primary.deflection.actual} mm`}
-              capacity={`${primary.deflection.allowable} mm`}
-              utilization={primary.deflection.ratio}
-              pass={primary.deflection.pass}
-            />
-
-            {/* Tower */}
-            <ResultRow
-              component="Shoring Tower"
-              check="Axial Load"
-              applied={`${tower.applied} kN`}
-              capacity={`${tower.capacity} kN`}
-              utilization={tower.utilization}
-              pass={tower.pass}
-            />
+            <ResultRow component="Shoring System" check="Axial Load" applied={`${tower.applied} kN`} capacity={`${tower.capacity} kN`} utilization={tower.utilization} pass={tower.pass} />
           </div>
         </div>
 
@@ -504,7 +485,7 @@ function ResultsTab({ results }) {
             <li>Secondary beam: {secondary.spanCount}-span, line load = {secondary.lineLoad} kN/m</li>
             <li>Primary beam: {primary.spanCount}-span, line load = {primary.lineLoad} kN/m</li>
             <li>Max secondary reaction = {secondary.maxReaction} kN</li>
-            <li>Max primary reaction = {primary.maxReaction} kN (tower load excl. self-weight)</li>
+            <li>Max primary reaction = {primary.maxReaction} kN (tower/prop load excl. self-weight)</li>
             <li>Design based on manufacturer's allowable capacities</li>
           </ul>
         </div>
@@ -527,7 +508,7 @@ function ResultsTab({ results }) {
               <span className={styles.summaryValue}>{(maxUtilization * 100).toFixed(1)}%</span>
             </div>
             <div className={styles.summaryItem}>
-              <span className={styles.summaryLabel}>Max Tower Reaction</span>
+              <span className={styles.summaryLabel}>Max Support Reaction</span>
               <span className={styles.summaryValue}>{primary.maxReaction} kN</span>
             </div>
           </div>
@@ -559,10 +540,6 @@ function ResultsTab({ results }) {
   );
 }
 
-// ────────────────────────────────────────────────────────────────────────────
-// Result Row Component
-// ────────────────────────────────────────────────────────────────────────────
-
 function ResultRow({ component, check, applied, capacity, utilization, pass }) {
   const pct = (utilization * 100).toFixed(1);
   return (
@@ -583,69 +560,242 @@ function ResultRow({ component, check, applied, capacity, utilization, pass }) {
   );
 }
 
-// ────────────────────────────────────────────────────────────────────────────
-// Diagram Components (preserved from original)
-// ────────────────────────────────────────────────────────────────────────────
-
-function PlanViewDiagram({ secondarySpacing, primarySpacing }) {
-  const secondaryLines = Array.from({ length: 8 });
-  const primaryLines = Array.from({ length: 5 });
-  const towers = Array.from({ length: 7 });
+// ─── Slab PDF Report Preview Component ─────────────────────────────────────────
+function SlabPDFReportPreview({ results, inputs }) {
+  const { areaLoad, panel, secondary, primary, tower, overallPass, maxUtilization } = results;
+  const dateStr = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
 
   return (
-    <div className={styles.planDiagram}>
-      <div className={styles.planGrid}>
-        {secondaryLines.map((_, index) => <span className={styles.secondaryBeam} style={{ top: `${index * 14.2}%` }} key={`s-${index}`} />)}
-        {primaryLines.map((_, index) => <span className={styles.primaryBeam} style={{ left: `${index * 25}%` }} key={`p-${index}`} />)}
-        {towers.map((_, index) => <span className={styles.towerNode} style={{ left: `${index * 16.66}%` }} key={`t-${index}`} />)}
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', paddingBottom: '40px', width: '100%' }}>
+      {/* Export Action Area */}
+      <div style={{ width: '210mm', display: 'flex', justifyContent: 'flex-end' }}>
+        <button 
+          onClick={() => window.print()}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            backgroundColor: 'var(--primary)',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '999px',
+            padding: '10px 24px',
+            fontSize: '14px',
+            fontWeight: '800',
+            cursor: 'pointer',
+            boxShadow: '0 4px 14px rgba(37, 99, 235, 0.2)',
+            transition: 'transform 160ms cubic-bezier(0.23, 1, 0.32, 1)'
+          }}
+          onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.97)'}
+          onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+        >
+          <FileText size={16} /> Export PDF
+        </button>
       </div>
-      <div className={styles.dimensionY}>
-        <span>Secondary Beam Spacing</span>
-        <strong>{secondarySpacing} m</strong>
-      </div>
-      <div className={styles.dimensionX}>
-        <span>Primary Beam Spacing</span>
-        <strong>{primarySpacing} m</strong>
-      </div>
-      <div className={styles.legend}>
-        <span><i className={styles.legendSecondary} /> Secondary Beam</span>
-        <span><i className={styles.legendPrimary} /> Primary Beam</span>
-        <span><i className={styles.legendTower} /> Shoring Tower</span>
-      </div>
-    </div>
-  );
-}
 
-function ElevationDiagram({ slabThickness, panelThickness, towerHeight }) {
-  return (
-    <div className={styles.elevationDiagram}>
-      <div className={styles.elevationStack}>
-        <div className={styles.slabLayer} />
-        <div className={styles.deckLayer} />
-        <div className={styles.secondaryLayer} />
-        <div className={styles.primaryLayer} />
-        <div className={styles.towerFrame}>
-          {Array.from({ length: 4 }).map((_, index) => (
-            <div className={styles.towerLeg} key={`leg-${index}`}>
-              <span />
-              <span />
-              <span />
+      <div style={{
+        width: '210mm',
+        minHeight: '297mm',
+        backgroundColor: '#ffffff',
+        boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+        border: '1px solid #cbd5e1',
+        padding: '28px 36px',
+        boxSizing: 'border-box',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '14px',
+        fontSize: '11px',
+        color: '#1e293b',
+        fontFamily: 'Inter, system-ui, -apple-system, sans-serif'
+      }}>
+        {/* Header Block */}
+        <div style={{ borderBottom: '2.5px solid #2563eb', paddingBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div>
+            <div style={{ fontSize: '18px', fontWeight: 800, color: '#2563eb', letterSpacing: '0.02em' }}>TEMPWORKS</div>
+            <div style={{ fontSize: '9px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Structural Design Solutions</div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>Slab Formwork Check Report</div>
+            <div style={{ fontSize: '9px', color: '#64748b', marginTop: '2px' }}>
+              Standard: Manufacturer's Allowable Load Limits
             </div>
-          ))}
-          <span className={styles.braceLeft} />
-          <span className={styles.braceRight} />
+          </div>
         </div>
-        <div className={styles.baseLayer} />
-      </div>
-      <div className={styles.elevationLabels}>
-        <span>Slab Thickness <strong>{slabThickness} mm</strong></span>
-        <span>Formwork Deck <strong>{panelThickness}</strong></span>
-        <span>Secondary Beam <strong>Alpha-Beam</strong></span>
-        <span>Primary Beam <strong>Alpha-Beam</strong></span>
-        <span>Shoring Tower <strong>WonderCrab M</strong></span>
-      </div>
-      <div className={styles.heightDimension}>
-        <strong>{towerHeight} m</strong>
+
+        {/* Metadata */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', borderBottom: '1px solid #e2e8f0', paddingBottom: '10px' }}>
+          <div>
+            <div style={{ marginBottom: '4px' }}><span style={{ color: '#64748b', fontWeight: 600 }}>Project:</span> Hospital Block A - Level 3</div>
+            <div><span style={{ color: '#64748b', fontWeight: 600 }}>Prepared By:</span> Engineer</div>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <div style={{ marginBottom: '4px' }}><span style={{ color: '#64748b', fontWeight: 600 }}>Date:</span> {dateStr}</div>
+            <div><span style={{ color: '#64748b', fontWeight: 600 }}>Status:</span> <span style={{ color: overallPass ? '#16a34a' : '#ef4444', fontWeight: 800 }}>{overallPass ? 'PASS' : 'FAIL'}</span></div>
+          </div>
+        </div>
+
+        {/* Section 1: Inputs */}
+        <div>
+          <div style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', marginBottom: '8px', borderBottom: '1.5px solid #cbd5e1', paddingBottom: '2px' }}>1. DESIGN PARAMETERS & GEOMETRY</div>
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '10px' }}>
+            <tbody>
+              <tr>
+                <td style={{ padding: '4px 0', color: '#64748b', width: '35%' }}>Slab Thickness</td>
+                <td style={{ padding: '4px 0', fontWeight: 600 }}>{inputs.slabThickness} mm</td>
+                <td style={{ padding: '4px 0', color: '#64748b', width: '35%' }}>Secondary Beam Spacing</td>
+                <td style={{ padding: '4px 0', fontWeight: 600 }}>{inputs.secondarySpacing} m</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '4px 0', color: '#64748b' }}>Concrete Density</td>
+                <td style={{ padding: '4px 0', fontWeight: 600 }}>{inputs.unitWeight} kN/m³</td>
+                <td style={{ padding: '4px 0', color: '#64748b' }}>Primary Beam Spacing</td>
+                <td style={{ padding: '4px 0', fontWeight: 600 }}>{inputs.primarySpacing} m</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '4px 0', color: '#64748b' }}>Formwork Panel Type</td>
+                <td style={{ padding: '4px 0', fontWeight: 600 }}>{inputs.panelType} ({inputs.panelThickness})</td>
+                <td style={{ padding: '4px 0', color: '#64748b' }}>Shoring Grid Dimensions</td>
+                <td style={{ padding: '4px 0', fontWeight: 600 }}>{inputs.primarySpacing} m × {inputs.primarySpanLength} m</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '4px 0', color: '#64748b' }}>Shoring System Type</td>
+                <td style={{ padding: '4px 0', fontWeight: 600 }}>{inputs.shoringType} ({inputs.shoringSystem})</td>
+                <td style={{ padding: '4px 0', color: '#64748b' }}>Shoring Height</td>
+                <td style={{ padding: '4px 0', fontWeight: 600 }}>{inputs.towerHeight} m</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Section 2: Load Summary */}
+        <div>
+          <div style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', marginBottom: '8px', borderBottom: '1.5px solid #cbd5e1', paddingBottom: '2px' }}>2. DESIGN LOADS (SERVICE LAYER)</div>
+          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '10px' }}>
+            <tbody>
+              <tr>
+                <td style={{ padding: '4px 0', color: '#64748b' }}>Concrete Self-Weight</td>
+                <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{areaLoad.concreteWeight.toFixed(2)} kN/m²</td>
+              </tr>
+              <tr>
+                <td style={{ padding: '4px 0', color: '#64748b' }}>Construction / Formwork Load</td>
+                <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{areaLoad.formworkLoad.toFixed(2)} kN/m²</td>
+              </tr>
+              <tr style={{ borderTop: '1px solid #cbd5e1', fontWeight: 700 }}>
+                <td style={{ padding: '6px 0', color: '#0f172a' }}>Total Service Area Load</td>
+                <td style={{ padding: '6px 0', textAlign: 'right', color: '#0f172a' }}>{areaLoad.totalAreaLoad.toFixed(2)} kN/m²</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Section 3: Component Results */}
+        <div>
+          <div style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', marginBottom: '8px', borderBottom: '1.5px solid #cbd5e1', paddingBottom: '2px' }}>3. COMPONENT UTILIZATION CHECKS</div>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px' }}>
+            <thead>
+              <tr style={{ borderBottom: '1.5px solid #cbd5e1', color: '#64748b', fontWeight: 700, textAlign: 'left' }}>
+                <th style={{ padding: '6px 4px' }}>Component</th>
+                <th style={{ padding: '6px 4px' }}>Check Type</th>
+                <th style={{ padding: '6px 4px' }}>Applied Force</th>
+                <th style={{ padding: '6px 4px' }}>Allowable Capacity</th>
+                <th style={{ padding: '6px 4px', textAlign: 'right' }}>Ratio</th>
+                <th style={{ padding: '6px 4px', textAlign: 'right' }}>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                <td style={{ padding: '6px 4px', fontWeight: 600 }}>Formwork Panel</td>
+                <td style={{ padding: '6px 4px' }}>Bending</td>
+                <td style={{ padding: '6px 4px' }}>{panel.bending.applied} kNm/m</td>
+                <td style={{ padding: '6px 4px' }}>{panel.bending.capacity} kNm/m</td>
+                <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600 }}>{(panel.bending.ratio*100).toFixed(1)}%</td>
+                <td style={{ padding: '6px 4px', textAlign: 'right', color: panel.bending.pass ? '#16a34a' : '#ef4444', fontWeight: 700 }}>{panel.bending.pass ? 'PASS' : 'FAIL'}</td>
+              </tr>
+              <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                <td></td>
+                <td style={{ padding: '6px 4px' }}>Deflection</td>
+                <td style={{ padding: '6px 4px' }}>{panel.deflection.actual} mm</td>
+                <td style={{ padding: '6px 4px' }}>{panel.deflection.allowable} mm</td>
+                <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600 }}>{(panel.deflection.ratio*100).toFixed(1)}%</td>
+                <td style={{ padding: '6px 4px', textAlign: 'right', color: panel.deflection.pass ? '#16a34a' : '#ef4444', fontWeight: 700 }}>{panel.deflection.pass ? 'PASS' : 'FAIL'}</td>
+              </tr>
+              <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                <td style={{ padding: '6px 4px', fontWeight: 600 }}>Secondary Beam</td>
+                <td style={{ padding: '6px 4px' }}>Bending</td>
+                <td style={{ padding: '6px 4px' }}>{secondary.bending.applied} kNm</td>
+                <td style={{ padding: '6px 4px' }}>{secondary.bending.capacity} kNm</td>
+                <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600 }}>{(secondary.bending.ratio*100).toFixed(1)}%</td>
+                <td style={{ padding: '6px 4px', textAlign: 'right', color: secondary.bending.pass ? '#16a34a' : '#ef4444', fontWeight: 700 }}>{secondary.bending.pass ? 'PASS' : 'FAIL'}</td>
+              </tr>
+              <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                <td></td>
+                <td style={{ padding: '6px 4px' }}>Shear</td>
+                <td style={{ padding: '6px 4px' }}>{secondary.shear.applied} kN</td>
+                <td style={{ padding: '6px 4px' }}>{secondary.shear.capacity} kN</td>
+                <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600 }}>{(secondary.shear.ratio*100).toFixed(1)}%</td>
+                <td style={{ padding: '6px 4px', textAlign: 'right', color: secondary.shear.pass ? '#16a34a' : '#ef4444', fontWeight: 700 }}>{secondary.shear.pass ? 'PASS' : 'FAIL'}</td>
+              </tr>
+              <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                <td></td>
+                <td style={{ padding: '6px 4px' }}>Deflection</td>
+                <td style={{ padding: '6px 4px' }}>{secondary.deflection.actual} mm</td>
+                <td style={{ padding: '6px 4px' }}>{secondary.deflection.allowable} mm</td>
+                <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600 }}>{(secondary.deflection.ratio*100).toFixed(1)}%</td>
+                <td style={{ padding: '6px 4px', textAlign: 'right', color: secondary.deflection.pass ? '#16a34a' : '#ef4444', fontWeight: 700 }}>{secondary.deflection.pass ? 'PASS' : 'FAIL'}</td>
+              </tr>
+              <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                <td style={{ padding: '6px 4px', fontWeight: 600 }}>Primary Beam</td>
+                <td style={{ padding: '6px 4px' }}>Bending</td>
+                <td style={{ padding: '6px 4px' }}>{primary.bending.applied} kNm</td>
+                <td style={{ padding: '6px 4px' }}>{primary.bending.capacity} kNm</td>
+                <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600 }}>{(primary.bending.ratio*100).toFixed(1)}%</td>
+                <td style={{ padding: '6px 4px', textAlign: 'right', color: primary.bending.pass ? '#16a34a' : '#ef4444', fontWeight: 700 }}>{primary.bending.pass ? 'PASS' : 'FAIL'}</td>
+              </tr>
+              <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                <td></td>
+                <td style={{ padding: '6px 4px' }}>Shear</td>
+                <td style={{ padding: '6px 4px' }}>{primary.shear.applied} kN</td>
+                <td style={{ padding: '6px 4px' }}>{primary.shear.capacity} kN</td>
+                <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600 }}>{(primary.shear.ratio*100).toFixed(1)}%</td>
+                <td style={{ padding: '6px 4px', textAlign: 'right', color: primary.shear.pass ? '#16a34a' : '#ef4444', fontWeight: 700 }}>{primary.shear.pass ? 'PASS' : 'FAIL'}</td>
+              </tr>
+              <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                <td></td>
+                <td style={{ padding: '6px 4px' }}>Deflection</td>
+                <td style={{ padding: '6px 4px' }}>{primary.deflection.actual} mm</td>
+                <td style={{ padding: '6px 4px' }}>{primary.deflection.allowable} mm</td>
+                <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600 }}>{(primary.deflection.ratio*100).toFixed(1)}%</td>
+                <td style={{ padding: '6px 4px', textAlign: 'right', color: primary.deflection.pass ? '#16a34a' : '#ef4444', fontWeight: 700 }}>{primary.deflection.pass ? 'PASS' : 'FAIL'}</td>
+              </tr>
+              <tr style={{ borderBottom: '1.5px solid #cbd5e1' }}>
+                <td style={{ padding: '6px 4px', fontWeight: 600 }}>Shoring System</td>
+                <td style={{ padding: '6px 4px' }}>Axial Load</td>
+                <td style={{ padding: '6px 4px' }}>{tower.applied} kN</td>
+                <td style={{ padding: '6px 4px' }}>{tower.capacity} kN</td>
+                <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 600 }}>{(tower.utilization*100).toFixed(1)}%</td>
+                <td style={{ padding: '6px 4px', textAlign: 'right', color: tower.pass ? '#16a34a' : '#ef4444', fontWeight: 700 }}>{tower.pass ? 'PASS' : 'FAIL'}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Section 4: Design Summary */}
+        <div style={{ marginTop: 'auto', borderTop: '2px solid #cbd5e1', paddingTop: '10px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', alignItems: 'center' }}>
+            <div>
+              <div style={{ fontSize: '13px', fontWeight: 800, color: overallPass ? '#16a34a' : '#ef4444' }}>
+                {overallPass ? '✓ DESIGN PASSES ALLOWABLE CAPACITIES' : '✗ DESIGN EXCEEDS ALLOWABLE CAPACITIES'}
+              </div>
+              <div style={{ fontSize: '9px', color: '#64748b', marginTop: '2px' }}>
+                Verification calculations executed mathematically based on manufacturer specifications.
+              </div>
+            </div>
+            <div style={{ textAlign: 'right' }}>
+              <div style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>{(maxUtilization * 100).toFixed(1)}%</div>
+              <div style={{ fontSize: '8px', color: '#64748b', textTransform: 'uppercase', fontWeight: 700 }}>Max Component Utilization</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db } from '../firebase';
 import { doc, setDoc } from 'firebase/firestore';
+import Logo from '../components/Logo';
 import styles from './Login.module.css';
 
 export default function Login() {
@@ -39,8 +40,8 @@ export default function Login() {
   return (
     <div className={styles.loginContainer}>
       <div className={styles.loginCard}>
-        <div className={styles.logoContainer}>
-          <h1 className={styles.logoTitle}>TempWorks</h1>
+        <div className={styles.logoContainer} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <Logo width={200} light={true} />
           <p className={styles.logoSubtitle}>Design Management System</p>
         </div>
         <h2 className={styles.loginHeader}>{isRegistering ? 'Create Account' : 'Sign In'}</h2>

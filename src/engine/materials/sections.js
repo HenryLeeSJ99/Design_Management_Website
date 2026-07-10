@@ -253,6 +253,7 @@ export const SECTIONS = {
   'System Beam': [
     {
       name: 'Alpha-Beam',
+      company: 'PLYTEC',
       material: 'Steel',
       E: 210000,
       h: 150, b: 100, tw: 0, tf: 0, r: 0, A: 15.0,
@@ -261,6 +262,7 @@ export const SECTIONS = {
     },
     {
       name: 'Alu150',
+      company: 'PLYTEC',
       material: 'Aluminum',
       E: 70000,
       h: 150, b: 100, tw: 0, tf: 0, r: 0, A: 12.0,
@@ -269,11 +271,21 @@ export const SECTIONS = {
     },
     {
       name: 'Alu225',
+      company: 'PLYTEC',
       material: 'Aluminum',
       E: 70000,
       h: 225, b: 120, tw: 0, tf: 0, r: 0, A: 18.0,
       Iy: 1620, Wel_y: 144, Wpl_y: 144, Av: 11.0,
       mass: 9.8, Mallow: 12.5, Vallow: 35.0, type: 'system'
+    },
+    {
+      name: 'H20',
+      company: 'Doka',
+      material: 'Timber',
+      E: 10000,
+      h: 200, b: 80, tw: 0, tf: 0, r: 0, A: 60.0,
+      Iy: 4600, Wel_y: 460, Wpl_y: 460, Av: 30.0,
+      mass: 4.8, Mallow: 5.0, Vallow: 11.0, type: 'system'
     }
   ]
 };

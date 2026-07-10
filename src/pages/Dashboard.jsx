@@ -136,19 +136,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Work In Progress Overlay */}
-        <div className={styles.wipOverlay}>
-          <div className={styles.wipCard}>
-            <div className={styles.wipIconWrapper}>
-              <Construction size={40} className={styles.wipIcon} />
-            </div>
-            <h2 className={styles.wipTitle}>Dashboard Coming Soon</h2>
-            <p className={styles.wipDescription}>
-              We're currently building a powerful dashboard interface to provide real-time project statistics, active design tracking, and material utilization insights.
-            </p>
-            <span className={styles.wipBadge}>Upcoming Feature</span>
-          </div>
-        </div>
+
       </div>
     </div>
   );
