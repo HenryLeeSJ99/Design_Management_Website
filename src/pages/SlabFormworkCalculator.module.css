@@ -7,8 +7,15 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .pageHeader {
@@ -101,12 +108,12 @@
   background: var(--primary);
   border: 1px solid var(--primary);
   color: #ffffff;
-  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.2), inset 0 1px 1px rgba(255,255,255,0.2);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.2), inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
 .btnCalculate:hover {
   background: var(--primary-hover);
-  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3), inset 0 1px 1px rgba(255,255,255,0.2);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
 .btnCalculate:active {
@@ -137,7 +144,7 @@
 
 .tab:hover {
   color: var(--text-main);
-  background: rgba(255,255,255, 0.5);
+  background: rgba(255, 255, 255, 0.5);
 }
 
 .tab.active {
@@ -211,13 +218,81 @@
   border: 1px dashed var(--border-color);
 }
 
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-height: 600px;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+.formContainer::-webkit-scrollbar {
+  width: 6px;
+}
+
+.formContainer::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.formContainer::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 3px;
+}
+
+.formContainer::-webkit-scrollbar-thumb:hover {
+  background-color: var(--text-muted);
+}
+
+.formSection {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease-out), box-shadow 0.2s var(--ease-out), background-color 0.2s var(--ease-out);
+}
+
+.formSection:hover {
+  border-color: var(--text-secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.formSection.activeSection {
+  border-color: var(--primary);
+  background: rgba(37, 99, 235, 0.015);
+  box-shadow: 0 0 0 1px var(--primary), var(--shadow-sm);
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color-light);
+}
+
+.formSection.activeSection .sectionHeader {
+  border-bottom-color: rgba(37, 99, 235, 0.1);
+}
+
+.sectionIcon {
+  color: var(--text-muted);
+  transition: color 0.2s var(--ease-out);
+}
+
+.formSection.activeSection .sectionIcon {
+  color: var(--primary);
+}
+
 .panelTitle {
-  font-size: 1.1rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: var(--text-main);
-  margin: 0 0 1rem 0;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--border-color);
+  margin: 0;
 }
 
 .noteText {
@@ -236,12 +311,20 @@
 }
 
 .markerGroup {
-  transition: opacity 0.2s, transform var(--transition-spring);
+  transition: opacity 0.2s var(--ease-out);
 }
 
 .markerGroup:hover {
-  opacity: 0.9;
-  transform: scale(1.05);
+  opacity: 0.95;
+}
+
+.markerGroup circle {
+  transition: transform 0.2s var(--ease-out);
+  transform-origin: 0px 0px;
+}
+
+.markerGroup:hover circle:not(.pulseCircle) {
+  transform: scale(1.22);
 }
 
 .pulseCircle {
@@ -249,9 +332,24 @@
 }
 
 @keyframes pulse-radius {
-  0% { r: 18px; opacity: 0.6; }
-  50% { r: 28px; opacity: 0.1; }
-  100% { r: 18px; opacity: 0.6; }
+  0% {
+    r: 9px;
+    opacity: 0.6;
+  }
+
+  50% {
+    r: 18px;
+    opacity: 0.15;
+  }
+
+  100% {
+    r: 9px;
+    opacity: 0.6;
+  }
+}
+
+.tooltipGroup {
+  pointer-events: none;
 }
 
 .resultsGridLayout {
@@ -497,10 +595,21 @@
   background: #71717a;
 }
 
-.towerLeg:nth-child(1) { left: 0; }
-.towerLeg:nth-child(2) { left: 33%; }
-.towerLeg:nth-child(3) { left: 66%; }
-.towerLeg:nth-child(4) { right: 0; }
+.towerLeg:nth-child(1) {
+  left: 0;
+}
+
+.towerLeg:nth-child(2) {
+  left: 33%;
+}
+
+.towerLeg:nth-child(3) {
+  left: 66%;
+}
+
+.towerLeg:nth-child(4) {
+  right: 0;
+}
 
 .towerLeg span {
   display: block;
@@ -777,6 +886,7 @@
 }
 
 @media (max-width: 1100px) {
+
   .gridLayout,
   .resultsGridLayout,
   .diagramLayout {
@@ -826,7 +936,7 @@
 
   /* Hide project select and save on mobile – they're in the sidebar */
   .projectSelect,
-  .headerActions > .btnSecondary:first-of-type {
+  .headerActions>.btnSecondary:first-of-type {
     display: none;
   }
 

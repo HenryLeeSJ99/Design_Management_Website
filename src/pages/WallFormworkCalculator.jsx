@@ -13,7 +13,6 @@ export default function WallFormworkCalculator() {
   const [inputMode, setInputMode] = useState('pressure'); // 'pressure' or 'rate'
   const [density, setDensity] = useState(25.0);
   const [temp, setTemp] = useState(15);
-  const [formHeight, setFormHeight] = useState(5.0);
   const [pourHeight, setPourHeight] = useState(5.0);
   
   const [maxPressure, setMaxPressure] = useState(60.0);
@@ -38,7 +37,7 @@ export default function WallFormworkCalculator() {
       const R = solveRateOfRise({
         D: Number(density),
         T: Number(temp),
-        H: Number(formHeight),
+        H: Number(pourHeight),
         h: Number(pourHeight),
         P_target: Number(maxPressure),
         C1,
@@ -51,7 +50,7 @@ export default function WallFormworkCalculator() {
       P_val = calculatePressureCiria108({
         D: Number(density),
         T: Number(temp),
-        H: Number(formHeight),
+        H: Number(pourHeight),
         h: Number(pourHeight),
         R: R_val,
         C1,
@@ -69,7 +68,7 @@ export default function WallFormworkCalculator() {
     setPourTime(t);
 
     setChartData(generatePressureChartData(P_val, Number(pourHeight), Number(density)));
-  }, [boundary, concreteType, density, temp, formHeight, pourHeight, maxPressure, rateOfRise, inputMode]);
+  }, [boundary, concreteType, density, temp, pourHeight, maxPressure, rateOfRise, inputMode]);
 
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
@@ -141,12 +140,7 @@ export default function WallFormworkCalculator() {
             </div>
 
             <div className={styles.fieldRow}>
-              <span className={styles.fieldLabel}>Vertical form height H (m)</span>
-              <input type="number" step="0.1" className={styles.fieldInput} value={formHeight} onChange={(e) => setFormHeight(e.target.value)} />
-            </div>
-
-            <div className={styles.fieldRow}>
-              <span className={styles.fieldLabel}>Pouring height h (m)</span>
+              <span className={styles.fieldLabel}>Pouring / Form height H (m)</span>
               <input type="number" step="0.1" className={styles.fieldInput} value={pourHeight} onChange={(e) => setPourHeight(e.target.value)} />
             </div>
           </div>
@@ -240,7 +234,7 @@ export default function WallFormworkCalculator() {
                   label: 'h [m]', 
                   dataKey: 'height',
                   domain: [0, (dataMax) => Math.max(2, Math.ceil(dataMax))],
-                  props: { type: 'number', reversed: false }
+                  props: { type: 'number', reversed: true }
                 }}
                 referenceLines={[
                   { y: 0, stroke: '#64748b', strokeDasharray: '3 3', label: 'Base (y=0)' },
@@ -293,8 +287,7 @@ export default function WallFormworkCalculator() {
                 <li><strong>Concrete Type:</strong> {concreteType === 'normal' ? 'Normal without admixtures' : 'Retarder'} (C₂ = {concreteType === 'normal' ? '0.3' : '0.45'})</li>
                 <li><strong>Density (D):</strong> {density} kN/m³</li>
                 <li><strong>Temperature (T):</strong> {temp} °C</li>
-                <li><strong>Form Height (H):</strong> {formHeight} m</li>
-                <li><strong>Pour Height (h):</strong> {pourHeight} m</li>
+                <li><strong>Pouring / Form Height (H):</strong> {pourHeight} m</li>
               </ul>
 
               <h3 style={{ marginTop: '2rem', fontSize: '1.1rem' }}>2. CIRIA 108 Formula</h3>
@@ -324,7 +317,7 @@ export default function WallFormworkCalculator() {
 
                   <p>3. Evaluate condition C₁√R {'>'} H:</p>
                   <pre style={{ background: '#f1f5f9', padding: '0.5rem' }}>{boundary === 'wall' ? '1.0' : '1.5'} × {Math.sqrt(Number(rateOfRise)).toFixed(3)} = {((boundary === 'wall' ? 1.0 : 1.5) * Math.sqrt(Number(rateOfRise))).toFixed(3)}</pre>
-                  {((boundary === 'wall' ? 1.0 : 1.5) * Math.sqrt(Number(rateOfRise))) > Number(formHeight) ? (
+                  {((boundary === 'wall' ? 1.0 : 1.5) * Math.sqrt(Number(rateOfRise))) > Number(pourHeight) ? (
                     <p style={{ color: 'red' }}>Condition C₁√R {'>'} H is met. Design pressure is fully fluid.</p>
                   ) : (
                     <p>Condition is not met. Applying CIRIA equation.</p>

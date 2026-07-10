@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Save, FileText, Play, CheckCircle, XCircle, AlertTriangle, Info } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Save, FileText, Play, CheckCircle, XCircle, AlertTriangle, Info, Layers, Grid, Columns, Rows, ArrowUpDown } from 'lucide-react';
 import { calculateSlabFormwork } from '../engine/formwork/slabFormwork.js';
 import styles from './SlabFormworkCalculator.module.css';
+import slabDiagram from '../assets/slab-diagram.png';
+
 
 const getSessionData = (key, defaultValue) => {
   try {
@@ -38,7 +40,24 @@ export default function SlabFormworkCalculator() {
   });
 
   const [activeTab, setActiveTab] = useState(() => getSessionData('tempworks_slabformwork_active_tab', 'configuration'));
-  const [activeMarker, setActiveMarker] = useState(null); // Which diagram marker is clicked
+  const [activeMarker, setActiveMarker] = useState('slab'); // Which diagram marker is clicked
+
+  const sectionRefs = {
+    slab: useRef(null),
+    panel: useRef(null),
+    secondary: useRef(null),
+    primary: useRef(null),
+    shoring: useRef(null),
+  };
+
+  useEffect(() => {
+    if (activeMarker && sectionRefs[activeMarker]?.current) {
+      sectionRefs[activeMarker].current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+      });
+    }
+  }, [activeMarker]);
 
   const [slabThickness, setSlabThickness] = useState(initialInputs.slabThickness);
   const [unitWeight, setUnitWeight] = useState(initialInputs.unitWeight);
@@ -181,7 +200,6 @@ export default function SlabFormworkCalculator() {
                 secondaryBeamType={secondaryBeamType}
                 primaryBeamType={primaryBeamType}
                 panelType={panelType}
-                shoringSystem={shoringSystem}
                 shoringType={shoringType}
               />
             </div>
@@ -191,173 +209,283 @@ export default function SlabFormworkCalculator() {
               <div className={styles.card}>
                 <div className={styles.cardHeader}>Configuration details</div>
                 
-                {!activeMarker && (
-                  <div className={styles.placeholderPanel}>
-                    <Info size={24} style={{ color: '#94a3b8', marginBottom: '1rem' }} />
-                    <p>Click on the circular markers in the diagram to configure specific formwork components and dimensions.</p>
-                  </div>
-                )}
-
-                {activeMarker === 'slab' && (
-                  <div className={styles.formStack}>
-                    <h3 className={styles.panelTitle}>Slab Properties</h3>
-                    <label className={styles.fieldInline}>
-                      <span>1. Slab Thickness</span>
-                      <div className={styles.unitInput}>
-                        <input type="number" value={slabThickness} onChange={(e) => setSlabThickness(e.target.value)} />
-                        <span>mm</span>
-                      </div>
-                    </label>
-                    <label className={styles.fieldInline}>
-                      <span>Unit Weight of Concrete</span>
-                      <div className={styles.unitInput}>
-                        <input type="number" value={unitWeight} onChange={(e) => setUnitWeight(e.target.value)} />
-                        <span>kN/m³</span>
-                      </div>
-                    </label>
-                  </div>
-                )}
-
-                {activeMarker === 'panel' && (
-                  <div className={styles.formStack}>
-                    <h3 className={styles.panelTitle}>Formwork Panel</h3>
-                    <label className={styles.field}>
-                      <span>Panel Type</span>
-                      <select value={panelType} onChange={(e) => setPanelType(e.target.value)}>
-                        <option>WONDERBoard MG Series</option>
-                        <option>Plywood 18 mm</option>
-                        <option>Phenolic Board</option>
-                      </select>
-                    </label>
-                    <label className={styles.field}>
-                      <span>Panel Thickness</span>
-                      <select value={panelThickness} onChange={(e) => setPanelThickness(e.target.value)}>
-                        <option>12 mm</option>
-                        <option>15 mm</option>
-                        <option>18 mm</option>
-                      </select>
-                    </label>
-                    <label className={styles.field}>
-                      <span>Panel Direction</span>
-                      <select value={panelDirection} onChange={(e) => setPanelDirection(e.target.value)}>
-                        <option>Perpendicular to Secondary Beam</option>
-                        <option>Parallel to Secondary Beam</option>
-                      </select>
-                    </label>
-                    <p className={styles.noteText}>* Panel assumed as multi-span configuration.</p>
-                  </div>
-                )}
-
-                {activeMarker === 'secondary' && (
-                  <div className={styles.formStack}>
-                    <h3 className={styles.panelTitle}>Secondary Beams</h3>
-                    <label className={styles.field}>
-                      <span>Beam Type</span>
-                      <select value={secondaryBeamType} onChange={(e) => setSecondaryBeamType(e.target.value)}>
-                        <option>WONDERBeam Alpha-Beam</option>
-                        <option>Timber H20 Beam</option>
-                        <option>Aluminium Joist</option>
-                      </select>
-                    </label>
-                    <label className={styles.field}>
-                      <span>Span Configuration</span>
-                      <select value={secondarySpanCount} onChange={(e) => setSecondarySpanCount(Number(e.target.value))}>
-                        <option value={1}>Single Span</option>
-                        <option value={2}>Two Span</option>
-                        <option value={3}>Three Span and above</option>
-                      </select>
-                    </label>
-                    <label className={styles.fieldInline}>
-                      <span>2. Spacing (C/C)</span>
-                      <div className={styles.unitInput}>
-                        <input type="number" step="0.05" value={secondarySpacing} onChange={(e) => setSecondarySpacing(e.target.value)} />
-                        <span>m</span>
-                      </div>
-                    </label>
-                  </div>
-                )}
-
-                {activeMarker === 'primary' && (
-                  <div className={styles.formStack}>
-                    <h3 className={styles.panelTitle}>Primary Beams</h3>
-                    <label className={styles.field}>
-                      <span>Beam Type</span>
-                      <select value={primaryBeamType} onChange={(e) => setPrimaryBeamType(e.target.value)}>
-                        <option>WONDERBeam Alpha-Beam</option>
-                        <option>Timber H20 Beam</option>
-                        <option>Aluminium Joist</option>
-                      </select>
-                    </label>
-                    <label className={styles.field}>
-                      <span>Span Configuration</span>
-                      <select value={primarySpanCount} onChange={(e) => setPrimarySpanCount(Number(e.target.value))}>
-                        <option value={1}>Single Span</option>
-                        <option value={2}>Two Span</option>
-                        <option value={3}>Three Span and above</option>
-                      </select>
-                    </label>
-                    <label className={styles.fieldInline}>
-                      <span>3. Spacing (C/C)</span>
-                      <div className={styles.unitInput}>
-                        <input type="number" step="0.1" value={primarySpacing} onChange={(e) => setPrimarySpacing(e.target.value)} />
-                        <span>m</span>
-                      </div>
-                    </label>
-                  </div>
-                )}
-
-                {activeMarker === 'shoring' && (
-                  <div className={styles.formStack}>
-                    <h3 className={styles.panelTitle}>Shoring System</h3>
-                    
-                    <div className={styles.radioGroup} style={{ marginBottom: '1rem' }}>
-                      <label className={styles.radioLabel}>
-                        <input type="radio" checked={shoringSystem === 'tower'} onChange={() => { setShoringSystem('tower'); setShoringType('WonderCrab M'); }} /> Tower
+                <div className={styles.formContainer}>
+                  {/* Slab Properties */}
+                  <div
+                    ref={sectionRefs.slab}
+                    className={`${styles.formSection} ${activeMarker === 'slab' ? styles.activeSection : ''}`}
+                    onClick={() => setActiveMarker('slab')}
+                  >
+                    <div className={styles.sectionHeader}>
+                      <Layers size={16} className={styles.sectionIcon} />
+                      <h3 className={styles.panelTitle}>Slab Properties</h3>
+                    </div>
+                    <div className={styles.formStack}>
+                      <label className={styles.fieldInline}>
+                        <span>Slab Thickness</span>
+                        <div className={styles.unitInput}>
+                          <input
+                            type="number"
+                            value={slabThickness}
+                            onChange={(e) => setSlabThickness(e.target.value)}
+                            onFocus={() => setActiveMarker('slab')}
+                          />
+                          <span>mm</span>
+                        </div>
                       </label>
-                      <label className={styles.radioLabel}>
-                        <input type="radio" checked={shoringSystem === 'prop'} onChange={() => { setShoringSystem('prop'); setShoringType('Prop'); }} /> Prop
+                      <label className={styles.fieldInline}>
+                        <span>Concrete Unit Weight</span>
+                        <div className={styles.unitInput}>
+                          <input
+                            type="number"
+                            value={unitWeight}
+                            onChange={(e) => setUnitWeight(e.target.value)}
+                            onFocus={() => setActiveMarker('slab')}
+                          />
+                          <span>kN/m³</span>
+                        </div>
                       </label>
                     </div>
+                  </div>
 
-                    <label className={styles.field}>
-                      <span>Shoring Type</span>
-                      <select value={shoringType} onChange={(e) => setShoringType(e.target.value)}>
-                        {shoringSystem === 'tower' ? (
-                          <>
-                            <option>WonderCrab M</option>
-                            <option>Ringlock Tower</option>
-                            <option>Frame Tower</option>
-                          </>
-                        ) : (
-                          <>
-                            <option>Prop (Light duty)</option>
-                            <option>Prop (Heavy duty)</option>
-                          </>
-                        )}
-                      </select>
-                    </label>
-
-                    <label className={styles.fieldInline}>
-                      <span>4. Distance between supports (Span Length)</span>
-                      <div className={styles.unitInput}>
-                        <input type="number" step="0.1" value={primarySpanLength} onChange={(e) => setPrimarySpanLength(e.target.value)} />
-                        <span>m</span>
-                      </div>
-                    </label>
-                    
-                    <label className={styles.fieldInline}>
-                      <span>Height</span>
-                      <div className={styles.unitInput}>
-                        <input type="number" step="0.1" value={towerHeight} onChange={(e) => setTowerHeight(e.target.value)} />
-                        <span>m</span>
-                      </div>
-                    </label>
-
-                    <div className={styles.infoBox}>
-                      Grid spacing is automatically derived: <strong>{primarySpacing} m × {primarySpanLength} m</strong>
+                  {/* Formwork Panel */}
+                  <div
+                    ref={sectionRefs.panel}
+                    className={`${styles.formSection} ${activeMarker === 'panel' ? styles.activeSection : ''}`}
+                    onClick={() => setActiveMarker('panel')}
+                  >
+                    <div className={styles.sectionHeader}>
+                      <Grid size={16} className={styles.sectionIcon} />
+                      <h3 className={styles.panelTitle}>Formwork Panel</h3>
+                    </div>
+                    <div className={styles.formStack}>
+                      <label className={styles.field}>
+                        <span>Panel Type</span>
+                        <select
+                          value={panelType}
+                          onChange={(e) => setPanelType(e.target.value)}
+                          onFocus={() => setActiveMarker('panel')}
+                        >
+                          <option>WONDERBoard MG Series</option>
+                          <option>Plywood 18 mm</option>
+                          <option>Phenolic Board</option>
+                        </select>
+                      </label>
+                      <label className={styles.field}>
+                        <span>Panel Thickness</span>
+                        <select
+                          value={panelThickness}
+                          onChange={(e) => setPanelThickness(e.target.value)}
+                          onFocus={() => setActiveMarker('panel')}
+                        >
+                          <option>12 mm</option>
+                          <option>15 mm</option>
+                          <option>18 mm</option>
+                        </select>
+                      </label>
+                      <label className={styles.field}>
+                        <span>Panel Direction</span>
+                        <select
+                          value={panelDirection}
+                          onChange={(e) => setPanelDirection(e.target.value)}
+                          onFocus={() => setActiveMarker('panel')}
+                        >
+                          <option>Perpendicular to Secondary Beam</option>
+                          <option>Parallel to Secondary Beam</option>
+                        </select>
+                      </label>
+                      <p className={styles.noteText}>* Panel assumed as multi-span configuration.</p>
                     </div>
                   </div>
-                )}
+
+                  {/* Secondary Beams */}
+                  <div
+                    ref={sectionRefs.secondary}
+                    className={`${styles.formSection} ${activeMarker === 'secondary' ? styles.activeSection : ''}`}
+                    onClick={() => setActiveMarker('secondary')}
+                  >
+                    <div className={styles.sectionHeader}>
+                      <Columns size={16} className={styles.sectionIcon} />
+                      <h3 className={styles.panelTitle}>Secondary Beams</h3>
+                    </div>
+                    <div className={styles.formStack}>
+                      <label className={styles.field}>
+                        <span>Beam Type</span>
+                        <select
+                          value={secondaryBeamType}
+                          onChange={(e) => setSecondaryBeamType(e.target.value)}
+                          onFocus={() => setActiveMarker('secondary')}
+                        >
+                          <option>WONDERBeam Alpha-Beam</option>
+                          <option>Timber H20 Beam</option>
+                          <option>Aluminium Joist</option>
+                        </select>
+                      </label>
+                      <label className={styles.field}>
+                        <span>Span Configuration</span>
+                        <select
+                          value={secondarySpanCount}
+                          onChange={(e) => setSecondarySpanCount(Number(e.target.value))}
+                          onFocus={() => setActiveMarker('secondary')}
+                        >
+                          <option value={1}>Single Span</option>
+                          <option value={2}>Two Span</option>
+                          <option value={3}>Three Span and above</option>
+                        </select>
+                      </label>
+                      <label className={styles.fieldInline}>
+                        <span>Spacing (C/C)</span>
+                        <div className={styles.unitInput}>
+                          <input
+                            type="number"
+                            step="0.05"
+                            value={secondarySpacing}
+                            onChange={(e) => setSecondarySpacing(e.target.value)}
+                            onFocus={() => setActiveMarker('secondary')}
+                          />
+                          <span>m</span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Primary Beams */}
+                  <div
+                    ref={sectionRefs.primary}
+                    className={`${styles.formSection} ${activeMarker === 'primary' ? styles.activeSection : ''}`}
+                    onClick={() => setActiveMarker('primary')}
+                  >
+                    <div className={styles.sectionHeader}>
+                      <Rows size={16} className={styles.sectionIcon} />
+                      <h3 className={styles.panelTitle}>Primary Beams</h3>
+                    </div>
+                    <div className={styles.formStack}>
+                      <label className={styles.field}>
+                        <span>Beam Type</span>
+                        <select
+                          value={primaryBeamType}
+                          onChange={(e) => setPrimaryBeamType(e.target.value)}
+                          onFocus={() => setActiveMarker('primary')}
+                        >
+                          <option>WONDERBeam Alpha-Beam</option>
+                          <option>Timber H20 Beam</option>
+                          <option>Aluminium Joist</option>
+                        </select>
+                      </label>
+                      <label className={styles.field}>
+                        <span>Span Configuration</span>
+                        <select
+                          value={primarySpanCount}
+                          onChange={(e) => setPrimarySpanCount(Number(e.target.value))}
+                          onFocus={() => setActiveMarker('primary')}
+                        >
+                          <option value={1}>Single Span</option>
+                          <option value={2}>Two Span</option>
+                          <option value={3}>Three Span and above</option>
+                        </select>
+                      </label>
+                      <label className={styles.fieldInline}>
+                        <span>Spacing (C/C)</span>
+                        <div className={styles.unitInput}>
+                          <input
+                            type="number"
+                            step="0.1"
+                            value={primarySpacing}
+                            onChange={(e) => setPrimarySpacing(e.target.value)}
+                            onFocus={() => setActiveMarker('primary')}
+                          />
+                          <span>m</span>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* Shoring System */}
+                  <div
+                    ref={sectionRefs.shoring}
+                    className={`${styles.formSection} ${activeMarker === 'shoring' ? styles.activeSection : ''}`}
+                    onClick={() => setActiveMarker('shoring')}
+                  >
+                    <div className={styles.sectionHeader}>
+                      <ArrowUpDown size={16} className={styles.sectionIcon} />
+                      <h3 className={styles.panelTitle}>Shoring System</h3>
+                    </div>
+                    <div className={styles.formStack}>
+                      <div className={styles.radioGroup} style={{ marginBottom: '1rem' }}>
+                        <label className={styles.radioLabel}>
+                          <input
+                            type="radio"
+                            checked={shoringSystem === 'tower'}
+                            onChange={() => { setShoringSystem('tower'); setShoringType('WonderCrab M'); }}
+                            onFocus={() => setActiveMarker('shoring')}
+                          /> Tower
+                        </label>
+                        <label className={styles.radioLabel}>
+                          <input
+                            type="radio"
+                            checked={shoringSystem === 'prop'}
+                            onChange={() => { setShoringSystem('prop'); setShoringType('Prop'); }}
+                            onFocus={() => setActiveMarker('shoring')}
+                          /> Prop
+                        </label>
+                      </div>
+
+                      <label className={styles.field}>
+                        <span>Shoring Type</span>
+                        <select
+                          value={shoringType}
+                          onChange={(e) => setShoringType(e.target.value)}
+                          onFocus={() => setActiveMarker('shoring')}
+                        >
+                          {shoringSystem === 'tower' ? (
+                            <>
+                              <option>WonderCrab M</option>
+                              <option>Ringlock Tower</option>
+                              <option>Frame Tower</option>
+                            </>
+                          ) : (
+                            <>
+                              <option>Prop (Light duty)</option>
+                              <option>Prop (Heavy duty)</option>
+                            </>
+                          )}
+                        </select>
+                      </label>
+
+                      <label className={styles.fieldInline}>
+                        <span>Support Span Length</span>
+                        <div className={styles.unitInput}>
+                          <input
+                            type="number"
+                            step="0.1"
+                            value={primarySpanLength}
+                            onChange={(e) => setPrimarySpanLength(e.target.value)}
+                            onFocus={() => setActiveMarker('shoring')}
+                          />
+                          <span>m</span>
+                        </div>
+                      </label>
+                      
+                      <label className={styles.fieldInline}>
+                        <span>Height</span>
+                        <div className={styles.unitInput}>
+                          <input
+                            type="number"
+                            step="0.1"
+                            value={towerHeight}
+                            onChange={(e) => setTowerHeight(e.target.value)}
+                            onFocus={() => setActiveMarker('shoring')}
+                          />
+                          <span>m</span>
+                        </div>
+                      </label>
+
+                      <div className={styles.infoBox}>
+                        Grid spacing derived: <strong>{primarySpacing} m × {primarySpanLength} m</strong>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -396,38 +524,40 @@ function InteractiveDiagram({ activeMarker, setActiveMarker, slabThickness, seco
     <div className={styles.diagramWrapper}>
       {/* A stylized SVG isometric representation of the formwork system */}
       <svg viewBox="0 0 800 600" className={styles.svgDiagram}>
-        <image href="/src/assets/slab-diagram.png" x="0" y="0" width="800" height="600" preserveAspectRatio="xMidYMid meet" />
+        <image href={slabDiagram} x="0" y="0" width="800" height="600" preserveAspectRatio="xMidYMid meet" />
 
         {/* Markers overlaid on the image */}
-        {/* 1 Slab Thickness (Right edge) */}
-        <Marker x="680" y="160" id="slab" label="1" active={activeMarker === 'slab'} onClick={() => setActiveMarker('slab')} text={`Slab: ${slabThickness} mm`} />
+        {/* Slab Thickness (Right edge) */}
+        <Marker x="680" y="160" active={activeMarker === 'slab'} onClick={() => setActiveMarker('slab')} text={`Slab: ${slabThickness} mm`} />
         
-        {/* 2 Distance between Secondary Beams (Top center) */}
-        <Marker x="460" y="140" id="secondary" label="2" active={activeMarker === 'secondary'} onClick={() => setActiveMarker('secondary')} text={`Sec: ${secondarySpacing} m`} type="blue" />
+        {/* Distance between Secondary Beams (Top center) */}
+        <Marker x="460" y="140" active={activeMarker === 'secondary'} onClick={() => setActiveMarker('secondary')} text={`Sec: ${secondarySpacing} m`} type="blue" />
         
-        {/* 3 Distance between Primary Beams (Left side) */}
-        <Marker x="140" y="440" id="primary" label="3" active={activeMarker === 'primary'} onClick={() => setActiveMarker('primary')} text={`Pri: ${primarySpacing} m`} type="blue" />
+        {/* Distance between Primary Beams (Left side) */}
+        <Marker x="140" y="440" active={activeMarker === 'primary'} onClick={() => setActiveMarker('primary')} text={`Pri: ${primarySpacing} m`} type="blue" />
         
-        {/* 4 Distance between Primary Beam Supports (Bottom center) */}
-        <Marker x="420" y="550" id="shoring" label="4" active={activeMarker === 'shoring'} onClick={() => setActiveMarker('shoring')} text={`Span: ${primarySpanLength} m`} />
+        {/* Distance between Primary Beam Supports (Bottom center) */}
+        <Marker x="420" y="550" active={activeMarker === 'shoring'} onClick={() => setActiveMarker('shoring')} text={`Span: ${primarySpanLength} m`} />
         
         {/* Component Markers */}
-        <Marker x="360" y="200" id="panel" active={activeMarker === 'panel'} onClick={() => setActiveMarker('panel')} text={panelType} type="blue" noLabel={true} />
-        <Marker x="246" y="500" id="shoring_comp" active={activeMarker === 'shoring'} onClick={() => setActiveMarker('shoring')} text={shoringType} type="blue" noLabel={true} />
+        <Marker x="360" y="200" active={activeMarker === 'panel'} onClick={() => setActiveMarker('panel')} text={panelType} type="blue" />
+        <Marker x="246" y="500" active={activeMarker === 'shoring'} onClick={() => setActiveMarker('shoring')} text={shoringType} type="blue" />
       </svg>
     </div>
   );
 }
 
-function Marker({ x, y, label, text, active, onClick, id, type = 'yellow', noLabel = false }) {
+function Marker({ x, y, text, active, onClick, type = 'yellow' }) {
   const isYellow = type === 'yellow';
+  const color = isYellow ? "#eab308" : "#2563eb";
   return (
     <g transform={`translate(${x}, ${y})`} onClick={onClick} style={{ cursor: 'pointer' }} className={styles.markerGroup}>
-      {active && <circle cx="0" cy="0" r={noLabel ? "20" : "24"} fill={isYellow ? "#fbbf24" : "#2563eb"} className={styles.pulseCircle} />}
-      <circle cx="0" cy="0" r={noLabel ? "14" : "18"} fill={isYellow ? "#fbbf24" : "#2563eb"} stroke="white" strokeWidth="3" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' }} />
-      {!noLabel && <text x="0" y="5" textAnchor="middle" fill={isYellow ? "#000" : "#fff"} fontSize="14" fontWeight="bold">{label}</text>}
-      <rect x={noLabel ? "18" : "24"} y="-12" width={text.length * 7 + 10} height="24" rx="4" fill="white" stroke="#e2e8f0" />
-      <text x={noLabel ? "23" : "29"} y="4" fontSize="12" fill="#334155" fontWeight="500">{text}</text>
+      {active && <circle cx="0" cy="0" r="18" fill={color} className={styles.pulseCircle} />}
+      <circle cx="0" cy="0" r="9" fill={color} stroke="white" strokeWidth="2.5" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.25))' }} />
+      <g className={styles.tooltipGroup} style={{ transform: active ? 'scale(1.05)' : 'none', transformOrigin: '0px 0px', transition: 'transform 0.2s ease' }}>
+        <rect x="14" y="-12" width={text.length * 7 + 10} height="22" rx="6" fill="white" stroke={active ? color : "#cbd5e1"} strokeWidth={active ? "1.5" : "1"} style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.06))' }} />
+        <text x="19" y="3" fontSize="11" fill="#334155" fontWeight="600">{text}</text>
+      </g>
     </g>
   );
 }

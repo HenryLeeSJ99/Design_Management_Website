@@ -369,7 +369,10 @@ export default function MultiBeamCalculator() {
     loads: [
       { type: 'udl', spanIndex: 0, posStart: 0, posEnd: 3000, magnitude: 10 },
       { type: 'point', spanIndex: 1, pos: 1500, magnitude: 5 },
-    ]
+    ],
+    projectId: 'TW-2026-MULTI',
+    calculatedBy: 'Antigravity AI',
+    verificationDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
   });
 
   const [activeTab, setActiveTab] = useState(() => getSessionData('tempworks_multibeam_active_tab', 'configuration'));
@@ -392,15 +395,17 @@ export default function MultiBeamCalculator() {
   const [deflectionLimit, setDeflectionLimit] = useState(initialInputs.deflectionLimit);
   const [spans, setSpans] = useState(initialInputs.spans);
   const [loads, setLoads] = useState(initialInputs.loads);
+  const [projectId, setProjectId] = useState(initialInputs.projectId);
+  const [calculatedBy, setCalculatedBy] = useState(initialInputs.calculatedBy);
+  const [verificationDate, setVerificationDate] = useState(initialInputs.verificationDate);
   const [results, setResults] = useState(() => getSessionData('tempworks_multibeam_results', null));
   const [calcError, setCalcError] = useState(null);
   const [isCalculating, setIsCalculating] = useState(false);
 
-
   // Save inputs and invalidate results if any input changes after initial load
   useEffect(() => {
     const savedInputs = getSessionData('tempworks_multibeam_inputs', null);
-    const currentInputs = { material, sectionType, steelGrade, sectionSize, systemCompany, isTwinProfile, includeSelfWeight, loadFactor, materialFactor, deflectionLimit, spans, loads };
+    const currentInputs = { material, sectionType, steelGrade, sectionSize, systemCompany, isTwinProfile, includeSelfWeight, loadFactor, materialFactor, deflectionLimit, spans, loads, projectId, calculatedBy, verificationDate };
 
     if (savedInputs && JSON.stringify(currentInputs) === JSON.stringify(savedInputs)) {
       return;
@@ -409,7 +414,7 @@ export default function MultiBeamCalculator() {
     setResults(null);
     sessionStorage.removeItem('tempworks_multibeam_results');
     saveSessionData('tempworks_multibeam_inputs', currentInputs);
-  }, [material, sectionType, steelGrade, sectionSize, isTwinProfile, includeSelfWeight, loadFactor, materialFactor, deflectionLimit, spans, loads]);
+  }, [material, sectionType, steelGrade, sectionSize, systemCompany, isTwinProfile, includeSelfWeight, loadFactor, materialFactor, deflectionLimit, spans, loads, projectId, calculatedBy, verificationDate]);
 
   // Save active tab to session storage
   useEffect(() => {
@@ -1039,6 +1044,48 @@ export default function MultiBeamCalculator() {
                     </div>
                     <p className={styles.helperText}>Positions are measured from the left end of each span.</p>
                   </div>
+                  
+                  {/* Report Details */}
+                  <div className={styles.card}>
+                    <div style={{ padding: '16px 18px', borderBottom: '1px solid #e2e8f0', background: '#f8fafc', fontWeight: 600, color: '#334155' }}>
+                      Report Details
+                    </div>
+                    <div style={{ padding: '16px 18px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <label className={styles.fieldRow}>
+                        <span className={styles.fieldLabel}>Project ID</span>
+                        <input 
+                          type="text" 
+                          className={styles.fieldInput} 
+                          value={projectId} 
+                          onChange={(e) => setProjectId(e.target.value)} 
+                          placeholder="e.g. TW-2026-MULTI"
+                          style={{ width: '180px' }}
+                        />
+                      </label>
+                      <label className={styles.fieldRow}>
+                        <span className={styles.fieldLabel}>Calculated By</span>
+                        <input 
+                          type="text" 
+                          className={styles.fieldInput} 
+                          value={calculatedBy} 
+                          onChange={(e) => setCalculatedBy(e.target.value)} 
+                          placeholder="e.g. Engineer Name"
+                          style={{ width: '180px' }}
+                        />
+                      </label>
+                      <label className={styles.fieldRow}>
+                        <span className={styles.fieldLabel}>Verification Date</span>
+                        <input 
+                          type="text" 
+                          className={styles.fieldInput} 
+                          value={verificationDate} 
+                          onChange={(e) => setVerificationDate(e.target.value)} 
+                          placeholder="DD MMM YYYY"
+                          style={{ width: '180px' }}
+                        />
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
             )}
@@ -1057,7 +1104,15 @@ export default function MultiBeamCalculator() {
             {/* ─── REPORT TAB ─── */}
             {activeTab === 'report' && (
               results ? (
-                <PDFReportPreview results={results} spans={spans} loads={loads} systemCompany={systemCompany} />
+                <PDFReportPreview 
+                  results={results} 
+                  spans={spans} 
+                  loads={loads} 
+                  systemCompany={systemCompany} 
+                  projectId={projectId}
+                  calculatedBy={calculatedBy}
+                  verificationDate={verificationDate}
+                />
               ) : (
                 <div className={styles.card} style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
                   <div style={{ fontSize: 48, marginBottom: 12 }}>📋</div>
@@ -1391,7 +1446,7 @@ function ResultsPanel({ results, spans, loads }) {
 }
 
 // ─── PDF Report Preview Component ─────────────────────────────────────────────
-function PDFReportPreview({ results, spans, loads, systemCompany }) {
+function PDFReportPreview({ results, spans, loads, systemCompany, projectId, calculatedBy, verificationDate }) {
   const {
     analysis,
     checks,
@@ -1433,7 +1488,7 @@ function PDFReportPreview({ results, spans, loads, systemCompany }) {
             @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
             * { box-sizing: border-box; margin: 0; padding: 0; }
             body { font-family: Inter, system-ui, sans-serif; background: #fff; color: #1e293b; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            @page { margin: 10mm; }
+            @page { margin: 0; }
           </style>
         </head>
         <body>${content.outerHTML}</body>
@@ -1519,15 +1574,15 @@ function PDFReportPreview({ results, spans, loads, systemCompany }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', background: '#f8fafc', padding: '10px 16px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
           <div>
             <span style={{ color: '#64748b', fontSize: '9px', textTransform: 'uppercase', fontWeight: 700 }}>Project ID</span>
-            <div style={{ fontWeight: 600, fontSize: '11px', color: '#0f172a' }}>TW-2026-MULTI</div>
+            <div style={{ fontWeight: 600, fontSize: '11px', color: '#0f172a' }}>{projectId || 'TW-2026-MULTI'}</div>
           </div>
           <div>
             <span style={{ color: '#64748b', fontSize: '9px', textTransform: 'uppercase', fontWeight: 700 }}>Calculated By</span>
-            <div style={{ fontWeight: 600, fontSize: '11px', color: '#0f172a' }}>Antigravity AI</div>
+            <div style={{ fontWeight: 600, fontSize: '11px', color: '#0f172a' }}>{calculatedBy || 'Antigravity AI'}</div>
           </div>
           <div>
             <span style={{ color: '#64748b', fontSize: '9px', textTransform: 'uppercase', fontWeight: 700 }}>Verification Date</span>
-            <div style={{ fontWeight: 600, fontSize: '11px', color: '#0f172a' }}>{dateStr}</div>
+            <div style={{ fontWeight: 600, fontSize: '11px', color: '#0f172a' }}>{verificationDate || dateStr}</div>
           </div>
           <div>
             <span style={{ color: '#64748b', fontSize: '9px', textTransform: 'uppercase', fontWeight: 700 }}>Design Status</span>
@@ -1605,13 +1660,15 @@ function PDFReportPreview({ results, spans, loads, systemCompany }) {
             <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '4px' }}>
               <tbody>
                 <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ padding: '4px 0', color: '#64748b' }}>ULS Load Factor (γF)</td>
-                  <td style={{ padding: '4px 0', fontWeight: 700, textAlign: 'right' }}>{Number(loadFactor).toFixed(2)}</td>
+                  <td style={{ padding: '4px 0', color: '#64748b' }}>ULS Combined Load & Material Factor (γ)</td>
+                  <td style={{ padding: '4px 0', fontWeight: 700, textAlign: 'right' }}>{material === 'system' ? Number(section.combinedLoadFactor || 1.65).toFixed(2) : Number(loadFactor).toFixed(2)}</td>
                 </tr>
-                <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ padding: '4px 0', color: '#64748b' }}>ULS Material Factor (γM)</td>
-                  <td style={{ padding: '4px 0', fontWeight: 700, textAlign: 'right' }}>{material === 'system' ? 'N/A (Allowable Check)' : Number(materialFactor).toFixed(2)}</td>
-                </tr>
+                {material === 'steel' && (
+                  <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '4px 0', color: '#64748b' }}>ULS Material Factor (γM)</td>
+                    <td style={{ padding: '4px 0', fontWeight: 700, textAlign: 'right' }}>{Number(materialFactor).toFixed(2)}</td>
+                  </tr>
+                )}
                 <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
                   <td style={{ padding: '4px 0', color: '#64748b' }}>SLS Deflection Limit</td>
                   <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>L / {deflectionLimit}</td>
@@ -1620,46 +1677,16 @@ function PDFReportPreview({ results, spans, loads, systemCompany }) {
                   <td style={{ padding: '4px 0', color: '#64748b' }}>Selfweight Inclusion</td>
                   <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{includeSelfWeight ? `YES (${roundN(w_sw, 3)} kN/m)` : 'NO'}</td>
                 </tr>
-                <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ padding: '4px 0', color: '#64748b' }}>Active Load Cases</td>
-                  <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{loads.length} Case(s)</td>
-                </tr>
               </tbody>
             </table>
           </div>
         </div>
 
-        {/* 3. Load cases details vs Design verification check results */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.2fr', gap: '20px' }}>
+        {/* 4. Limit State Checks & Utilization Summary */}
+        <div>
           <div>
             <div style={{ fontSize: '11px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', marginBottom: '4px', borderBottom: '1px solid #cbd5e1', paddingBottom: '3px' }}>
-              4. Load Case Details
-            </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '4px' }}>
-              <thead>
-                <tr style={{ borderBottom: '1.5px solid #cbd5e1', color: '#64748b', fontSize: '9px', textTransform: 'uppercase' }}>
-                  <th style={{ padding: '4px 0', textAlign: 'left' }}>Span</th>
-                  <th style={{ padding: '4px 0', textAlign: 'left' }}>Type</th>
-                  <th style={{ padding: '4px 0', textAlign: 'left' }}>Interval (mm)</th>
-                  <th style={{ padding: '4px 0', textAlign: 'right' }}>Mag</th>
-                </tr>
-              </thead>
-              <tbody>
-                {loads.map((l, idx) => (
-                  <tr style={{ borderBottom: '1px solid #f1f5f9' }} key={idx}>
-                    <td style={{ padding: '4px 0' }}>Span {l.spanIndex + 1}</td>
-                    <td style={{ padding: '4px 0', textTransform: 'uppercase' }}>{l.type}</td>
-                    <td style={{ padding: '4px 0' }}>{l.type === 'udl' ? `${l.posStart}-${l.posEnd === '' ? 'End' : l.posEnd}` : `${l.pos}`}</td>
-                    <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{l.magnitude} {l.type === 'udl' ? 'kN/m' : 'kN'}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div>
-            <div style={{ fontSize: '11px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', marginBottom: '4px', borderBottom: '1px solid #cbd5e1', paddingBottom: '3px' }}>
-              5. Limit State Checks & Utilization Summary
+              4. Limit State Checks & Utilization Summary
             </div>
             <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '4px' }}>
               <thead>
@@ -1667,7 +1694,7 @@ function PDFReportPreview({ results, spans, loads, systemCompany }) {
                   <th style={{ padding: '4px 0', textAlign: 'left' }}>Design Check</th>
                   <th style={{ padding: '4px 0', textAlign: 'center' }}>Applied Force</th>
                   <th style={{ padding: '4px 0', textAlign: 'center' }}>Design Capacity</th>
-                  <th style={{ padding: '4px 0', textAlign: 'center' }}>Ratio</th>
+                  <th style={{ padding: '4px 0', textAlign: 'left' }}>Utilization</th>
                   <th style={{ padding: '4px 0', textAlign: 'right' }}>Status</th>
                 </tr>
               </thead>
@@ -1679,8 +1706,8 @@ function PDFReportPreview({ results, spans, loads, systemCompany }) {
                   <td style={{ padding: '5px 0', textAlign: 'center' }}>
                     {material === 'steel' ? roundN(checks.bending?.Mc_Rd, 2) : roundN(section.Mallow * (isTwinProfile ? 2 : 1), 2)} kNm
                   </td>
-                  <td style={{ padding: '5px 0', textAlign: 'center', fontWeight: 700 }}>
-                    {((material === 'steel' ? checks.bending?.ratio : checks.systemBeam?.bendingCheck?.ratio) * 100).toFixed(1)}%
+                  <td style={{ padding: '5px 0', width: '120px' }}>
+                    <UtilBar ratio={material === 'steel' ? (checks.bending?.ratio || 0) : (checks.systemBeam?.bendingCheck?.ratio || 0)} />
                   </td>
                   <td style={{ padding: '5px 0', textAlign: 'right', fontWeight: 800, color: (material === 'steel' ? checks.bending?.pass : checks.systemBeam?.bendingCheck?.pass) ? '#16a34a' : '#ef4444' }}>
                     {(material === 'steel' ? checks.bending?.pass : checks.systemBeam?.bendingCheck?.pass) ? 'PASS' : 'FAIL'}
@@ -1693,8 +1720,8 @@ function PDFReportPreview({ results, spans, loads, systemCompany }) {
                   <td style={{ padding: '5px 0', textAlign: 'center' }}>
                     {material === 'steel' ? roundN(checks.shear?.Vc_Rd, 2) : roundN(section.Vallow * (isTwinProfile ? 2 : 1), 2)} kN
                   </td>
-                  <td style={{ padding: '5px 0', textAlign: 'center', fontWeight: 700 }}>
-                    {((material === 'steel' ? checks.shear?.ratio : checks.systemBeam?.shearCheck?.ratio) * 100).toFixed(1)}%
+                  <td style={{ padding: '5px 0', width: '120px' }}>
+                    <UtilBar ratio={material === 'steel' ? (checks.shear?.ratio || 0) : (checks.systemBeam?.shearCheck?.ratio || 0)} />
                   </td>
                   <td style={{ padding: '5px 0', textAlign: 'right', fontWeight: 800, color: (material === 'steel' ? checks.shear?.pass : checks.systemBeam?.shearCheck?.pass) ? '#16a34a' : '#ef4444' }}>
                     {(material === 'steel' ? checks.shear?.pass : checks.systemBeam?.shearCheck?.pass) ? 'PASS' : 'FAIL'}
@@ -1705,7 +1732,9 @@ function PDFReportPreview({ results, spans, loads, systemCompany }) {
                   <td style={{ padding: '5px 0', fontWeight: 600 }}>Deflection (SLS)</td>
                   <td style={{ padding: '5px 0', textAlign: 'center' }}>{roundN(checks.deflection?.actual, 1)} mm</td>
                   <td style={{ padding: '5px 0', textAlign: 'center' }}>{roundN(checks.deflection?.allowable, 1)} mm</td>
-                  <td style={{ padding: '5px 0', textAlign: 'center', fontWeight: 700 }}>{((checks.deflection?.ratio || 0) * 100).toFixed(1)}%</td>
+                  <td style={{ padding: '5px 0', width: '120px' }}>
+                    <UtilBar ratio={checks.deflection?.ratio || 0} />
+                  </td>
                   <td style={{ padding: '5px 0', textAlign: 'right', fontWeight: 800, color: checks.deflection?.pass ? '#16a34a' : '#ef4444' }}>
                     {checks.deflection?.pass ? 'PASS' : 'FAIL'}
                   </td>
@@ -1718,7 +1747,7 @@ function PDFReportPreview({ results, spans, loads, systemCompany }) {
         {/* Hand Calculation Formulations Block */}
         <div style={{ flexGrow: 1 }}>
           <div style={{ fontSize: '11px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', marginBottom: '4px', borderBottom: '1px solid #cbd5e1', paddingBottom: '3px' }}>
-            6. Mathematical Formulations & Capacity Checks
+            5. Mathematical Formulations & Capacity Checks
           </div>
           <div style={{ 
             background: '#fafaf9', 

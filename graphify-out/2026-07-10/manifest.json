@@ -5,9 +5,9 @@
     "semantic_hash": "ff75dec77e0319a0c17f17ee01f99541"
   },
   "firebase.json": {
-    "mtime": 1783499623.5461001,
-    "ast_hash": "6c706d41a1747930b9519a78399bb767",
-    "semantic_hash": "6c706d41a1747930b9519a78399bb767"
+    "mtime": 1783668240.9063778,
+    "ast_hash": "646a279d69e23e4164c4b01f6fa2c3c9",
+    "semantic_hash": ""
   },
   "legacy/app.js": {
     "mtime": 1783500786.7450192,
@@ -55,8 +55,8 @@
     "semantic_hash": "8566360453d46795feabf60a5f65a049"
   },
   "src/App.jsx": {
-    "mtime": 1783663071.2240639,
-    "ast_hash": "07eca50bc70a57ad2d2fd669bab00f72",
+    "mtime": 1783668235.501499,
+    "ast_hash": "47fa55b030391e9191c74921fec15f03",
     "semantic_hash": ""
   },
   "src/calculators/MultiSpanBeam/DynamicBeamDiagram.jsx": {
@@ -205,9 +205,9 @@
     "semantic_hash": ""
   },
   "src/firebase.js": {
-    "mtime": 1783500786.8788922,
-    "ast_hash": "c7eac6811f031712d6977e8c07b37921",
-    "semantic_hash": "c7eac6811f031712d6977e8c07b37921"
+    "mtime": 1783667696.467493,
+    "ast_hash": "f047f3aa7a3d604d36a83ef71006bdde",
+    "semantic_hash": ""
   },
   "src/main.jsx": {
     "mtime": 1783500786.886509,
@@ -230,8 +230,8 @@
     "semantic_hash": ""
   },
   "src/pages/MultiBeamCalculator.jsx": {
-    "mtime": 1783666621.8651805,
-    "ast_hash": "68e6e1f9e1f184025838f390b5a5caa5",
+    "mtime": 1783672135.9893677,
+    "ast_hash": "47b78d2673046db300bba2b7acdbfd40",
     "semantic_hash": ""
   },
   "src/pages/ProjectDetails.jsx": {
@@ -245,8 +245,8 @@
     "semantic_hash": "7fbaf8387ae55be5ee58eb8ab176dfa3"
   },
   "src/pages/SlabFormworkCalculator.jsx": {
-    "mtime": 1783665380.4246664,
-    "ast_hash": "432ebfa84d9dc87283b3fdaa3df6a476",
+    "mtime": 1783677715.5437746,
+    "ast_hash": "cd3a5d55b2563ac80f70328cf09e33b8",
     "semantic_hash": ""
   },
   "src/services/localDb.js": {
@@ -275,9 +275,9 @@
     "semantic_hash": "8f88e53d72fef57027d43c68602558e5"
   },
   "index.html": {
-    "mtime": 1783500786.739993,
-    "ast_hash": "aab42d4ec4e6d5390dca3b58d3f4c823",
-    "semantic_hash": "aab42d4ec4e6d5390dca3b58d3f4c823"
+    "mtime": 1783668439.9227757,
+    "ast_hash": "70fb1eaeff633237f527b7a85044525e",
+    "semantic_hash": ""
   },
   "legacy/index.html": {
     "mtime": 1783500786.7497418,
@@ -410,13 +410,33 @@
     "semantic_hash": ""
   },
   "src/pages/WallFormworkCalculator.jsx": {
-    "mtime": 1783665665.4950695,
-    "ast_hash": "1512ff5eeaabd052a20b6d11f18dd8e3",
+    "mtime": 1783678367.6505072,
+    "ast_hash": "d9d5ece97b4059a748fdf92d91628b57",
     "semantic_hash": ""
   },
   "src/assets/slab-diagram.png": {
     "mtime": 1783664332.9124758,
     "ast_hash": "9cb71023cab4ed26bfc6d2d6d61c0958",
+    "semantic_hash": ""
+  },
+  "src/pages/NotFound.jsx": {
+    "mtime": 1783668221.9783883,
+    "ast_hash": "c09a72dee5fd37f6ba65db18a1ad9fc8",
+    "semantic_hash": ""
+  },
+  "public/favicon.svg": {
+    "mtime": 1783668432.6564665,
+    "ast_hash": "6dde1e9452c6e796044245166d7a5d93",
+    "semantic_hash": ""
+  },
+  "public/PLYTEC_Logo.svg": {
+    "mtime": 1783671736.192107,
+    "ast_hash": "c3e38631f666fef239228e7c4b0d1333",
+    "semantic_hash": ""
+  },
+  "src/assets/PLYTEC_Logo.svg": {
+    "mtime": 1783671736.192107,
+    "ast_hash": "c3e38631f666fef239228e7c4b0d1333",
     "semantic_hash": ""
   }
 }

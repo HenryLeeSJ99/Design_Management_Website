@@ -1,16 +1,16 @@
 # Graph Report - Design_Management_Website  (2026-07-10)
 
 ## Corpus Check
-- 79 files · ~118,692 words
+- 79 files · ~119,371 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 965 nodes · 1272 edges · 79 communities (71 shown, 8 thin omitted)
+- 961 nodes · 1287 edges · 78 communities (70 shown, 8 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 12 edges (avg confidence: 0.58)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `1ad12147`
+- Built from commit: `51d5fdac`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -90,7 +90,6 @@
 - 37. EXAMPLE INTERPRETATIONS
 - 15. DEFAULT SITE PACKS
 - 20. EXAMPLE INTERPRETATIONS
-- 7. DIAL DEFINITIONS (Technical Reference)
 - SKILL.md
 
 ## God Nodes (most connected - your core abstractions)
@@ -98,41 +97,41 @@
 2. `CORE DIRECTIVE: PREMIUM MOBILE APP IMAGE DIRECTION` - 39 edges
 3. `CORE DIRECTIVE: AWWWARDS-LEVEL IMAGE ART DIRECTION` - 22 edges
 4. `Apple Design` - 20 edges
-5. `Design Engineering` - 16 edges
-6. `Animation Standards Reference` - 16 edges
-7. `tasteskill: Anti-Slop Frontend Skill` - 16 edges
-8. `init()` - 16 edges
-9. `Appendix B - Canonical Sources (read these before reinventing)` - 15 edges
-10. `renderSFD()` - 15 edges
+5. `init()` - 16 edges
+6. `Design Engineering` - 16 edges
+7. `Animation Standards Reference` - 16 edges
+8. `tasteskill: Anti-Slop Frontend Skill` - 16 edges
+9. `renderSFD()` - 15 edges
+10. `Appendix B - Canonical Sources (read these before reinventing)` - 15 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `ResultsView()` --references--> `jspdf`  [EXTRACTED]
   src/calculators/MultiSpanBeam/ResultsView.jsx → package.json
+- `generateReport()` --references--> `jspdf`  [EXTRACTED]
+  legacy/report.js → package.json
+- `drawHeader()` --references--> `jspdf`  [EXTRACTED]
+  legacy/report.js → package.json
 - `drawBoundaryConditions()` --references--> `jspdf`  [EXTRACTED]
   legacy/report.js → package.json
-- `drawDesignChecks()` --references--> `jspdf`  [EXTRACTED]
-  legacy/report.js → package.json
-- `drawDiagrams()` --references--> `jspdf`  [EXTRACTED]
-  legacy/report.js → package.json
-- `drawFooter()` --references--> `jspdf`  [EXTRACTED]
+- `drawResults()` --references--> `jspdf`  [EXTRACTED]
   legacy/report.js → package.json
 
 ## Import Cycles
 - None detected.
 
-## Communities (79 total, 8 thin omitted)
+## Communities (78 total, 8 thin omitted)
 
 ### Community 0 - "Legacy Application Core"
 Cohesion: 0.06
 Nodes (75): addCheckRow(), addLoad(), addSpan(), $btnAddLoad, $btnAddSpanRight, $btnCalculate, $btnDownload, $btnRemoveSpan (+67 more)
 
 ### Community 1 - "React Navigation & Components"
-Cohesion: 0.07
-Nodes (22): firebase, App(), Layout(), Logo(), SplashScreen(), StandardChart(), AuthContext, calculatePressureCiria108() (+14 more)
+Cohesion: 0.09
+Nodes (28): App(), DynamicBeamDiagram(), Layout(), Logo(), SplashScreen(), StandardChart(), AuthContext, AuthProvider() (+20 more)
 
 ### Community 2 - "Beam Solver Engine"
-Cohesion: 0.10
-Nodes (26): analyzeBeam(), buildMesh(), buildResults(), createMatrix(), elementStiffnessMatrix(), fixedEndForces(), gaussianElimination(), multiplyMatrixVector() (+18 more)
+Cohesion: 0.08
+Nodes (29): analyzeBeam(), buildMesh(), buildResults(), createMatrix(), elementStiffnessMatrix(), fixedEndForces(), gaussianElimination(), multiplyMatrixVector() (+21 more)
 
 ### Community 3 - "Legacy Canvas Rendering"
 Cohesion: 0.05
@@ -147,8 +146,8 @@ Cohesion: 0.09
 Nodes (20): devDependencies, eslint, @eslint/js, eslint-plugin-react, eslint-plugin-react-hooks, eslint-plugin-react-refresh, globals, @types/react (+12 more)
 
 ### Community 6 - "Legacy PDF Reports"
-Cohesion: 0.14
-Nodes (21): C, drawBoundaryConditions(), drawDesignChecks(), drawDiagrams(), drawFooter(), drawHeader(), drawResults(), drawVerdict() (+13 more)
+Cohesion: 0.13
+Nodes (22): C, drawBoundaryConditions(), drawDesignChecks(), drawDiagrams(), drawFooter(), drawHeader(), drawResults(), drawVerdict() (+14 more)
 
 ### Community 7 - "Eurocode 3 Design Engine"
 Cohesion: 0.41
@@ -167,8 +166,8 @@ Cohesion: 0.06
 Nodes (34): 10. DEVICE MOCKUP FRAME RULE, 11. ONBOARDING FLOW RULE, 12. FIRST SCREEN CLEANLINESS RULE, 13. SAFE AREA AND SYSTEM REGION RULE, 14. NAVIGATION RULE, 15. CLEAN LAYOUT RULE, 16. CREATIVE IMAGE DIRECTION RULE, 17. BACKGROUND TEXTURE AND SURFACE RULE (+26 more)
 
 ### Community 11 - "Legacy Beam Solver"
-Cohesion: 0.23
-Nodes (11): DynamicBeamDiagram(), AnalysisDiagram(), CheckRow(), CLR, flattenPoints(), getSessionData(), MultiBeamCalculator(), PDFReportPreview() (+3 more)
+Cohesion: 0.50
+Nodes (4): 1.A Dial Inference (design read → dial values), 1.B Use-Case Presets, 1.C How the Dials Drive Output, 1. THE THREE DIALS (Core Configuration)
 
 ### Community 21 - "High-Agency Frontend Skill"
 Cohesion: 0.06
@@ -240,7 +239,7 @@ Nodes (10): 10. REFERENCE VOCABULARY (Pattern Names the Agent Should Know), Anim
 
 ### Community 38 - "tasteskill: Anti-Slop Frontend Skill"
 Cohesion: 0.20
-Nodes (10): 13. OUT OF SCOPE, 14. FINAL PRE-FLIGHT CHECK, 1.A Dial Inference (design read → dial values), 1.B Use-Case Presets, 1.C How the Dials Drive Output, 1. THE THREE DIALS (Core Configuration), 2.A When to reach for a real design system (use official packages), 2.B When the brief is an aesthetic, not a system (+2 more)
+Nodes (10): 13. OUT OF SCOPE, 14. FINAL PRE-FLIGHT CHECK, 2.A When to reach for a real design system (use official packages), 2.B When the brief is an aesthetic, not a system, 2. BRIEF → DESIGN SYSTEM MAP, 7. DIAL DEFINITIONS (Technical Reference), DESIGN_VARIANCE (Level 1-10), MOTION_INTENSITY (Level 1-10) (+2 more)
 
 ### Community 39 - "Design Engineering"
 Cohesion: 0.22
@@ -394,12 +393,8 @@ Nodes (4): 12-section pack, 15. DEFAULT SITE PACKS, 4-section pack, 8-section pa
 Cohesion: 0.50
 Nodes (4): 20. EXAMPLE INTERPRETATIONS, Example 1, Example 2, Example 3
 
-### Community 77 - "7. DIAL DEFINITIONS (Technical Reference)"
-Cohesion: 0.50
-Nodes (4): 7. DIAL DEFINITIONS (Technical Reference), DESIGN_VARIANCE (Level 1-10), MOTION_INTENSITY (Level 1-10), VISUAL_DENSITY (Level 1-10)
-
 ## Knowledge Gaps
-- **596 isolated node(s):** `Quick Start`, `Instructions`, `Examples`, `Entrances & Exits — how elements appear and disappear`, `Sequencing & Timing — coordinating multiple elements or moments` (+591 more)
+- **595 isolated node(s):** `$tableGeometryBody`, `$tableLoadsBody`, `$btnAddSpanRight`, `$btnRemoveSpan`, `$btnAddLoad` (+590 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -407,16 +402,16 @@ Nodes (4): 7. DIAL DEFINITIONS (Technical Reference), DESIGN_VARIANCE (Level 1-1
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `jspdf` connect `Legacy PDF Reports` to `solver.js`?**
-  _High betweenness centrality (0.035) - this node is a cross-community bridge._
-- **Why does `dependencies` connect `Legacy PDF Reports` to `React Navigation & Components`, `Project Configuration`?**
-  _High betweenness centrality (0.032) - this node is a cross-community bridge._
+  _High betweenness centrality (0.051) - this node is a cross-community bridge._
 - **Why does `generateReport()` connect `Legacy PDF Reports` to `Legacy Application Core`?**
-  _High betweenness centrality (0.026) - this node is a cross-community bridge._
-- **What connects `Quick Start`, `Instructions`, `Examples` to the rest of the system?**
-  _597 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _High betweenness centrality (0.042) - this node is a cross-community bridge._
+- **Why does `ResultsView()` connect `solver.js` to `Legacy PDF Reports`?**
+  _High betweenness centrality (0.041) - this node is a cross-community bridge._
+- **Are the 9 inferred relationships involving `init()` (e.g. with `app.js` and `addLoad()`) actually correct?**
+  _`init()` has 9 INFERRED edges - model-reasoned connections that need verification._
+- **What connects `$tableGeometryBody`, `$tableLoadsBody`, `$btnAddSpanRight` to the rest of the system?**
+  _596 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Legacy Application Core` be split into smaller, more focused modules?**
   _Cohesion score 0.05709876543209876 - nodes in this community are weakly interconnected._
 - **Should `React Navigation & Components` be split into smaller, more focused modules?**
-  _Cohesion score 0.07053140096618357 - nodes in this community are weakly interconnected._
-- **Should `Beam Solver Engine` be split into smaller, more focused modules?**
-  _Cohesion score 0.10104529616724739 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.08599033816425121 - nodes in this community are weakly interconnected._

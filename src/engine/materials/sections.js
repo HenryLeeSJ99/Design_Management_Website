@@ -258,7 +258,7 @@ export const SECTIONS = {
       E: 210000,
       h: 150, b: 100, tw: 0, tf: 0, r: 0, A: 15.0,
       Iy: 396, Wel_y: 52.8, Wpl_y: 52.8, Av: 8.0,
-      mass: 5.1, Mallow: 8.1, Vallow: 25.5, type: 'system'
+      mass: 5.1, Mallow: 8.1, Vallow: 25.5, type: 'system', combinedLoadFactor: 1.65
     },
     {
       name: 'Alu150',
@@ -267,7 +267,7 @@ export const SECTIONS = {
       E: 70000,
       h: 150, b: 100, tw: 0, tf: 0, r: 0, A: 12.0,
       Iy: 504, Wel_y: 67.2, Wpl_y: 67.2, Av: 7.5,
-      mass: 6.5, Mallow: 5.2, Vallow: 20.0, type: 'system'
+      mass: 6.5, Mallow: 5.2, Vallow: 20.0, type: 'system', combinedLoadFactor: 1.65
     },
     {
       name: 'Alu225',
@@ -276,7 +276,7 @@ export const SECTIONS = {
       E: 70000,
       h: 225, b: 120, tw: 0, tf: 0, r: 0, A: 18.0,
       Iy: 1620, Wel_y: 144, Wpl_y: 144, Av: 11.0,
-      mass: 9.8, Mallow: 12.5, Vallow: 35.0, type: 'system'
+      mass: 9.8, Mallow: 12.5, Vallow: 35.0, type: 'system', combinedLoadFactor: 1.65
     },
     {
       name: 'H20',
@@ -285,7 +285,7 @@ export const SECTIONS = {
       E: 10000,
       h: 200, b: 80, tw: 0, tf: 0, r: 0, A: 60.0,
       Iy: 4600, Wel_y: 460, Wpl_y: 460, Av: 30.0,
-      mass: 4.8, Mallow: 5.0, Vallow: 11.0, type: 'system'
+      mass: 4.8, Mallow: 5.0, Vallow: 11.0, type: 'system', combinedLoadFactor: 1.50
     }
   ]
 };
