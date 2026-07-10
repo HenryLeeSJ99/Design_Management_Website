@@ -5,6 +5,12 @@ import styles from './MultiBeamCalculator.module.css';
 import { analyzeBeam } from '@engine/beam';
 import { getSectionByName, SECTIONS, STEEL_GRADES, SECTION_TYPES } from '@engine/materials';
 import { performAllChecks } from '@engine/design/ec3';
+import plytecLogoUrl from '../assets/PLYTEC_Logo.svg';
+
+// Company logo map — add entries here as new providers are added
+const COMPANY_LOGOS = {
+  PLYTEC: plytecLogoUrl,
+};
 
 const getSessionData = (key, defaultValue) => {
   try {
@@ -346,10 +352,11 @@ function CheckRow({ label, ref_clause, applied, capacity, unit, ratio, pass }) {
 
 export default function MultiBeamCalculator() {
   const initialInputs = getSessionData('tempworks_multibeam_inputs', {
-    material: 'steel',
-    sectionType: 'IPE',
+    material: 'system',
+    sectionType: 'System Beam',
     steelGrade: 'S355',
-    sectionSize: 'IPE 200',
+    sectionSize: '',
+    systemCompany: 'PLYTEC',
     isTwinProfile: false,
     includeSelfWeight: true,
     loadFactor: 1.5,
@@ -366,10 +373,18 @@ export default function MultiBeamCalculator() {
   });
 
   const [activeTab, setActiveTab] = useState(() => getSessionData('tempworks_multibeam_active_tab', 'configuration'));
-  const [material, setMaterial] = useState(initialInputs.material || 'steel');
-  const [sectionType, setSectionType] = useState(initialInputs.sectionType);
+  const [material, setMaterial] = useState(initialInputs.material || 'system');
+  const [sectionType, setSectionType] = useState(initialInputs.sectionType || 'System Beam');
   const [steelGrade, setSteelGrade] = useState(initialInputs.steelGrade);
-  const [sectionSize, setSectionSize] = useState(initialInputs.sectionSize);
+  const [systemCompany, setSystemCompany] = useState(() => initialInputs.systemCompany || 'PLYTEC');
+  const [sectionSize, setSectionSize] = useState(() => {
+    if (initialInputs.sectionSize) return initialInputs.sectionSize;
+    // Default: first section for PLYTEC
+    const co = initialInputs.systemCompany || 'PLYTEC';
+    const first = (SECTIONS['System Beam'] || []).find(s => s.company === co);
+    return first ? first.name : '';
+  });
+
   const [isTwinProfile, setIsTwinProfile] = useState(!!initialInputs.isTwinProfile);
   const [includeSelfWeight, setIncludeSelfWeight] = useState(initialInputs.includeSelfWeight !== false);
   const [loadFactor, setLoadFactor] = useState(initialInputs.loadFactor != null ? String(initialInputs.loadFactor) : '1.5');
@@ -380,7 +395,7 @@ export default function MultiBeamCalculator() {
   const [results, setResults] = useState(() => getSessionData('tempworks_multibeam_results', null));
   const [calcError, setCalcError] = useState(null);
   const [isCalculating, setIsCalculating] = useState(false);
-  const [systemCompany, setSystemCompany] = useState(() => initialInputs.systemCompany || 'PLYTEC');
+
 
   // Save inputs and invalidate results if any input changes after initial load
   useEffect(() => {
@@ -762,13 +777,23 @@ export default function MultiBeamCalculator() {
                       </div>
                       {material === 'system' && (
                         <label className={styles.field}>
-                          <span>System Provider / Company</span>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            System Provider
+                            {COMPANY_LOGOS[systemCompany] && (
+                              <img
+                                src={COMPANY_LOGOS[systemCompany]}
+                                alt={systemCompany}
+                                style={{ height: '14px', width: 'auto', objectFit: 'contain', verticalAlign: 'middle', filter: 'brightness(0) saturate(100%)' }}
+                              />
+                            )}
+                          </span>
                           <select value={systemCompany} onChange={(e) => handleCompanyChange(e.target.value)}>
                             <option value="PLYTEC">PLYTEC</option>
                             <option value="Doka">Doka</option>
                           </select>
                         </label>
                       )}
+
                       {material === 'steel' && (
                         <label className={styles.field}>
                           <span>Section Type</span>
@@ -1032,7 +1057,7 @@ export default function MultiBeamCalculator() {
             {/* ─── REPORT TAB ─── */}
             {activeTab === 'report' && (
               results ? (
-                <PDFReportPreview results={results} spans={spans} loads={loads} />
+                <PDFReportPreview results={results} spans={spans} loads={loads} systemCompany={systemCompany} />
               ) : (
                 <div className={styles.card} style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
                   <div style={{ fontSize: 48, marginBottom: 12 }}>📋</div>
@@ -1366,7 +1391,7 @@ function ResultsPanel({ results, spans, loads }) {
 }
 
 // ─── PDF Report Preview Component ─────────────────────────────────────────────
-function PDFReportPreview({ results, spans, loads }) {
+function PDFReportPreview({ results, spans, loads, systemCompany }) {
   const {
     analysis,
     checks,
@@ -1393,12 +1418,41 @@ function PDFReportPreview({ results, spans, loads }) {
     return Number(num).toFixed(decimals);
   };
 
+  // Print only the report preview div, not the entire page
+  const reportRef = useRef(null);
+  const handlePrint = () => {
+    const content = reportRef.current;
+    if (!content) return;
+    const printWindow = window.open('', '_blank', 'width=900,height=1200');
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>TempWorks – Beam Calculation Report</title>
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body { font-family: Inter, system-ui, sans-serif; background: #fff; color: #1e293b; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            @page { margin: 10mm; }
+          </style>
+        </head>
+        <body>${content.outerHTML}</body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 400);
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', paddingBottom: '40px', width: '100%' }}>
       {/* Export Action Area */}
       <div style={{ width: '210mm', display: 'flex', justifyContent: 'flex-end' }}>
         <button 
-          onClick={() => window.print()}
+          onClick={handlePrint}
           style={{
             display: 'inline-flex',
             alignItems: 'center',
@@ -1417,11 +1471,11 @@ function PDFReportPreview({ results, spans, loads }) {
           onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.97)'}
           onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
         >
-          <FileText size={16} /> Export PDF
+          <FileText size={16} /> Print Report
         </button>
       </div>
 
-      <div style={{
+      <div ref={reportRef} style={{
         width: '210mm',
         minHeight: '297mm',
         backgroundColor: '#ffffff',
@@ -1437,10 +1491,21 @@ function PDFReportPreview({ results, spans, loads }) {
         fontFamily: 'Inter, system-ui, -apple-system, sans-serif'
       }}>
         {/* Header Block */}
-        <div style={{ borderBottom: '2.5px solid #2563eb', paddingBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <div>
+        <div style={{ borderBottom: '2.5px solid #2563eb', paddingBottom: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
             <div style={{ fontSize: '18px', fontWeight: 800, color: '#2563eb', letterSpacing: '0.02em' }}>TEMPWORKS</div>
             <div style={{ fontSize: '9px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Structural Design Solutions</div>
+            {/* System provider logo */}
+            {material === 'system' && COMPANY_LOGOS[systemCompany] && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
+                <span style={{ fontSize: '8px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>System by</span>
+                <img
+                  src={COMPANY_LOGOS[systemCompany]}
+                  alt={systemCompany}
+                  style={{ height: '16px', width: 'auto', objectFit: 'contain' }}
+                />
+              </div>
+            )}
           </div>
           <div style={{ textAlign: 'right' }}>
             <div style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>Multi-Span Beam Calculation Report</div>

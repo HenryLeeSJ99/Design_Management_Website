@@ -85,8 +85,8 @@
     "semantic_hash": "f1e91c15bb5a92facec02a0f33bc4968"
   },
   "src/components/Layout.jsx": {
-    "mtime": 1783663793.0703661,
-    "ast_hash": "802f085b32ec54771ab81117e3235846",
+    "mtime": 1783666919.3127658,
+    "ast_hash": "5e785f619ab0a2695c3151237a25313f",
     "semantic_hash": ""
   },
   "src/components/Logo.jsx": {
@@ -230,8 +230,8 @@
     "semantic_hash": ""
   },
   "src/pages/MultiBeamCalculator.jsx": {
-    "mtime": 1783665360.2396426,
-    "ast_hash": "6837a1ec50d78c387e063bfd4a6b487d",
+    "mtime": 1783666621.8651805,
+    "ast_hash": "68e6e1f9e1f184025838f390b5a5caa5",
     "semantic_hash": ""
   },
   "src/pages/ProjectDetails.jsx": {
