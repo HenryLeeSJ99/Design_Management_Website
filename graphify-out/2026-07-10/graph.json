@@ -1210,7 +1210,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "package_dependencies_firebase",
-      "community": 1,
+      "community": 6,
       "norm_label": "firebase"
     },
     {
@@ -1470,7 +1470,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_calculators_multispanbeam_dynamicbeamdiagram",
-      "community": 11,
+      "community": 1,
       "norm_label": "dynamicbeamdiagram.jsx"
     },
     {
@@ -1480,7 +1480,7 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_calculators_multispanbeam_dynamicbeamdiagram_dynamicbeamdiagram",
-      "community": 11,
+      "community": 1,
       "norm_label": "dynamicbeamdiagram()"
     },
     {
@@ -2730,48 +2730,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_pages_multibeamcalculator",
-      "community": 11,
+      "community": 1,
       "norm_label": "multibeamcalculator.jsx"
-    },
-    {
-      "label": "COMPANY_LOGOS",
-      "file_type": "code",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L11",
-      "_origin": "ast",
-      "id": "src_pages_multibeamcalculator_company_logos",
-      "community": 11,
-      "norm_label": "company_logos"
-    },
-    {
-      "label": "getSessionData()",
-      "file_type": "code",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L15",
-      "_origin": "ast",
-      "id": "src_pages_multibeamcalculator_getsessiondata",
-      "community": 11,
-      "norm_label": "getsessiondata()"
-    },
-    {
-      "label": "saveSessionData()",
-      "file_type": "code",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L24",
-      "_origin": "ast",
-      "id": "src_pages_multibeamcalculator_savesessiondata",
-      "community": 11,
-      "norm_label": "savesessiondata()"
-    },
-    {
-      "label": "CLR",
-      "file_type": "code",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L31",
-      "_origin": "ast",
-      "id": "src_pages_multibeamcalculator_clr",
-      "community": 11,
-      "norm_label": "clr"
     },
     {
       "label": "roundN()",
@@ -2780,7 +2740,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "src_pages_multibeamcalculator_roundn",
-      "community": 11,
+      "community": 1,
       "norm_label": "roundn()"
     },
     {
@@ -2790,7 +2750,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "src_pages_multibeamcalculator_flattenpoints",
-      "community": 11,
+      "community": 1,
       "norm_label": "flattenpoints()"
     },
     {
@@ -2800,7 +2760,7 @@
       "source_location": "L54",
       "_origin": "ast",
       "id": "src_pages_multibeamcalculator_utilbar",
-      "community": 11,
+      "community": 1,
       "norm_label": "utilbar()"
     },
     {
@@ -2810,7 +2770,7 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "src_pages_multibeamcalculator_analysisdiagram",
-      "community": 11,
+      "community": 1,
       "norm_label": "analysisdiagram()"
     },
     {
@@ -2820,7 +2780,7 @@
       "source_location": "L325",
       "_origin": "ast",
       "id": "src_pages_multibeamcalculator_checkrow",
-      "community": 11,
+      "community": 1,
       "norm_label": "checkrow()"
     },
     {
@@ -2830,28 +2790,18 @@
       "source_location": "L353",
       "_origin": "ast",
       "id": "src_pages_multibeamcalculator_multibeamcalculator",
-      "community": 11,
+      "community": 1,
       "norm_label": "multibeamcalculator()"
     },
     {
       "label": "ResultsPanel()",
       "file_type": "code",
       "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L1077",
+      "source_location": "L1132",
       "_origin": "ast",
       "id": "src_pages_multibeamcalculator_resultspanel",
-      "community": 11,
+      "community": 1,
       "norm_label": "resultspanel()"
-    },
-    {
-      "label": "PDFReportPreview()",
-      "file_type": "code",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L1394",
-      "_origin": "ast",
-      "id": "src_pages_multibeamcalculator_pdfreportpreview",
-      "community": 11,
-      "norm_label": "pdfreportpreview()"
     },
     {
       "label": "NotFound.jsx",
@@ -8580,7 +8530,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "agents_skills_taste_skill_skill_1_the_three_dials_core_configuration",
-      "community": 38,
+      "community": 11,
       "norm_label": "1. the three dials (core configuration)"
     },
     {
@@ -8590,7 +8540,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "agents_skills_taste_skill_skill_1_a_dial_inference_design_read_dial_values",
-      "community": 38,
+      "community": 11,
       "norm_label": "1.a dial inference (design read \u2192 dial values)"
     },
     {
@@ -8600,7 +8550,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "agents_skills_taste_skill_skill_1_b_use_case_presets",
-      "community": 38,
+      "community": 11,
       "norm_label": "1.b use-case presets"
     },
     {
@@ -8610,7 +8560,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "agents_skills_taste_skill_skill_1_c_how_the_dials_drive_output",
-      "community": 38,
+      "community": 11,
       "norm_label": "1.c how the dials drive output"
     },
     {
@@ -8960,7 +8910,7 @@
       "source_location": "L552",
       "_origin": "ast",
       "id": "agents_skills_taste_skill_skill_7_dial_definitions_technical_reference",
-      "community": 77,
+      "community": 38,
       "norm_label": "7. dial definitions (technical reference)"
     },
     {
@@ -8970,7 +8920,7 @@
       "source_location": "L554",
       "_origin": "ast",
       "id": "agents_skills_taste_skill_skill_design_variance_level_1_10",
-      "community": 77,
+      "community": 38,
       "norm_label": "design_variance (level 1-10)"
     },
     {
@@ -8980,7 +8930,7 @@
       "source_location": "L560",
       "_origin": "ast",
       "id": "agents_skills_taste_skill_skill_motion_intensity_level_1_10",
-      "community": 77,
+      "community": 38,
       "norm_label": "motion_intensity (level 1-10)"
     },
     {
@@ -8990,7 +8940,7 @@
       "source_location": "L565",
       "_origin": "ast",
       "id": "agents_skills_taste_skill_skill_visual_density_level_1_10",
-      "community": 77,
+      "community": 38,
       "norm_label": "visual_density (level 1-10)"
     },
     {
@@ -16027,40 +15977,10 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L31",
-      "weight": 1.0,
-      "source": "src_pages_multibeamcalculator",
-      "target": "src_pages_multibeamcalculator_clr",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L11",
-      "weight": 1.0,
-      "source": "src_pages_multibeamcalculator",
-      "target": "src_pages_multibeamcalculator_company_logos",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
       "source_location": "L49",
       "weight": 1.0,
       "source": "src_pages_multibeamcalculator",
       "target": "src_pages_multibeamcalculator_flattenpoints",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L15",
-      "weight": 1.0,
-      "source": "src_pages_multibeamcalculator",
-      "target": "src_pages_multibeamcalculator_getsessiondata",
       "confidence_score": 1.0
     },
     {
@@ -16077,17 +15997,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L1394",
-      "weight": 1.0,
-      "source": "src_pages_multibeamcalculator",
-      "target": "src_pages_multibeamcalculator_pdfreportpreview",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L1077",
+      "source_location": "L1132",
       "weight": 1.0,
       "source": "src_pages_multibeamcalculator",
       "target": "src_pages_multibeamcalculator_resultspanel",
@@ -16107,42 +16017,10 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L24",
-      "weight": 1.0,
-      "source": "src_pages_multibeamcalculator",
-      "target": "src_pages_multibeamcalculator_savesessiondata",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
       "source_location": "L54",
       "weight": 1.0,
       "source": "src_pages_multibeamcalculator",
       "target": "src_pages_multibeamcalculator_utilbar",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L354",
-      "weight": 1.0,
-      "source": "src_pages_multibeamcalculator_multibeamcalculator",
-      "target": "src_pages_multibeamcalculator_getsessiondata",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L411",
-      "weight": 1.0,
-      "source": "src_pages_multibeamcalculator_multibeamcalculator",
-      "target": "src_pages_multibeamcalculator_savesessiondata",
       "confidence_score": 1.0
     },
     {
@@ -16172,18 +16050,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L1574",
-      "weight": 1.0,
-      "source": "src_pages_multibeamcalculator_pdfreportpreview",
-      "target": "src_pages_multibeamcalculator_roundn",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L1120",
+      "source_location": "L1175",
       "weight": 1.0,
       "source": "src_pages_multibeamcalculator_resultspanel",
       "target": "src_pages_multibeamcalculator_roundn",
@@ -16194,7 +16061,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L1093",
+      "source_location": "L1148",
       "weight": 1.0,
       "source": "src_pages_multibeamcalculator_resultspanel",
       "target": "src_pages_multibeamcalculator_flattenpoints",
