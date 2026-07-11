@@ -43,6 +43,22 @@ export default function SlabFormworkCalculator() {
   });
 
   const [activeTab, setActiveTab] = useState(() => getSessionData('tempworks_slabformwork_active_tab', 'configuration'));
+  const tabsWrapperRef = useRef(null);
+
+  // Auto-scroll active tab into middle of scroll window on mobile/tablet viewports
+  useEffect(() => {
+    if (tabsWrapperRef.current) {
+      const activeTabEl = tabsWrapperRef.current.querySelector(`.${styles.active}`);
+      if (activeTabEl) {
+        activeTabEl.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center'
+        });
+      }
+    }
+  }, [activeTab]);
+
   const [activeMarker, setActiveMarker] = useState('slab'); // Which diagram marker is clicked
 
   const sectionRefs = {
@@ -178,7 +194,7 @@ export default function SlabFormworkCalculator() {
         </div>
       )}
 
-      <div className={styles.tabsWrapper}>
+      <div ref={tabsWrapperRef} className={styles.tabsWrapper}>
         <div className={styles.tabs}>
           <div
             className={`${styles.tab} ${activeTab === 'configuration' ? styles.active : ''}`}
@@ -637,7 +653,7 @@ function ResultsTab({ results }) {
           <div className={styles.card}>
             <h3 className={styles.cardTitle}>Component Check Results</h3>
             <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', width: '100%' }}>
-              <div className={styles.resultsTable} style={{ minWidth: '600px' }}>
+              <div className={styles.resultsTable}>
                 <div className={styles.resultsTableHeader}>
                 <span>Component</span>
                 <span>Check</span>

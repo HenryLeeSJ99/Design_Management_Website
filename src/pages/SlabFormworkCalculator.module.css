@@ -376,6 +376,10 @@
   align-items: start;
 }
 
+.resultsGridLayout > * {
+  min-width: 0;
+}
+
 .card {
   background: var(--bg-card);
   border: 1px solid var(--border-bezel);
@@ -384,6 +388,7 @@
   box-shadow: var(--shadow-md), var(--shadow-bezel-inner);
   margin-bottom: 2rem;
   transition: var(--transition-spring);
+  min-width: 0;
 }
 
 .card:hover {
@@ -704,6 +709,7 @@
   overflow: hidden;
   box-shadow: var(--shadow-sm);
   background: var(--bg-card);
+  min-width: 600px;
 }
 
 .resultsTableHeader {
@@ -996,6 +1002,10 @@
   }
 
   /* Results table responsive */
+  .resultsTable {
+    min-width: 0;
+  }
+
   .resultsTableHeader {
     display: none;
   }

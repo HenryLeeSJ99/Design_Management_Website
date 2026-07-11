@@ -22,7 +22,22 @@ const saveSessionData = (key, data) => {
 
 export default function WallFormworkCalculator() {
   const [activeTab, setActiveTab] = useState('calculator');
+  const tabsContainerRef = useRef(null);
   const reportRef = useRef(null);
+
+  // Auto-scroll active tab into middle of scroll window on mobile/tablet viewports
+  useEffect(() => {
+    if (tabsContainerRef.current) {
+      const activeTabEl = tabsContainerRef.current.querySelector(`.${styles.active}`);
+      if (activeTabEl) {
+        activeTabEl.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center'
+        });
+      }
+    }
+  }, [activeTab]);
 
   const handlePrint = () => {
     const content = reportRef.current;
@@ -258,7 +273,7 @@ export default function WallFormworkCalculator() {
 
         {/* Right Content */}
         <div className={styles.mainContent}>
-          <div className={styles.tabsContainer}>
+          <div ref={tabsContainerRef} className={styles.tabsContainer}>
             <div className={styles.tabs}>
               <button 
                 className={`${styles.tab} ${activeTab === 'calculator' ? styles.active : ''}`}
