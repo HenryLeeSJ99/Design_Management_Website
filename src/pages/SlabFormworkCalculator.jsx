@@ -596,20 +596,20 @@ function InteractiveDiagram({ activeMarker, setActiveMarker, slabThickness, seco
 
         {/* Markers overlaid on the image */}
         {/* Slab Thickness / Panel (Right edge) */}
-        <Marker x="680" y="160" active={activeMarker === 'slab'} onClick={() => setActiveMarker && setActiveMarker('slab')} text={r && r.panel && r.panel.utilization != null ? `Panel Util: ${(r.panel.utilization * 100).toFixed(2)}%` : `Slab: ${slabThickness} mm`} utilRatio={r?.panel?.utilization} />
+        <Marker x="580" y="200" active={activeMarker === 'slab'} onClick={() => setActiveMarker && setActiveMarker('slab')} text={r && r.panel && r.panel.utilization != null ? `Panel Util: ${(r.panel.utilization * 100).toFixed(2)}%` : `Slab: ${slabThickness} mm`} utilRatio={r?.panel?.utilization} />
         
         {/* Distance between Secondary Beams (Top center) */}
-        <Marker x="460" y="140" active={activeMarker === 'secondary'} onClick={() => setActiveMarker && setActiveMarker('secondary')} text={r && r.secondary && r.secondary.maxUtilization != null ? `Sec Util: ${(r.secondary.maxUtilization * 100).toFixed(2)}%` : `Sec: ${secondarySpacing} m`} type="blue" utilRatio={r?.secondary?.maxUtilization} />
+        <Marker x="415" y="220" active={activeMarker === 'secondary'} onClick={() => setActiveMarker && setActiveMarker('secondary')} text={r && r.secondary && r.secondary.maxUtilization != null ? `Sec Util: ${(r.secondary.maxUtilization * 100).toFixed(2)}%` : `Sec: ${secondarySpacing} m`} type="blue" utilRatio={r?.secondary?.maxUtilization} />
         
         {/* Distance between Primary Beams (Left side) */}
-        <Marker x="140" y="440" active={activeMarker === 'primary'} onClick={() => setActiveMarker && setActiveMarker('primary')} text={r && r.primary && r.primary.maxUtilization != null ? `Pri Util: ${(r.primary.maxUtilization * 100).toFixed(2)}%` : `Pri: ${primarySpacing} m`} type="blue" utilRatio={r?.primary?.maxUtilization} />
+        <Marker x="140" y="330" active={activeMarker === 'primary'} onClick={() => setActiveMarker && setActiveMarker('primary')} text={r && r.primary && r.primary.maxUtilization != null ? `Pri Util: ${(r.primary.maxUtilization * 100).toFixed(2)}%` : `Pri: ${primarySpacing} m`} type="blue" utilRatio={r?.primary?.maxUtilization} />
         
         {/* Distance between Primary Beam Supports (Bottom center) */}
-        <Marker x="420" y="550" active={activeMarker === 'shoring'} onClick={() => setActiveMarker && setActiveMarker('shoring')} text={r && r.tower && r.tower.utilization != null ? `Shore Util: ${(r.tower.utilization * 100).toFixed(2)}%` : `Span: ${primarySpanLength} m`} utilRatio={r?.tower?.utilization} />
+        <Marker x="420" y="440" active={activeMarker === 'shoring'} onClick={() => setActiveMarker && setActiveMarker('shoring')} text={r && r.tower && r.tower.utilization != null ? `Shore Util: ${(r.tower.utilization * 100).toFixed(2)}%` : `Span: ${primarySpanLength} m`} utilRatio={r?.tower?.utilization} />
         
         {/* Component Markers (hide in results view for clarity) */}
-        {!r && <Marker x="360" y="200" active={activeMarker === 'panel'} onClick={() => setActiveMarker('panel')} text={panelType} type="blue" />}
-        {!r && <Marker x="246" y="500" active={activeMarker === 'shoring'} onClick={() => setActiveMarker('shoring')} text={shoringType} type="blue" />}
+        {!r && <Marker x="680" y="260" active={activeMarker === 'panel'} onClick={() => setActiveMarker('panel')} text={panelType} type="blue" />}
+        {!r && <Marker x="246" y="440" active={activeMarker === 'shoring'} onClick={() => setActiveMarker('shoring')} text={shoringType} type="blue" />}
       </svg>
     </div>
   );
@@ -625,11 +625,13 @@ function Marker({ x, y, text, active, onClick, type = 'yellow', utilRatio }) {
 
   return (
     <g transform={`translate(${x}, ${y})`} onClick={onClick} style={{ cursor: 'pointer' }} className={styles.markerGroup}>
-      {active && <circle cx="0" cy="0" r="18" fill={color} className={styles.pulseCircle} />}
-      <circle cx="0" cy="0" r="9" fill={color} stroke="white" strokeWidth="2.5" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.25))' }} />
-      <g className={styles.tooltipGroup} style={{ transform: active ? 'scale(1.05)' : 'none', transformOrigin: '0px 0px', transition: 'transform 0.2s ease' }}>
-        <rect x={-(text.length * 6 + 12)/2} y="14" width={text.length * 6 + 12} height="22" rx="6" fill="white" stroke={active ? color : "#cbd5e1"} strokeWidth={active ? "1.5" : "1"} style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.06))' }} />
-        <text x="0" y="29" textAnchor="middle" fontSize="11" fill="#334155" fontWeight="600">{text}</text>
+      <g className={styles.markerInner}>
+        {active && <circle cx="0" cy="0" r="28" fill={color} className={styles.pulseCircle} />}
+        <circle cx="0" cy="0" r="14" fill={color} stroke="white" strokeWidth="3" style={{ filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.25))' }} />
+        <g className={styles.tooltipGroup} style={{ transform: active ? 'scale(1.05)' : 'none', transformOrigin: '0px 0px', transition: 'transform 0.2s ease' }}>
+          <rect x={-(text.length * 7.5 + 16)/2} y="20" width={text.length * 7.5 + 16} height="26" rx="6" fill="white" stroke={active ? color : "#cbd5e1"} strokeWidth={active ? "2" : "1"} style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.06))' }} />
+          <text x="0" y="37" textAnchor="middle" fontSize="13" fill="#334155" fontWeight="700">{text}</text>
+        </g>
       </g>
     </g>
   );
@@ -654,7 +656,7 @@ function ResultsTab({ results }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', minWidth: 0 }}>
       {/* Percentage overlay image */}
-      <div className={styles.card} style={{ padding: '0', overflow: 'hidden' }}>
+      <div className={styles.card} style={{ padding: '0', overflow: 'hidden', display: 'flex', justifyContent: 'center' }}>
         <InteractiveDiagram resultsOverlay={results} />
       </div>
 

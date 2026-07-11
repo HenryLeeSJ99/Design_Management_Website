@@ -514,128 +514,123 @@ export default function WallFormworkCalculator() {
                   </div>
                 </div>
 
-                {/* Layout Grid: Left Details & Math, Right Chart */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '20px', marginTop: '4px' }}>
+                {/* Layout Grid: Left Details & Math */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginTop: '4px' }}>
                   
-                  {/* Left Column */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    
-                    {/* 1. Design Parameters */}
-                    <div>
-                      <div style={{ fontSize: '10px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', marginBottom: '4px', borderBottom: '1px solid #cbd5e1', paddingBottom: '2px' }}>
-                        1. Design Parameters
-                      </div>
-                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px' }}>
-                        <tbody>
-                          <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                            <td style={{ padding: '4px 0', color: '#64748b' }}>Boundary Condition</td>
-                            <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{boundary === 'wall' ? 'Wall / base' : 'Column'} (C₁ = {boundary === 'wall' ? '1.0' : '1.5'})</td>
-                          </tr>
-                          <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                            <td style={{ padding: '4px 0', color: '#64748b' }}>Concrete Type</td>
-                            <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{concreteType === 'normal' ? 'Normal (no admixtures)' : 'Retarder'} (C₂ = {concreteType === 'normal' ? '0.3' : '0.45'})</td>
-                          </tr>
-                          <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                            <td style={{ padding: '4px 0', color: '#64748b' }}>Density (D)</td>
-                            <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{density} kN/m³</td>
-                          </tr>
-                          <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                            <td style={{ padding: '4px 0', color: '#64748b' }}>Placing Temp. (T)</td>
-                            <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{temp} °C</td>
-                          </tr>
-                          <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                            <td style={{ padding: '4px 0', color: '#64748b' }}>Pour Height (H)</td>
-                            <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{pourHeight} m</td>
-                          </tr>
-                        </tbody>
-                      </table>
-                    </div>
-
-                    {/* 2. Step-by-Step Calculation */}
-                    <div>
-                      <div style={{ fontSize: '10px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', marginBottom: '4px', borderBottom: '1px solid #cbd5e1', paddingBottom: '2px' }}>
-                        2. Calculation Steps & Formula
-                      </div>
-                      <div style={{ fontSize: '9px', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '6px', borderRadius: '4px', margin: '4px 0' }}>
-                        <code style={{ fontWeight: 'bold' }}>Pmax = D [ C₁√R + C₂ K √(H - C₁√R) ]</code>
-                      </div>
-                      
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '10px' }}>
-                        <div>
-                          <strong>1. Temperature Coeff. (K):</strong>
-                          <div style={{ background: '#f1f5f9', padding: '3px 6px', borderRadius: '4px', fontFamily: 'monospace', marginTop: '2px' }}>
-                            K = (36 / ({temp} + 16))² = {Math.pow(36 / (Number(temp) + 16), 2).toFixed(3)}
-                          </div>
-                        </div>
-
-                        {inputMode === 'pressure' ? (
-                          <>
-                            <div style={{ marginTop: '2px' }}>
-                              <strong>2. Solved Rate of Rise (R):</strong>
-                              <div>Target Max Pressure: <strong>{maxPressure} kN/m²</strong></div>
-                              <div style={{ background: '#f1f5f9', padding: '3px 6px', borderRadius: '4px', fontFamily: 'monospace', marginTop: '2px' }}>
-                                Resulting R = {calculatedRate === Infinity ? 'Infinity (Hydrostatic)' : `${calculatedRate.toFixed(2)} m/h`}
-                              </div>
-                            </div>
-                          </>
-                        ) : (
-                          <>
-                            <div style={{ marginTop: '2px' }}>
-                              <strong>2. Evaluate CIRIA Equation:</strong>
-                              <div>Pour Rate (R) = <strong>{rateOfRise} m/h</strong></div>
-                              <div style={{ background: '#f1f5f9', padding: '3px 6px', borderRadius: '4px', fontFamily: 'monospace', marginTop: '2px' }}>
-                                C₁√R = {(boundary === 'wall' ? 1.0 : 1.5).toFixed(1)} × √{rateOfRise} = {((boundary === 'wall' ? 1.0 : 1.5) * Math.sqrt(Number(rateOfRise))).toFixed(2)}
-                              </div>
-                              <div style={{ marginTop: '2px' }}>
-                                {((boundary === 'wall' ? 1.0 : 1.5) * Math.sqrt(Number(rateOfRise))) > Number(pourHeight) ? (
-                                  <span style={{ color: '#16a34a', fontWeight: 'bold' }}>C₁√R &gt; H (Hydrostatic envelope governs)</span>
-                                ) : (
-                                  <span>C₁√R &le; H (CIRIA limit governs)</span>
-                                )}
-                              </div>
-                            </div>
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                  </div>
-
-                  {/* Right Column: Chart */}
+                  {/* Column 1: Design Parameters */}
                   <div>
                     <div style={{ fontSize: '10px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', marginBottom: '4px', borderBottom: '1px solid #cbd5e1', paddingBottom: '2px' }}>
-                      3. Concrete Pressure Envelope
+                      1. Design Parameters
                     </div>
-                    <div style={{ background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0', padding: '6px', marginTop: '4px' }}>
-                      <StandardChart
-                        layout="vertical"
-                        data={chartData}
-                        areas={[{ dataKey: 'actualPressure', name: 'Design Pressure Area', color: '#3b82f6', fillOpacity: 0.08, type: 'linear' }]}
-                        lines={[
-                          { dataKey: 'actualPressure', name: 'Design Pressure', color: '#1d4ed8', type: 'linear', dot: false, props: { strokeWidth: 2.5 } },
-                          { dataKey: 'hydrostatic', name: 'Hydrostatic (D × h)', color: '#2563eb', type: 'linear', dot: false, props: { strokeWidth: 1.5, strokeDasharray: '3 3' } }
-                        ]}
-                        xAxis={{ 
-                          label: 'p [kN/m²]',
-                          domain: [0, (dataMax) => Math.max(100, Math.ceil(dataMax / 50) * 50)],
-                          props: { type: 'number', style: { fontSize: '8px' } }
-                        }}
-                        yAxis={{ 
-                          label: 'h [m]', 
-                          dataKey: 'height',
-                          domain: [0, (dataMax) => Math.max(2, Math.ceil(dataMax))],
-                          props: { type: 'number', reversed: true, style: { fontSize: '8px' } }
-                        }}
-                        referenceLines={[
-                          { y: 0, stroke: '#94a3b8', strokeDasharray: '2 2' },
-                          { y: Number(pourHeight), stroke: '#94a3b8', strokeDasharray: '2 2' },
-                          { x: calculatedPressure, stroke: '#1d4ed8', strokeDasharray: '2 2' }
-                        ]}
-                        height={230}
-                      />
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px' }}>
+                      <tbody>
+                        <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                          <td style={{ padding: '4px 0', color: '#64748b' }}>Boundary Condition</td>
+                          <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{boundary === 'wall' ? 'Wall / base' : 'Column'} (C₁ = {boundary === 'wall' ? '1.0' : '1.5'})</td>
+                        </tr>
+                        <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                          <td style={{ padding: '4px 0', color: '#64748b' }}>Concrete Type</td>
+                          <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{concreteType === 'normal' ? 'Normal (no admixtures)' : 'Retarder'} (C₂ = {concreteType === 'normal' ? '0.3' : '0.45'})</td>
+                        </tr>
+                        <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                          <td style={{ padding: '4px 0', color: '#64748b' }}>Density (D)</td>
+                          <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{density} kN/m³</td>
+                        </tr>
+                        <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                          <td style={{ padding: '4px 0', color: '#64748b' }}>Placing Temp. (T)</td>
+                          <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{temp} °C</td>
+                        </tr>
+                        <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                          <td style={{ padding: '4px 0', color: '#64748b' }}>Pour Height (H)</td>
+                          <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{pourHeight} m</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Column 2: Step-by-Step Calculation */}
+                  <div>
+                    <div style={{ fontSize: '10px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', marginBottom: '4px', borderBottom: '1px solid #cbd5e1', paddingBottom: '2px' }}>
+                      2. Calculation Steps & Formula
+                    </div>
+                    <div style={{ fontSize: '9px', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '6px', borderRadius: '4px', margin: '4px 0' }}>
+                      <code style={{ fontWeight: 'bold' }}>Pmax = D [ C₁√R + C₂ K √(H - C₁√R) ]</code>
+                    </div>
+                    
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '10px' }}>
+                      <div>
+                        <strong>1. Temperature Coeff. (K):</strong>
+                        <div style={{ background: '#f1f5f9', padding: '3px 6px', borderRadius: '4px', fontFamily: 'monospace', marginTop: '2px' }}>
+                          K = (36 / ({temp} + 16))² = {Math.pow(36 / (Number(temp) + 16), 2).toFixed(3)}
+                        </div>
+                      </div>
+
+                      {inputMode === 'pressure' ? (
+                        <>
+                          <div style={{ marginTop: '2px' }}>
+                            <strong>2. Solved Rate of Rise (R):</strong>
+                            <div>Target Max Pressure: <strong>{maxPressure} kN/m²</strong></div>
+                            <div style={{ background: '#f1f5f9', padding: '3px 6px', borderRadius: '4px', fontFamily: 'monospace', marginTop: '2px' }}>
+                              Resulting R = {calculatedRate === Infinity ? 'Infinity (Hydrostatic)' : `${calculatedRate.toFixed(2)} m/h`}
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div style={{ marginTop: '2px' }}>
+                            <strong>2. Evaluate CIRIA Equation:</strong>
+                            <div>Pour Rate (R) = <strong>{rateOfRise} m/h</strong></div>
+                            <div style={{ background: '#f1f5f9', padding: '3px 6px', borderRadius: '4px', fontFamily: 'monospace', marginTop: '2px' }}>
+                              C₁√R = {(boundary === 'wall' ? 1.0 : 1.5).toFixed(1)} × √{rateOfRise} = {((boundary === 'wall' ? 1.0 : 1.5) * Math.sqrt(Number(rateOfRise))).toFixed(2)}
+                            </div>
+                            <div style={{ marginTop: '2px' }}>
+                              {((boundary === 'wall' ? 1.0 : 1.5) * Math.sqrt(Number(rateOfRise))) > Number(pourHeight) ? (
+                                <span style={{ color: '#16a34a', fontWeight: 'bold' }}>C₁√R &gt; H (Hydrostatic envelope governs)</span>
+                              ) : (
+                                <span>C₁√R &le; H (CIRIA limit governs)</span>
+                              )}
+                            </div>
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
 
+                </div>
+
+                {/* Section 3: Concrete Pressure Envelope (Full width, larger chart) */}
+                <div style={{ marginTop: '12px' }}>
+                  <div style={{ fontSize: '10px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', marginBottom: '4px', borderBottom: '1px solid #cbd5e1', paddingBottom: '2px' }}>
+                    3. Concrete Pressure Envelope
+                  </div>
+                  <div style={{ background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0', padding: '10px', marginTop: '4px' }}>
+                    <StandardChart
+                      layout="vertical"
+                      data={chartData}
+                      areas={[{ dataKey: 'actualPressure', name: 'Design Pressure Area', color: '#3b82f6', fillOpacity: 0.08, type: 'linear' }]}
+                      lines={[
+                        { dataKey: 'actualPressure', name: 'Design Pressure', color: '#1d4ed8', type: 'linear', dot: false, props: { strokeWidth: 2.5 } },
+                        { dataKey: 'hydrostatic', name: 'Hydrostatic (D × h)', color: '#2563eb', type: 'linear', dot: false, props: { strokeWidth: 1.5, strokeDasharray: '3 3' } }
+                      ]}
+                      xAxis={{ 
+                        label: 'p [kN/m²]',
+                        domain: [0, (dataMax) => Math.max(100, Math.ceil(dataMax / 50) * 50)],
+                        props: { type: 'number', style: { fontSize: '8px' } }
+                      }}
+                      yAxis={{ 
+                        label: 'h [m]', 
+                        dataKey: 'height',
+                        domain: [0, (dataMax) => Math.max(2, Math.ceil(dataMax))],
+                        props: { type: 'number', reversed: true, style: { fontSize: '8px' } }
+                      }}
+                      referenceLines={[
+                        { y: 0, stroke: '#94a3b8', strokeDasharray: '2 2' },
+                        { y: Number(pourHeight), stroke: '#94a3b8', strokeDasharray: '2 2' },
+                        { x: calculatedPressure, stroke: '#1d4ed8', strokeDasharray: '2 2' }
+                      ]}
+                      height={460}
+                    />
+                  </div>
                 </div>
 
                 {/* 4. Final Results Summary */}

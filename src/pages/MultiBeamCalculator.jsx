@@ -498,7 +498,28 @@ export default function MultiBeamCalculator() {
   });
 
   const updateSpan = (index, field, value) => {
-    setSpans((cur) => cur.map((span, i) => i === index ? { ...span, [field]: field === 'length' ? cleanNumericInput(value) : value } : span));
+    if (field === 'length') {
+      const cleanVal = cleanNumericInput(value);
+      const newLength = Number(cleanVal || 0);
+      const oldLength = Number(spans[index]?.length || 0);
+
+      setSpans((cur) => cur.map((span, i) => i === index ? { ...span, length: cleanVal } : span));
+      setLoads((curLoads) => curLoads.map((load) => {
+        if (load.spanIndex === index && load.type === 'udl') {
+          const isFullSpan = load.isFullSpan || (Number(load.posStart) === 0 && Number(load.posEnd) === oldLength);
+          if (isFullSpan) {
+            return {
+              ...load,
+              posEnd: newLength,
+              isFullSpan: true
+            };
+          }
+        }
+        return load;
+      }));
+    } else {
+      setSpans((cur) => cur.map((span, i) => i === index ? { ...span, [field]: value } : span));
+    }
   };
 
   const addSpan = () => {
@@ -553,6 +574,8 @@ export default function MultiBeamCalculator() {
     if (modalLoadType === 'udl') {
       newLoad.posStart = Number(modalPosStart);
       newLoad.posEnd = Number(modalPosEnd);
+      const currentSpanLength = Number(spans[modalSpanIndex]?.length || 0);
+      newLoad.isFullSpan = (newLoad.posStart === 0 && newLoad.posEnd === currentSpanLength);
     } else {
       newLoad.pos = Number(modalPos);
     }
@@ -1080,7 +1103,12 @@ export default function MultiBeamCalculator() {
                       ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                           {loads.map((load, i) => (
-                            <div key={`load-${i}`} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', gap: '12px' }}>
+                            <div 
+                              key={`load-${i}`} 
+                              className={styles.loadItem}
+                              onClick={() => handleOpenEditLoad(i)}
+                              title="Click to edit load parameters"
+                            >
                               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, flexWrap: 'wrap' }}>
                                 <span style={{ 
                                   fontSize: '10px', 
@@ -1123,8 +1151,16 @@ export default function MultiBeamCalculator() {
                                 </span>
                               </div>
                               <div style={{ display: 'flex', gap: '6px' }}>
-                                <button type="button" className={styles.smallAction} style={{ minHeight: '28px', padding: '0 8px', fontSize: '11px' }} onClick={() => handleOpenEditLoad(i)}>Change</button>
-                                <button type="button" className={styles.iconDanger} style={{ width: '28px', height: '28px', padding: 0, minHeight: '28px' }} onClick={() => removeLoad(i)}><Trash2 size={14} /></button>
+                                <button 
+                                  type="button" 
+                                  className={styles.loadItemDelete} 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    removeLoad(i);
+                                  }}
+                                >
+                                  <Trash2 size={14} />
+                                </button>
                               </div>
                             </div>
                           ))}
