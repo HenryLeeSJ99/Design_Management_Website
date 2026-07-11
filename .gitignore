@@ -33,3 +33,7 @@ graphify-out/cache/
 
 .env
 .env.local
+
+# Antigravity and Claude CLI directories
+.gemini/
+.claude/

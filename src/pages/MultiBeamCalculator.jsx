@@ -27,6 +27,17 @@ const saveSessionData = (key, data) => {
   } catch (e) {}
 };
 
+const cleanNumericInput = (val) => {
+  if (val === '') return '';
+  if (/^-?0[0-9]/.test(val)) {
+    const hasMinus = val.startsWith('-');
+    const cleanVal = hasMinus ? val.slice(1) : val;
+    const stripped = cleanVal.replace(/^0+/, '') || '0';
+    return hasMinus ? '-' + stripped : stripped;
+  }
+  return val;
+};
+
 // ─── Colour tokens ─────────────────────────────────────────────────────────────
 const CLR = {
   bmd: '#2563eb',
@@ -487,7 +498,7 @@ export default function MultiBeamCalculator() {
   });
 
   const updateSpan = (index, field, value) => {
-    setSpans((cur) => cur.map((span, i) => i === index ? { ...span, [field]: field === 'length' ? Number(value) : value } : span));
+    setSpans((cur) => cur.map((span, i) => i === index ? { ...span, [field]: field === 'length' ? cleanNumericInput(value) : value } : span));
   };
 
   const addSpan = () => {
@@ -513,10 +524,10 @@ export default function MultiBeamCalculator() {
     setEditingLoadIndex(null);
     setModalLoadType('udl');
     setModalSpanIndex(0);
-    setModalPosStart(0);
-    setModalPosEnd(Number(spans[0]?.length || 3000));
-    setModalPos(Math.round(Number(spans[0]?.length || 3000) / 2));
-    setModalMagnitude(10);
+    setModalPosStart('0');
+    setModalPosEnd(String(spans[0]?.length || 3000));
+    setModalPos(String(Math.round(Number(spans[0]?.length || 3000) / 2)));
+    setModalMagnitude('10');
     setLoadModalOpen(true);
   };
 
@@ -526,10 +537,10 @@ export default function MultiBeamCalculator() {
     setEditingLoadIndex(index);
     setModalLoadType(load.type);
     setModalSpanIndex(load.spanIndex);
-    setModalPosStart(load.posStart !== undefined ? load.posStart : 0);
-    setModalPosEnd(load.posEnd !== undefined ? load.posEnd : Number(spans[load.spanIndex]?.length || 3000));
-    setModalPos(load.pos !== undefined ? load.pos : Math.round(Number(spans[load.spanIndex]?.length || 3000) / 2));
-    setModalMagnitude(load.magnitude);
+    setModalPosStart(String(load.posStart !== undefined ? load.posStart : 0));
+    setModalPosEnd(String(load.posEnd !== undefined ? load.posEnd : Number(spans[load.spanIndex]?.length || 3000)));
+    setModalPos(String(load.pos !== undefined ? load.pos : Math.round(Number(spans[load.spanIndex]?.length || 3000) / 2)));
+    setModalMagnitude(String(load.magnitude));
     setLoadModalOpen(true);
   };
 
@@ -1025,7 +1036,7 @@ export default function MultiBeamCalculator() {
                           type="number"
                           step="0.05"
                           value={loadFactor}
-                          onChange={(e) => setLoadFactor(e.target.value)}
+                          onChange={(e) => setLoadFactor(cleanNumericInput(e.target.value))}
                         />
                       </label>
                       <label className={styles.field}>
@@ -1034,7 +1045,7 @@ export default function MultiBeamCalculator() {
                           type="number"
                           step="0.05"
                           value={materialFactor}
-                          onChange={(e) => setMaterialFactor(e.target.value)}
+                          onChange={(e) => setMaterialFactor(cleanNumericInput(e.target.value))}
                         />
                       </label>
                       <label className={styles.field}>
@@ -1277,7 +1288,7 @@ export default function MultiBeamCalculator() {
                     <input
                       type="number"
                       value={modalPosStart}
-                      onChange={(e) => setModalPosStart(Number(e.target.value))}
+                      onChange={(e) => setModalPosStart(cleanNumericInput(e.target.value))}
                       style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
                     />
                   </div>
@@ -1287,7 +1298,7 @@ export default function MultiBeamCalculator() {
                       <input
                         type="number"
                         value={modalPosEnd}
-                        onChange={(e) => setModalPosEnd(Number(e.target.value))}
+                        onChange={(e) => setModalPosEnd(cleanNumericInput(e.target.value))}
                         style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', flex: 1 }}
                       />
                       <button
@@ -1306,7 +1317,7 @@ export default function MultiBeamCalculator() {
                   <input
                     type="number"
                     value={modalPos}
-                    onChange={(e) => setModalPos(Number(e.target.value))}
+                    onChange={(e) => setModalPos(cleanNumericInput(e.target.value))}
                     style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px' }}
                   />
                 </div>
@@ -1320,7 +1331,7 @@ export default function MultiBeamCalculator() {
                 <input
                   type="number"
                   value={modalMagnitude}
-                  onChange={(e) => setModalMagnitude(Number(e.target.value))}
+                  onChange={(e) => setModalMagnitude(cleanNumericInput(e.target.value))}
                   style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', fontWeight: 700 }}
                 />
               </div>

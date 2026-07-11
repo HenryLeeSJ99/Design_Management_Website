@@ -22,6 +22,17 @@ const saveSessionData = (key, data) => {
   } catch (e) {}
 };
 
+const cleanNumericInput = (val) => {
+  if (val === '') return '';
+  if (/^-?0[0-9]/.test(val)) {
+    const hasMinus = val.startsWith('-');
+    const cleanVal = hasMinus ? val.slice(1) : val;
+    const stripped = cleanVal.replace(/^0+/, '') || '0';
+    return hasMinus ? '-' + stripped : stripped;
+  }
+  return val;
+};
+
 export default function SlabFormworkCalculator() {
   const initialInputs = getSessionData('tempworks_slabformwork_inputs', {
     slabThickness: 200,
@@ -259,7 +270,7 @@ export default function SlabFormworkCalculator() {
                           <input
                             type="number"
                             value={slabThickness}
-                            onChange={(e) => setSlabThickness(e.target.value)}
+                            onChange={(e) => setSlabThickness(cleanNumericInput(e.target.value))}
                             onFocus={() => setActiveMarker('slab')}
                           />
                           <span>mm</span>
@@ -271,7 +282,7 @@ export default function SlabFormworkCalculator() {
                           <input
                             type="number"
                             value={unitWeight}
-                            onChange={(e) => setUnitWeight(e.target.value)}
+                            onChange={(e) => setUnitWeight(cleanNumericInput(e.target.value))}
                             onFocus={() => setActiveMarker('slab')}
                           />
                           <span>kN/m³</span>
@@ -386,7 +397,7 @@ export default function SlabFormworkCalculator() {
                             type="number"
                             step="0.05"
                             value={secondarySpacing}
-                            onChange={(e) => setSecondarySpacing(e.target.value)}
+                            onChange={(e) => setSecondarySpacing(cleanNumericInput(e.target.value))}
                             onFocus={() => setActiveMarker('secondary')}
                           />
                           <span>m</span>
@@ -437,7 +448,7 @@ export default function SlabFormworkCalculator() {
                             type="number"
                             step="0.1"
                             value={primarySpacing}
-                            onChange={(e) => setPrimarySpacing(e.target.value)}
+                            onChange={(e) => setPrimarySpacing(cleanNumericInput(e.target.value))}
                             onFocus={() => setActiveMarker('primary')}
                           />
                           <span>m</span>
@@ -450,7 +461,7 @@ export default function SlabFormworkCalculator() {
                             type="number"
                             step="0.1"
                             value={primarySpanLength}
-                            onChange={(e) => setPrimarySpanLength(e.target.value)}
+                            onChange={(e) => setPrimarySpanLength(cleanNumericInput(e.target.value))}
                             onFocus={() => setActiveMarker('primary')}
                           />
                           <span>m</span>
@@ -519,7 +530,7 @@ export default function SlabFormworkCalculator() {
                             type="number"
                             step="0.1"
                             value={towerHeight}
-                            onChange={(e) => setTowerHeight(e.target.value)}
+                            onChange={(e) => setTowerHeight(cleanNumericInput(e.target.value))}
                             onFocus={() => setActiveMarker('shoring')}
                           />
                           <span>m</span>

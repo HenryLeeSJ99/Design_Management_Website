@@ -20,6 +20,17 @@ const saveSessionData = (key, data) => {
   } catch (e) {}
 };
 
+const cleanNumericInput = (val) => {
+  if (val === '') return '';
+  if (/^-?0[0-9]/.test(val)) {
+    const hasMinus = val.startsWith('-');
+    const cleanVal = hasMinus ? val.slice(1) : val;
+    const stripped = cleanVal.replace(/^0+/, '') || '0';
+    return hasMinus ? '-' + stripped : stripped;
+  }
+  return val;
+};
+
 export default function WallFormworkCalculator() {
   const [activeTab, setActiveTab] = useState('calculator');
   const tabsContainerRef = useRef(null);
@@ -231,17 +242,17 @@ export default function WallFormworkCalculator() {
 
             <div className={styles.fieldRow}>
               <span className={styles.fieldLabel}>Concrete specific weight D (kN/m³)</span>
-              <input type="number" step="0.1" className={styles.fieldInput} value={density} onChange={(e) => setDensity(e.target.value)} />
+              <input type="number" step="0.1" className={styles.fieldInput} value={density} onChange={(e) => setDensity(cleanNumericInput(e.target.value))} />
             </div>
             
             <div className={styles.fieldRow}>
               <span className={styles.fieldLabel}>Placing temperature T (°C)</span>
-              <input type="number" step="1" className={styles.fieldInput} value={temp} onChange={(e) => setTemp(e.target.value)} />
+              <input type="number" step="1" className={styles.fieldInput} value={temp} onChange={(e) => setTemp(cleanNumericInput(e.target.value))} />
             </div>
 
             <div className={styles.fieldRow}>
               <span className={styles.fieldLabel}>Pouring / Form height H (m)</span>
-              <input type="number" step="0.1" className={styles.fieldInput} value={pourHeight} onChange={(e) => setPourHeight(e.target.value)} />
+              <input type="number" step="0.1" className={styles.fieldInput} value={pourHeight} onChange={(e) => setPourHeight(cleanNumericInput(e.target.value))} />
             </div>
           </div>
 
@@ -260,12 +271,12 @@ export default function WallFormworkCalculator() {
             {inputMode === 'pressure' ? (
               <div className={styles.fieldRow}>
                 <span className={styles.fieldLabel}>Target Pmax (kN/m²)</span>
-                <input type="number" step="0.1" className={styles.fieldInput} value={maxPressure} onChange={(e) => setMaxPressure(e.target.value)} />
+                <input type="number" step="0.1" className={styles.fieldInput} value={maxPressure} onChange={(e) => setMaxPressure(cleanNumericInput(e.target.value))} />
               </div>
             ) : (
               <div className={styles.fieldRow}>
                 <span className={styles.fieldLabel}>Target Rate R (m/h)</span>
-                <input type="number" step="0.1" className={styles.fieldInput} value={rateOfRise} onChange={(e) => setRateOfRise(e.target.value)} />
+                <input type="number" step="0.1" className={styles.fieldInput} value={rateOfRise} onChange={(e) => setRateOfRise(cleanNumericInput(e.target.value))} />
               </div>
             )}
           </div>

@@ -58,7 +58,9 @@ export default function Layout() {
 
       <aside className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ''}`}>
         <div className={styles.sidebarHeader}>
-          <Logo width={160} light={true} />
+          <Link to="/" style={{ textDecoration: 'none', display: 'inline-block' }}>
+            <Logo width={160} light={true} />
+          </Link>
           {/* Close button visible only on mobile */}
           <button
             className={styles.sidebarCloseBtn}
