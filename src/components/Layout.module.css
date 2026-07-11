@@ -384,6 +384,42 @@
   border-color: var(--text-muted);
 }
 
+.clearCacheBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  letter-spacing: 0.01em;
+}
+
+.clearCacheBtn:hover {
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.5);
+  color: #ef4444;
+}
+
+.clearCacheBtn:hover svg {
+  animation: spinOnce 0.5s ease-in-out;
+}
+
+@keyframes spinOnce {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.clearCacheBtn:active {
+  transform: scale(0.97);
+}
+
 /* ════════════════════════════════════════════════
    MOBILE / TABLET RESPONSIVE  (≤ 768px)
    ════════════════════════════════════════════════ */

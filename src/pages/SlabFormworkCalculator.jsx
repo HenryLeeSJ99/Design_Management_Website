@@ -166,12 +166,6 @@ export default function SlabFormworkCalculator() {
           <p>Design and verify your slab formwork system</p>
         </div>
         <div className={styles.headerActions}>
-          <select className={styles.projectSelect}>
-            <option>Hospital Block A - Level 3</option>
-          </select>
-          <button className={styles.btnSecondary}>
-            <Save size={16} /> Save
-          </button>
           <button className={styles.btnCalculate} onClick={handleCalculate}>
             <Play size={16} fill="currentColor" /> Calculate
           </button>

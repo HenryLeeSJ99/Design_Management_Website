@@ -3,7 +3,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import styles from './Layout.module.css';
 import Logo from './Logo';
-import { LayoutDashboard, LogOut, Search, Bell, Menu, X, SquareMenu, Layers, Building, ChevronsUp, Columns, Cuboid, Save, FolderOpen } from 'lucide-react';
+import { LayoutDashboard, LogOut, Search, Bell, Menu, X, SquareMenu, Layers, Building, ChevronsUp, Columns, Cuboid, RefreshCw } from 'lucide-react';
 
 export default function Layout() {
   const { currentUser, logout } = useAuth();
@@ -14,6 +14,20 @@ export default function Layout() {
   useEffect(() => {
     setSidebarOpen(false);
   }, [location.pathname]);
+
+  const handleClearCache = async () => {
+    // Clear sessionStorage (calculator state)
+    sessionStorage.clear();
+    // Clear localStorage
+    localStorage.clear();
+    // Clear all service worker / browser caches
+    if ('caches' in window) {
+      const cacheNames = await caches.keys();
+      await Promise.all(cacheNames.map(name => caches.delete(name)));
+    }
+    // Hard reload bypassing cache
+    window.location.reload(true);
+  };
 
   const navItems = [];
 
@@ -108,18 +122,15 @@ export default function Layout() {
             ))}
           </div>
 
-          {/* Mobile-only: Project & Save actions */}
-          <div className={styles.navSection + ' ' + styles.mobileProjectSection}>
-            <span className={styles.navSectionTitle}>PROJECT</span>
-            <div className={styles.mobileProjectSelect}>
-              <FolderOpen size={16} className={styles.navIcon} />
-              <select>
-                <option>Hospital Block A - Level 3</option>
-              </select>
-            </div>
-            <button className={styles.mobileActionBtn}>
-              <Save size={16} />
-              Save
+          {/* Clear Cache & Reload */}
+          <div className={styles.navSection}>
+            <button
+              className={styles.clearCacheBtn}
+              onClick={handleClearCache}
+              title="Clear all cached data and reload the app"
+            >
+              <RefreshCw size={15} />
+              Clear Cache &amp; Reload
             </button>
           </div>
         </nav>

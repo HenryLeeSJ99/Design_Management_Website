@@ -97,6 +97,7 @@
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
   box-shadow: var(--shadow-sm);
+  display: none;
 }
 
 .btnSecondary:hover {
