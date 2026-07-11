@@ -4,7 +4,8 @@ import Home from './pages/Home';
 import Layout from './components/Layout';
 import SplashScreen from './components/SplashScreen';
 import RouteLoader from './components/RouteLoader';
-import { useState, lazy, Suspense } from 'react';
+import ErrorBoundary from './components/ErrorBoundary';
+import { useState, useEffect, lazy, Suspense } from 'react';
 
 // Route-level code splitting: each of these (and their dependencies -
 // Firebase, Chart.js, jsPDF, html2canvas) ships in its own chunk and only
@@ -28,6 +29,13 @@ function PrivateRoute({ children }) {
 function App() {
   const [showSplash, setShowSplash] = useState(true);
 
+  // A prior render reached this point successfully, so a chunk-load retry
+  // is no longer "in flight" - clear the flag so a future genuine failure
+  // gets its own automatic retry instead of being silently skipped.
+  useEffect(() => {
+    sessionStorage.removeItem('tw_chunk_reload_attempted');
+  }, []);
+
   if (showSplash) {
     return <SplashScreen onFinish={() => setShowSplash(false)} />;
   }
@@ -35,37 +43,39 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <Suspense fallback={<RouteLoader full />}>
-          <Routes>
-            <Route path="/login" element={<Login />} />
+        <ErrorBoundary>
+          <Suspense fallback={<RouteLoader full />}>
+            <Routes>
+              <Route path="/login" element={<Login />} />
 
-            {/* Main layout with nested routes */}
-            <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
-              {/* Default home → landing page */}
-              <Route index element={<Home />} />
+              {/* Main layout with nested routes */}
+              <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
+                {/* Default home → landing page */}
+                <Route index element={<Home />} />
 
-              {/* Dashboard (legacy, kept for any internal links) */}
-              <Route path="dashboard" element={<Dashboard />} />
+                {/* Dashboard (legacy, kept for any internal links) */}
+                <Route path="dashboard" element={<Dashboard />} />
 
-              {/* Calculator routes */}
-              <Route path="calculators/multi-beam" element={<MultiBeamCalculator />} />
-              <Route path="calculators/slab-formwork" element={<SlabFormworkCalculator />} />
-              <Route path="calculators/wall-formwork" element={<WallFormworkCalculator />} />
+                {/* Calculator routes */}
+                <Route path="calculators/multi-beam" element={<MultiBeamCalculator />} />
+                <Route path="calculators/slab-formwork" element={<SlabFormworkCalculator />} />
+                <Route path="calculators/wall-formwork" element={<WallFormworkCalculator />} />
 
-              {/* Legacy Routes */}
-              <Route path="projects" element={<Projects />} />
-              <Route path="projects/:projectId" element={<ProjectDetails />} />
-              <Route path="projects/:projectId/case/:dcId" element={<MultiSpanBeamCalculator />} />
-              <Route path="library" element={<Library />} />
+                {/* Legacy Routes */}
+                <Route path="projects" element={<Projects />} />
+                <Route path="projects/:projectId" element={<ProjectDetails />} />
+                <Route path="projects/:projectId/case/:dcId" element={<MultiSpanBeamCalculator />} />
+                <Route path="library" element={<Library />} />
 
-              {/* 404 — catch-all nested under layout */}
+                {/* 404 — catch-all nested under layout */}
+                <Route path="*" element={<NotFound />} />
+              </Route>
+
+              {/* 404 — catch-all for top-level unknown paths */}
               <Route path="*" element={<NotFound />} />
-            </Route>
-
-            {/* 404 — catch-all for top-level unknown paths */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
+            </Routes>
+          </Suspense>
+        </ErrorBoundary>
       </Router>
     </AuthProvider>
   );

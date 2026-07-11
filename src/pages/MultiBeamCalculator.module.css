@@ -511,7 +511,9 @@
     transform: translateX(-50%);
     top: auto;
     right: auto;
-    z-index: 1001;
+    /* Below the mobile sidebar (999) and its overlay (998) so the open
+       side panel covers this floating button instead of sitting on top of it */
+    z-index: 900;
     height: 44px;
     min-height: 44px;
     padding: 0.6rem 2.25rem;

@@ -936,6 +936,10 @@ export default function MultiBeamCalculator() {
                         const sec = getSectionByName(sectionType, sectionSize);
                         if (!sec) return null;
                         const N = isTwinProfile ? 2 : 1;
+                        const E_val = sec.E || 210000;
+                        // EI in kNm²: E (MPa) * Iy (cm⁴) * 1e-5 — same conversion used
+                        // in the solver wiring and the report's stiffness line.
+                        const EI_val = E_val * sec.Iy * N * 1e-5;
                         return (
                           <div className={styles.propertyGrid}>
                             {sec.type !== 'system' ? (
@@ -945,13 +949,14 @@ export default function MultiBeamCalculator() {
                                 <span>tw <strong>{sec.tw} mm</strong></span>
                                 <span>tf <strong>{sec.tf} mm</strong></span>
                                 <span>Iy <strong>{(sec.Iy * N).toFixed(2)} cm⁴</strong></span>
+                                <span>EI <strong>{EI_val.toFixed(2)} kNm²</strong></span>
                                 <span>Wpl,y <strong>{(sec.Wpl_y * N).toFixed(2)} cm³</strong></span>
                               </>
                             ) : (
                               <>
                                 <span>h <strong>{sec.h} mm</strong></span>
                                 <span>b <strong>{sec.b} mm</strong></span>
-                                <span>Iy <strong>{(sec.Iy * N).toFixed(2)} cm⁴</strong></span>
+                                <span>EI <strong>{EI_val.toFixed(2)} kNm²</strong></span>
                                 <span>Allow. Moment <strong>{(sec.Mallow * N).toFixed(2)} kNm</strong></span>
                                 <span>Allow. Shear <strong>{(sec.Vallow * N).toFixed(2)} kN</strong></span>
                                 <span>Weight <strong>{(sec.mass * N).toFixed(2)} kg/m</strong></span>
