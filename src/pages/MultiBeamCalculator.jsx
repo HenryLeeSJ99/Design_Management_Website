@@ -1097,15 +1097,22 @@ export default function MultiBeamCalculator() {
                     </div>
                     <div className={styles.loadList}>
                       {loads.length === 0 ? (
-                        <div style={{ padding: '1.5rem', textAlign: 'center', color: '#94a3b8', fontSize: '13px', background: '#f8fafc', borderRadius: '8px', border: '1px dashed #cbd5e1' }}>
-                          No loads added yet. Click <strong>Add Load</strong>.
-                        </div>
+                        <button 
+                          className={styles.emptyLoadBtn}
+                          onClick={handleOpenAddLoad}
+                          type="button"
+                        >
+                          <Plus size={20} style={{ marginBottom: '6px' }} />
+                          <span>No loads added yet. Click to <strong>Add Load</strong>.</span>
+                        </button>
                       ) : (
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                           {loads.map((load, i) => (
                             <div 
                               key={`load-${i}`} 
-                              className={styles.loadItem}
+                              role="button"
+                              tabIndex={0}
+                              className={styles.loadItemBtn}
                               onClick={() => handleOpenEditLoad(i)}
                               title="Click to edit load parameters"
                             >

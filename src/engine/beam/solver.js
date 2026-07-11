@@ -90,7 +90,7 @@ export function solveBeam({ spans, supports, nodalLoads, elementLoads, E, I }) {
     const dof = freeDOFs[i];
     const isVertical = dof % 2 === 0;
     const nodeIdx = Math.floor(dof / 2);
-    const pExt = isVertical ? (nodalLoads[nodeIdx] * 1000) : 0; // kN -> N
+    const pExt = isVertical ? -(nodalLoads[nodeIdx] * 1000) : 0; // kN -> N, downward load is negative in Y-up
 
     // RHS = P_ext - F_fixed
     RHS[i] = pExt - F_fixed[dof];
@@ -107,7 +107,7 @@ export function solveBeam({ spans, supports, nodalLoads, elementLoads, E, I }) {
     u[freeDOFs[i]] = u_free[i];
   }
 
-  return buildResults(u, F_fixed, K, nodeX, spans, supports, EI, elementLoads, restrainedDOFs);
+  return buildResults(u, F_fixed, K, nodeX, spans, supports, EI, elementLoads, restrainedDOFs, nodalLoads);
 }
 
 function elementStiffnessMatrix(EI, L) {
@@ -124,13 +124,16 @@ function elementStiffnessMatrix(EI, L) {
 }
 
 function fixedEndForces(w, L) {
+  // For a downward load w (positive magnitude), actual load is -w.
+  // Fixed-end reactions (to hold nodes at 0 displacement) in Y-up system:
+  // R1(up) = +wL/2, M1(ccw) = +wL^2/12, R2(up) = +wL/2, M2(cw) = -wL^2/12
   const wL = w * L;
   const wL2 = w * L * L;
   return [
-    -wL / 2,
-    -wL2 / 12,
-    -wL / 2,
+     wL / 2,
      wL2 / 12,
+     wL / 2,
+    -wL2 / 12,
   ];
 }
 
@@ -181,7 +184,7 @@ function multiplyMatrixVector(K, u) {
   return K.map(row => row.reduce((sum, val, j) => sum + val * u[j], 0));
 }
 
-function buildResults(u, F_fixed, K, nodeX, spans, supports, EI, elementLoads, restrainedDOFs) {
+function buildResults(u, F_fixed, K, nodeX, spans, supports, EI, elementLoads, restrainedDOFs, nodalLoads) {
   const totalDOFs = u.length;
   const numNodes = nodeX.length;
   const numSpans = spans.length;
@@ -203,7 +206,11 @@ function buildResults(u, F_fixed, K, nodeX, spans, supports, EI, elementLoads, r
 
     let reactionForce = 0;
     if (restrainedDOFs.has(vDOF)) {
-      reactionForce = -F_global[vDOF] / 1000;
+      // F_global is the total force (Ku + F_fixed) required at the node.
+      // If it's positive, the support must pull UPWARD (positive reaction).
+      // We must also subtract any applied nodal load at the support (which was downward = negative).
+      const appliedLoad = -(nodalLoads[n] * 1000 || 0); // N
+      reactionForce = (F_global[vDOF] - appliedLoad) / 1000; // kN
     }
 
     nodes.push({
@@ -228,7 +235,7 @@ function buildResults(u, F_fixed, K, nodeX, spans, supports, EI, elementLoads, r
     const L = spans[e];
     const startX = nodeX[e];
     const endX = nodeX[e + 1];
-    const w = elementLoads[e]; // N/mm
+    const w = elementLoads[e]; // N/mm (positive = downward)
 
     const v1 = u[2 * e];
     const theta1 = u[2 * e + 1];
@@ -247,8 +254,11 @@ function buildResults(u, F_fixed, K, nodeX, spans, supports, EI, elementLoads, r
       }
     }
 
-    const P_left = -f_elem[0]; // upward force at left end of element (N)
-    const M_left = f_elem[1];  // internal moment at left end (N·mm), sagging positive
+    // Standard sign convention for internal forces:
+    // f_elem[0] is UPWARD force on left node. So V(0) = f_elem[0]
+    // f_elem[1] is CCW moment on left node. So Sagging M(0) = -f_elem[1]
+    const P_left = f_elem[0];
+    const M_left = -f_elem[1];
 
     const numPoints = 50;
     const points = [];
@@ -273,7 +283,8 @@ function buildResults(u, F_fixed, K, nodeX, spans, supports, EI, elementLoads, r
       const N4 = L * (-xi2 + xi3);
 
       const v_shape = N1 * v1 + N2 * theta1 + N3 * v2 + N4 * theta2;
-      const v_particular = (w * L * L * L * L) / (24 * EI) * xi2 * (1 - xi) * (1 - xi);
+      // Downward load (w) produces downward (-) particular deflection
+      const v_particular = -(w * L * L * L * L) / (24 * EI) * xi2 * (1 - xi) * (1 - xi);
 
       const deflection = v_shape + v_particular;
 
