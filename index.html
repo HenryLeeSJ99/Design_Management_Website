@@ -21,6 +21,27 @@
     <meta property="og:title" content="TempWorks | Structural Design Calculators" />
     <meta property="og:description" content="Professional structural design calculators for multi-span beams, slab formwork, and wall formwork." />
     <meta property="og:type" content="website" />
+
+    <!-- Script loading fail-safe to handle stale index cache on redeploy -->
+    <script>
+      window.addEventListener('error', function(e) {
+        var isScript = e.target && e.target.tagName === 'SCRIPT';
+        var isSyntax = e.message && (
+          e.message.indexOf('Unexpected token') > -1 || 
+          e.message.indexOf('expected expression') > -1 ||
+          e.message.indexOf('import') > -1
+        );
+        if (isScript || isSyntax) {
+          try {
+            var reloadKey = 'tw_stale_reload_attempted';
+            if (!sessionStorage.getItem(reloadKey)) {
+              sessionStorage.setItem(reloadKey, '1');
+              window.location.reload(true);
+            }
+          } catch(err) {}
+        }
+      }, true);
+    </script>
   </head>
   <body>
     <div id="root"></div>
