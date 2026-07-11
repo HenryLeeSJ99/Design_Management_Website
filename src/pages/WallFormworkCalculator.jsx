@@ -203,7 +203,7 @@ export default function WallFormworkCalculator() {
             <div className={styles.cardHeader}>Standard Selection</div>
             <div className={styles.fieldRow}>
               <span className={styles.fieldLabel}>Standard</span>
-              <select className={styles.selectInput} style={{ width: 'auto', marginBottom: 0 }}>
+              <select className={`${styles.selectInput} ${styles.selectInputAuto}`}>
                 <option>CIRIA Report 108:1985</option>
               </select>
             </div>
@@ -223,7 +223,7 @@ export default function WallFormworkCalculator() {
 
             <div className={styles.fieldRow}>
               <span className={styles.fieldLabel}>Concrete type</span>
-              <select className={styles.selectInput} style={{ width: 'auto', marginBottom: 0 }} value={concreteType} onChange={(e) => setConcreteType(e.target.value)}>
+              <select className={`${styles.selectInput} ${styles.selectInputAuto}`} value={concreteType} onChange={(e) => setConcreteType(e.target.value)}>
                 <option value="normal">(iv) Concrete without admixtures</option>
                 <option value="retarder">Concrete with retarder</option>
               </select>
@@ -309,7 +309,7 @@ export default function WallFormworkCalculator() {
                 <span className={styles.resultLabel}>Hydrostatic pressure head hs (m)</span>
                 <span className={styles.resultValue}>{hydroHead.toFixed(2)}</span>
               </div>
-              <div className={styles.resultBox} style={{ gridColumn: 'span 2' }}>
+              <div className={`${styles.resultBox} ${styles.resultBoxWide}`}>
                 <span className={styles.resultLabel}>Minimum pouring time t (h)</span>
                 <span className={styles.resultValue}>{pourTime === 0 && calculatedRate === Infinity ? 'Instant' : pourTime.toFixed(2)}</span>
               </div>
@@ -353,7 +353,8 @@ export default function WallFormworkCalculator() {
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', width: '100%', paddingBottom: '40px', overflowX: 'auto' }}>
               {/* Configuration Panel */}
               <div style={{
-                width: '210mm',
+                width: '100%',
+                maxWidth: '210mm',
                 backgroundColor: '#ffffff',
                 border: '1px solid #cbd5e1',
                 borderRadius: '12px',
@@ -446,9 +447,10 @@ export default function WallFormworkCalculator() {
                 </div>
               </div>
 
-              {/* A4 Printable Sheet */}
-              <div 
-                ref={reportRef} 
+              {/* A4 Printable Sheet - .reportSheet scales it down on narrow viewports */}
+              <div
+                ref={reportRef}
+                className={styles.reportSheet}
                 style={{
                   width: '210mm',
                   minHeight: '297mm',

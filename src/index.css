@@ -88,6 +88,40 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Form controls render in the OS font unless told otherwise */
+button, input, select, textarea {
+  font-family: inherit;
+}
+
+/* Keyboard navigation baseline - components may layer richer rings on top */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+::selection {
+  background: hsl(var(--primary-hsl) / 0.18);
+}
+
+h1, h2, h3 {
+  text-wrap: balance;
+}
+
+/* Engineering data reads in columns - digits must align */
+table, tbody, .tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 #root {
   min-height: 100vh;
   display: flex;

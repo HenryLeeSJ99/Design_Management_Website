@@ -841,10 +841,11 @@ export default function MultiBeamCalculator() {
             {/* ─── CONFIGURATION TAB ─── */}
             {activeTab === 'configuration' && (
               <div className={styles.gridLayout}>
-                {/* Left column */}
-                <div>
-                  <div className={styles.card}>
-                    <h3 className={styles.cardTitle}>1. Beam Properties</h3>
+                {/* Cards flow in logical order (properties, layout, factors, loads)
+                    so the mobile single-column stack keeps the input hierarchy;
+                    desktop places factors + loads side by side below layout via grid areas. */}
+                <div className={`${styles.card} ${styles.areaProperties}`}>
+                    <h3 className={styles.cardTitle}>Beam Properties</h3>
                     <div className={styles.formStack}>
                       <div className={styles.materialSelectorContainer}>
                         <span className={styles.materialSelectorLabel}>Material Selection</span>
@@ -960,47 +961,11 @@ export default function MultiBeamCalculator() {
                         );
                       })()}
                     </div>
-                  </div>
-                  <div className={styles.card}>
-                    <h3 className={styles.cardTitle}>2. Design Factors & Safety Limits</h3>
-                    <div className={styles.formStack}>
-                      <label className={styles.field}>
-                        <span>ULS Load Factor (γ<sub>F</sub>)</span>
-                        <input 
-                          type="number" 
-                          step="0.05" 
-                          value={loadFactor} 
-                          onChange={(e) => setLoadFactor(e.target.value)} 
-                        />
-                      </label>
-                      <label className={styles.field}>
-                        <span>ULS Material Factor (γ<sub>M</sub>)</span>
-                        <input 
-                          type="number" 
-                          step="0.05" 
-                          value={materialFactor} 
-                          onChange={(e) => setMaterialFactor(e.target.value)} 
-                        />
-                      </label>
-                      <label className={styles.field}>
-                        <span>Deflection Limit</span>
-                        <select value={deflectionLimit} onChange={(e) => setDeflectionLimit(Number(e.target.value))}>
-                          <option value={200}>L / 200</option>
-                          <option value={270}>L / 270</option>
-                          <option value={360}>L / 360</option>
-                          <option value={400}>L / 400</option>
-                          <option value={500}>L / 500</option>
-                        </select>
-                      </label>
-                    </div>
-                  </div>
                 </div>
-    
-                {/* Right column */}
-                <div>
-                  <div className={styles.card}>
+
+                <div className={`${styles.card} ${styles.areaLayout}`}>
                     <div className={styles.cardHeadingRow}>
-                      <h3 className={styles.cardTitle}>3. Beam Layout</h3>
+                      <h3 className={styles.cardTitle}>Beam Layout</h3>
                       <div className={styles.inlineActions}>
                         <button className={styles.smallAction} onClick={addSpan}><Plus size={16} /> <span className={styles.btnWord}>Add</span> Span</button>
                         <button className={styles.smallAction} onClick={removeSpan}><Minus size={16} /> <span className={styles.btnWord}>Remove</span> Span</button>
@@ -1044,11 +1009,45 @@ export default function MultiBeamCalculator() {
                         </div>
                       ))}
                     </div>
-                  </div>
-    
-                  <div className={styles.card}>
+                </div>
+
+                <div className={`${styles.card} ${styles.areaFactors}`}>
+                    <h3 className={styles.cardTitle}>Design Factors & Safety Limits</h3>
+                    <div className={styles.formStack}>
+                      <label className={styles.field}>
+                        <span>ULS Load Factor (γ<sub>F</sub>)</span>
+                        <input
+                          type="number"
+                          step="0.05"
+                          value={loadFactor}
+                          onChange={(e) => setLoadFactor(e.target.value)}
+                        />
+                      </label>
+                      <label className={styles.field}>
+                        <span>ULS Material Factor (γ<sub>M</sub>)</span>
+                        <input
+                          type="number"
+                          step="0.05"
+                          value={materialFactor}
+                          onChange={(e) => setMaterialFactor(e.target.value)}
+                        />
+                      </label>
+                      <label className={styles.field}>
+                        <span>Deflection Limit</span>
+                        <select value={deflectionLimit} onChange={(e) => setDeflectionLimit(Number(e.target.value))}>
+                          <option value={200}>L / 200</option>
+                          <option value={270}>L / 270</option>
+                          <option value={360}>L / 360</option>
+                          <option value={400}>L / 400</option>
+                          <option value={500}>L / 500</option>
+                        </select>
+                      </label>
+                    </div>
+                </div>
+
+                <div className={`${styles.card} ${styles.areaLoads}`}>
                     <div className={styles.cardHeadingRow}>
-                      <h3 className={styles.cardTitle}>4. Loads</h3>
+                      <h3 className={styles.cardTitle}>Loads</h3>
                       <button className={styles.smallAction} onClick={handleOpenAddLoad}><Plus size={16} /> Add Load</button>
                     </div>
                     <div style={{ padding: '4px 0 12px', borderBottom: '1px solid #f1f5f9', marginBottom: '10px' }}>
@@ -1116,11 +1115,10 @@ export default function MultiBeamCalculator() {
                         </div>
                       )}
                     </div>
-                  </div>
                 </div>
               </div>
             )}
-    
+
             {/* ─── RESULTS TAB ─── */}
             {activeTab === 'results' && (
               results ? <ResultsPanel results={results} spans={spans} loads={loads} /> : (

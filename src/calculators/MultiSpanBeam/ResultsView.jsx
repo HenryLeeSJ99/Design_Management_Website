@@ -1,6 +1,4 @@
-import { useMemo } from 'react';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { useMemo, useState } from 'react';
 import styles from './MultiSpanBeam.module.css';
 
 // ─── Colour tokens ────────────────────────────────────────────────────────────
@@ -282,7 +280,15 @@ export default function ResultsView({ results, sectionName }) {
   // Overall status
   const overallPass = checks.overallPass ?? (checks.bending?.pass && checks.shear?.pass && checks.deflection?.pass);
 
-  const generatePDF = () => {
+  // jsPDF and jspdf-autotable load on demand so they never weigh down the
+  // calculator's initial bundle.
+  const [pdfBusy, setPdfBusy] = useState(null); // 'preview' | 'download' | null
+
+  const buildPDF = async () => {
+    const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+      import('jspdf'),
+      import('jspdf-autotable'),
+    ]);
     const doc = new jsPDF();
     doc.setFontSize(18);
     doc.text('TempWorks Design Management System', 14, 22);
@@ -291,7 +297,7 @@ export default function ResultsView({ results, sectionName }) {
     doc.setFontSize(10);
     doc.text(`Section: ${sectionName}`, 14, 45);
     doc.text(`Overall Status: ${overallPass ? 'PASS' : 'FAIL'}`, 14, 52);
-    doc.autoTable({
+    autoTable(doc, {
       startY: 60,
       head: [['Check', 'Applied', 'Capacity', 'Utilization', 'Status']],
       body: [
@@ -300,7 +306,27 @@ export default function ResultsView({ results, sectionName }) {
         ['Deflection', `${maxDefl.toFixed(2)} mm`, `${checks.deflection?.allowable?.toFixed(2) ?? '?'} mm`, `${(checks.deflection?.ratio * 100).toFixed(1)}%`, checks.deflection?.pass ? 'PASS' : 'FAIL'],
       ],
     });
-    doc.save('TempWorks_Report.pdf');
+    return doc;
+  };
+
+  const previewPDF = async () => {
+    setPdfBusy('preview');
+    try {
+      const doc = await buildPDF();
+      window.open(doc.output('bloburl'), '_blank');
+    } finally {
+      setPdfBusy(null);
+    }
+  };
+
+  const downloadPDF = async () => {
+    setPdfBusy('download');
+    try {
+      const doc = await buildPDF();
+      doc.save('TempWorks_Report.pdf');
+    } finally {
+      setPdfBusy(null);
+    }
   };
 
   const cls = checks.classification;
@@ -329,16 +355,32 @@ export default function ResultsView({ results, sectionName }) {
             </div>
           </div>
         </div>
-        <button
-          onClick={generatePDF}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 8,
-            background: '#1d4ed8', color: '#fff', border: 'none',
-            padding: '10px 20px', borderRadius: 8, fontWeight: 600, fontSize: 13, cursor: 'pointer',
-          }}
-        >
-          ⬇ Download PDF
-        </button>
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <button
+            onClick={previewPDF}
+            disabled={pdfBusy !== null}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              background: '#fff', color: '#1d4ed8', border: '1px solid #bfdbfe',
+              padding: '10px 20px', borderRadius: 8, fontWeight: 600, fontSize: 13,
+              cursor: pdfBusy ? 'wait' : 'pointer', opacity: pdfBusy && pdfBusy !== 'preview' ? 0.6 : 1,
+            }}
+          >
+            {pdfBusy === 'preview' ? 'Preparing preview...' : 'Preview PDF'}
+          </button>
+          <button
+            onClick={downloadPDF}
+            disabled={pdfBusy !== null}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 8,
+              background: '#1d4ed8', color: '#fff', border: 'none',
+              padding: '10px 20px', borderRadius: 8, fontWeight: 600, fontSize: 13,
+              cursor: pdfBusy ? 'wait' : 'pointer', opacity: pdfBusy && pdfBusy !== 'download' ? 0.6 : 1,
+            }}
+          >
+            {pdfBusy === 'download' ? 'Preparing PDF...' : 'Download PDF'}
+          </button>
+        </div>
       </div>
 
       {/* ── Summary cards ── */}

@@ -27,5 +27,9 @@ dist-ssr
 graphify-out/.*
 graphify-out/cache/
 
+# Local junctions into .agents/skills/ so Claude Code can discover them
+# (machine-specific reparse points - real source of truth is .agents/skills/)
+.claude/skills/
+
 .env
 .env.local

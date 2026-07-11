@@ -2,7 +2,7 @@ import { useCallback, useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getProjectById, getDesignCases, saveDesignCase, deleteDesignCase } from '../services/localDb';
 import styles from './Projects.module.css';
-import { Plus, Search, Edit2, Trash2 } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, X } from 'lucide-react';
 
 export default function ProjectDetails() {
   const { projectId } = useParams();
@@ -87,7 +87,7 @@ export default function ProjectDetails() {
         <div>
           <h1>{project ? project.projectName : 'Loading...'}</h1>
           <p>
-            <Link to="/projects" style={{ color: '#1d4ed8', textDecoration: 'none' }}>Projects</Link> &gt; Design Cases
+            <Link to="/projects" className={styles.breadcrumb}>Projects</Link> / Design Cases
           </p>
         </div>
         <button className={styles.newProjectBtn} onClick={openModal}>
@@ -132,9 +132,18 @@ export default function ProjectDetails() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan="6" className={styles.loading}>Loading design cases...</td></tr>
+              [...Array(3)].map((_, i) => (
+                <tr key={i}>
+                  <td><span className={styles.skeleton} /></td>
+                  <td><span className={styles.skeleton} /></td>
+                  <td><span className={`${styles.skeleton} ${styles.short}`} /></td>
+                  <td><span className={`${styles.skeleton} ${styles.short}`} /></td>
+                  <td><span className={`${styles.skeleton} ${styles.short}`} /></td>
+                  <td><span className={`${styles.skeleton} ${styles.short}`} /></td>
+                </tr>
+              ))
             ) : designCases.length === 0 ? (
-              <tr><td colSpan="6" className={styles.emptyState}>No design cases found. Create one to get started!</td></tr>
+              <tr><td colSpan="6" className={styles.emptyState}>No design cases yet. Select New Design Case to add the first one.</td></tr>
             ) : (
               designCases.map((dc) => (
                 <tr key={dc.id} onClick={() => navigate(`/projects/${projectId}/case/${dc.id}`)} style={{cursor: 'pointer'}}>
@@ -167,7 +176,9 @@ export default function ProjectDetails() {
           <div className={styles.modal}>
             <div className={styles.modalHeader}>
               <h2>{editingId ? 'Edit Design Case' : 'New Design Case'}</h2>
-              <button className={styles.closeBtn} onClick={closeModal}>&times;</button>
+              <button className={styles.closeBtn} onClick={closeModal} aria-label="Close">
+                <X size={20} />
+              </button>
             </div>
             <form onSubmit={handleSubmit} className={styles.modalForm}>
               <div className={styles.formRow}>

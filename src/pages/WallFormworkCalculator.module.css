@@ -46,10 +46,15 @@
   align-items: start;
 }
 
+.mainGrid > * {
+  min-width: 0;
+}
+
 .sidebarPanel {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  min-width: 0;
 }
 
 .card {
@@ -59,6 +64,7 @@
   padding: 2.25rem 2rem;
   box-shadow: var(--shadow-md), var(--shadow-bezel-inner);
   transition: var(--transition-spring);
+  min-width: 0;
 }
 
 .card:hover {
@@ -120,9 +126,27 @@
   width: 100%;
   padding: 0.5rem;
   border: 1px solid var(--border-color);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   font-size: 0.9rem;
   margin-bottom: 1rem;
+  color: var(--text-main);
+  background-color: var(--bg-card);
+  transition: var(--transition-smooth);
+}
+
+.selectInput:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+  outline: none;
+}
+
+.selectInputAuto {
+  width: auto;
+  margin-bottom: 0;
+}
+
+.resultBoxWide {
+  grid-column: span 2;
 }
 
 .radioGroup {
@@ -146,9 +170,9 @@
 }
 
 .resultBox {
-  background-color: #f1f5f9;
+  background-color: var(--border-color-light);
   border: 1px solid var(--border-color);
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   padding: 1rem;
   display: flex;
   flex-direction: column;
@@ -167,6 +191,7 @@
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--text-main);
+  font-variant-numeric: tabular-nums;
 }
 
 .chartContainer {
@@ -213,6 +238,12 @@
   background: rgba(255,255,255, 0.5);
 }
 
+.tab:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--primary-light);
+  color: var(--text-main);
+}
+
 .tab.active {
   color: var(--text-main);
   background: var(--bg-card);
@@ -223,6 +254,42 @@
   .mainGrid {
     grid-template-columns: 1fr;
   }
+}
+
+/* ── A4 report sheet: scale to fit instead of overflowing ──
+   The sheet is a fixed 210mm preview; print output opens in its own window,
+   so screen zoom never affects the printed page. Breakpoints jump at 768px
+   because the sidebar (260px) leaves the layout there. */
+@media (max-width: 1160px) {
+  .reportSheet { zoom: 0.8; }
+}
+
+@media (max-width: 1000px) {
+  .reportSheet { zoom: 0.65; }
+}
+
+@media (max-width: 880px) {
+  .reportSheet { zoom: 0.55; }
+}
+
+@media (max-width: 768px) {
+  .reportSheet { zoom: 0.85; }
+}
+
+@media (max-width: 700px) {
+  .reportSheet { zoom: 0.7; }
+}
+
+@media (max-width: 560px) {
+  .reportSheet { zoom: 0.55; }
+}
+
+@media (max-width: 460px) {
+  .reportSheet { zoom: 0.45; }
+}
+
+@media (max-width: 390px) {
+  .reportSheet { zoom: 0.38; }
 }
 
 @media (max-width: 760px) {
@@ -258,5 +325,13 @@
 
   .chartContainer {
     height: 350px;
+  }
+
+  .selectInputAuto {
+    width: 100%;
+  }
+
+  .resultBoxWide {
+    grid-column: span 1;
   }
 }

@@ -60,8 +60,8 @@
     "semantic_hash": ""
   },
   "src/calculators/MultiSpanBeam/DynamicBeamDiagram.jsx": {
-    "mtime": 1783750077.4638853,
-    "ast_hash": "c939d758ae3f018eed57de7128d2508f",
+    "mtime": 1783584107.0022838,
+    "ast_hash": "df1f88e76da99926716e2021bbe81386",
     "semantic_hash": ""
   },
   "src/calculators/MultiSpanBeam/GeometryInput.jsx": {
@@ -80,13 +80,13 @@
     "semantic_hash": "31bee8fd520d9b5721851cf63f0421c8"
   },
   "src/calculators/MultiSpanBeam/ResultsView.jsx": {
-    "mtime": 1783762496.1053436,
-    "ast_hash": "bb94ebe29231957f29895232bbaffb61",
-    "semantic_hash": ""
+    "mtime": 1783524367.458325,
+    "ast_hash": "f1e91c15bb5a92facec02a0f33bc4968",
+    "semantic_hash": "f1e91c15bb5a92facec02a0f33bc4968"
   },
   "src/components/Layout.jsx": {
-    "mtime": 1783764803.8176696,
-    "ast_hash": "2578840bfc5eeddef0056dd1c184a1b9",
+    "mtime": 1783666919.3127658,
+    "ast_hash": "5e785f619ab0a2695c3151237a25313f",
     "semantic_hash": ""
   },
   "src/components/Logo.jsx": {
@@ -135,9 +135,9 @@
     "semantic_hash": "c8dc15fc9a29b69b11aa043fd5c5e4bb"
   },
   "src/engine/formwork/slabFormwork.js": {
-    "mtime": 1783748290.7067697,
-    "ast_hash": "4d5c4cab53c62264a665f880eecfb357",
-    "semantic_hash": ""
+    "mtime": 1783524016.773844,
+    "ast_hash": "eb5f082f376b9cfec1b4e742cf09fe07",
+    "semantic_hash": "eb5f082f376b9cfec1b4e742cf09fe07"
   },
   "src/engine/graphics/core/beamLayout.js": {
     "mtime": 1783500786.835989,
@@ -230,8 +230,8 @@
     "semantic_hash": ""
   },
   "src/pages/MultiBeamCalculator.jsx": {
-    "mtime": 1783767196.123536,
-    "ast_hash": "9fd1d82fb85c43ec08bb3ddd785d1af2",
+    "mtime": 1783681690.7339034,
+    "ast_hash": "a08a87b76756e34d7913ba3a451396b0",
     "semantic_hash": ""
   },
   "src/pages/ProjectDetails.jsx": {
@@ -245,8 +245,8 @@
     "semantic_hash": "7fbaf8387ae55be5ee58eb8ab176dfa3"
   },
   "src/pages/SlabFormworkCalculator.jsx": {
-    "mtime": 1783766773.704817,
-    "ast_hash": "3639cec1179161a4391cee933cdca80a",
+    "mtime": 1783677715.5437746,
+    "ast_hash": "cd3a5d55b2563ac80f70328cf09e33b8",
     "semantic_hash": ""
   },
   "src/services/localDb.js": {
@@ -275,8 +275,8 @@
     "semantic_hash": "8f88e53d72fef57027d43c68602558e5"
   },
   "index.html": {
-    "mtime": 1783749955.576995,
-    "ast_hash": "923cd89726a0989ea07f8cfc02494a99",
+    "mtime": 1783668439.9227757,
+    "ast_hash": "70fb1eaeff633237f527b7a85044525e",
     "semantic_hash": ""
   },
   "legacy/index.html": {
@@ -410,8 +410,8 @@
     "semantic_hash": ""
   },
   "src/pages/WallFormworkCalculator.jsx": {
-    "mtime": 1783766712.6252255,
-    "ast_hash": "e73efe970e20fd8e01c5941eba983370",
+    "mtime": 1783678367.6505072,
+    "ast_hash": "d9d5ece97b4059a748fdf92d91628b57",
     "semantic_hash": ""
   },
   "src/assets/slab-diagram.png": {

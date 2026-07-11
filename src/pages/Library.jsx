@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import styles from './Projects.module.css'; // Reusing the same styles for consistency
+import { Plus, Edit2, Trash2, X } from 'lucide-react';
 
 export default function Library() {
   const [products, setProducts] = useState([]);
@@ -101,52 +102,66 @@ export default function Library() {
     <div className={styles.projectsContainer}>
       <header className={styles.header}>
         <div>
-          <h1 className={styles.pageTitle}>Product Library</h1>
-          <p className={styles.pageSubtitle}>Manage standard beams, props, and formwork components</p>
+          <h1>Product Library</h1>
+          <p>Manage standard beams, props, and formwork components</p>
         </div>
-        <button className={styles.primaryBtn} onClick={openModal}>+ Add Product</button>
+        <button className={styles.newProjectBtn} onClick={openModal}>
+          <Plus size={18} /> Add Product
+        </button>
       </header>
 
-      <main className={styles.mainContent}>
-        {loading ? (
-          <div className={styles.loading}>Loading library...</div>
-        ) : products.length === 0 ? (
-          <div className={styles.emptyState}>
-            No products found. Add a new component to get started!
-          </div>
-        ) : (
-          <div className={styles.tableContainer}>
-            <table className={styles.dataTable}>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Category</th>
-                  <th>EI (kNm²)</th>
-                  <th>M_cap (kNm)</th>
-                  <th>V_cap (kN)</th>
-                  <th>Weight (kN/m)</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {products.map((p) => (
+      <main>
+        <div className={styles.tableWrapper}>
+          <table className={styles.projectsTable}>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Category</th>
+                <th className={styles.numericCell}>EI (kNm²)</th>
+                <th className={styles.numericCell}>M_cap (kNm)</th>
+                <th className={styles.numericCell}>V_cap (kN)</th>
+                <th className={styles.numericCell}>Weight (kN/m)</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                [...Array(3)].map((_, i) => (
+                  <tr key={i}>
+                    <td><span className={styles.skeleton} /></td>
+                    <td><span className={`${styles.skeleton} ${styles.short}`} /></td>
+                    <td><span className={`${styles.skeleton} ${styles.short}`} /></td>
+                    <td><span className={`${styles.skeleton} ${styles.short}`} /></td>
+                    <td><span className={`${styles.skeleton} ${styles.short}`} /></td>
+                    <td><span className={`${styles.skeleton} ${styles.short}`} /></td>
+                    <td><span className={`${styles.skeleton} ${styles.short}`} /></td>
+                  </tr>
+                ))
+              ) : products.length === 0 ? (
+                <tr><td colSpan="7" className={styles.emptyState}>No products yet. Select Add Product to build your component library.</td></tr>
+              ) : (
+                products.map((p) => (
                   <tr key={p.id}>
                     <td className={styles.primaryCell}>{p.name}</td>
                     <td>{p.category}</td>
-                    <td>{p.ei}</td>
-                    <td>{p.momentCapacity}</td>
-                    <td>{p.shearCapacity}</td>
-                    <td>{p.weight}</td>
+                    <td className={styles.numericCell}>{p.ei}</td>
+                    <td className={styles.numericCell}>{p.momentCapacity}</td>
+                    <td className={styles.numericCell}>{p.shearCapacity}</td>
+                    <td className={styles.numericCell}>{p.weight}</td>
                     <td className={styles.actionsCell}>
-                      <button className={styles.iconBtn} onClick={() => handleEdit(p)}>Edit</button>
-                      <button className={`${styles.iconBtn} ${styles.danger}`} onClick={() => handleDelete(p.id)}>Delete</button>
+                      <button className={styles.iconBtn} onClick={() => handleEdit(p)} title="Edit">
+                        <Edit2 size={16} />
+                      </button>
+                      <button className={`${styles.iconBtn} ${styles.danger}`} onClick={() => handleDelete(p.id)} title="Delete">
+                        <Trash2 size={16} />
+                      </button>
                     </td>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </main>
 
       {isModalOpen && (
@@ -154,7 +169,9 @@ export default function Library() {
           <div className={styles.modal}>
             <div className={styles.modalHeader}>
               <h2>{editingId ? 'Edit Product' : 'New Product'}</h2>
-              <button className={styles.closeBtn} onClick={closeModal}>&times;</button>
+              <button className={styles.closeBtn} onClick={closeModal} aria-label="Close">
+                <X size={20} />
+              </button>
             </div>
             <form onSubmit={handleSubmit} className={styles.modalForm}>
               <div className={styles.formRow}>
@@ -210,9 +227,9 @@ export default function Library() {
                 </div>
               </div>
 
-              <div className={styles.modalFooter}>
-                <button type="button" className={styles.secondaryBtn} onClick={closeModal}>Cancel</button>
-                <button type="submit" className={styles.primaryBtn}>{editingId ? 'Save Changes' : 'Add Product'}</button>
+              <div className={styles.modalActions}>
+                <button type="button" className={styles.cancelBtn} onClick={closeModal}>Cancel</button>
+                <button type="submit" className={styles.submitBtn}>{editingId ? 'Save Changes' : 'Add Product'}</button>
               </div>
             </form>
           </div>

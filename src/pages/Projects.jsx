@@ -113,9 +113,17 @@ export default function Projects() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan="5" className={styles.loading}>Loading projects...</td></tr>
+              [...Array(3)].map((_, i) => (
+                <tr key={i}>
+                  <td><span className={styles.skeleton} /></td>
+                  <td><span className={styles.skeleton} /></td>
+                  <td><span className={`${styles.skeleton} ${styles.short}`} /></td>
+                  <td><span className={`${styles.skeleton} ${styles.short}`} /></td>
+                  <td><span className={`${styles.skeleton} ${styles.short}`} /></td>
+                </tr>
+              ))
             ) : projects.length === 0 ? (
-              <tr><td colSpan="5" className={styles.emptyState}>No projects yet. Create one to get started!</td></tr>
+              <tr><td colSpan="5" className={styles.emptyState}>No projects yet. Select New Project to create your first one.</td></tr>
             ) : (
               projects.map((p) => (
                 <tr key={p.id} onClick={() => navigate(`/projects/${p.id}`)} style={{cursor: 'pointer'}}>

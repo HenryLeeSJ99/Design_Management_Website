@@ -1,12 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 import styles from './Layout.module.css';
 import Logo from './Logo';
-import { LayoutDashboard, LogOut, Search, Bell, Menu, X, SquareMenu, Layers, Building, ChevronsUp, Columns, Cuboid, RefreshCw } from 'lucide-react';
+import RouteLoader from './RouteLoader';
+import { Menu, X, SquareMenu, Layers, Building, ChevronsUp, Columns, Cuboid, RefreshCw } from 'lucide-react';
 
 export default function Layout() {
-  const { currentUser, logout } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -149,7 +148,11 @@ export default function Layout() {
         </header>
 
         <main className={styles.mainContent}>
-          <Outlet />
+          <div key={location.pathname} className={styles.pageEnter}>
+            <Suspense fallback={<RouteLoader />}>
+              <Outlet />
+            </Suspense>
+          </div>
         </main>
       </div>
     </div>

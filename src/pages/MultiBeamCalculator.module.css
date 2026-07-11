@@ -174,9 +174,30 @@
 
 .gridLayout {
   display: grid;
-  grid-template-columns: 380px 1fr;
+  grid-template-columns: 380px 1fr 2fr;
+  grid-template-areas:
+    "properties layout  layout"
+    "properties factors loads";
   gap: 2rem;
   align-items: start;
+}
+
+/* Cards sit directly in the grid; the row gap replaces their stacking margin */
+.gridLayout > .card {
+  margin-bottom: 0;
+}
+
+.areaProperties { grid-area: properties; }
+.areaFactors { grid-area: factors; }
+.areaLayout { grid-area: layout; }
+.areaLoads { grid-area: loads; }
+
+/* Loads sits beside the (shorter) Factors card now, so its list scrolls
+   internally instead of stretching the row */
+.loadList {
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 2px;
 }
 
 .summaryGrid {
@@ -410,10 +431,35 @@
   font-weight: 500;
 }
 
+/* Medium screens: keep properties beside the layout/factors/loads column,
+   but factors and loads no longer have room side by side - stack them. */
+@media (max-width: 1300px) {
+  .gridLayout {
+    grid-template-columns: 380px 1fr;
+    grid-template-areas:
+      "properties layout"
+      "properties factors"
+      "properties loads";
+  }
+}
+
 @media (max-width: 1100px) {
   .gridLayout,
   .resultsGridLayout {
     grid-template-columns: 1fr;
+  }
+
+  /* Stack in DOM order (properties, layout, factors, loads) to keep the
+     input hierarchy on narrow screens */
+  .gridLayout {
+    grid-template-areas: none;
+  }
+
+  .areaProperties,
+  .areaFactors,
+  .areaLayout,
+  .areaLoads {
+    grid-area: auto;
   }
 
   .headerActions {

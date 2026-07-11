@@ -30,7 +30,7 @@ export default function Login() {
       } else {
         await login(emailRef.current.value, passwordRef.current.value);
       }
-      navigate('/dashboard');
+      navigate('/');
     } catch (err) {
       setError(isRegistering ? 'Failed to create an account: ' + err.message : 'Failed to log in: ' + err.message);
     }
@@ -40,7 +40,7 @@ export default function Login() {
   return (
     <div className={styles.loginContainer}>
       <div className={styles.loginCard}>
-        <div className={styles.logoContainer} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+        <div className={styles.logoContainer}>
           <Logo width={200} light={true} />
           <p className={styles.logoSubtitle}>Design Management System</p>
         </div>
@@ -48,15 +48,23 @@ export default function Login() {
         {error && <div className={styles.errorAlert}>{error}</div>}
         <form onSubmit={handleSubmit} className={styles.loginForm}>
           <div className={styles.formGroup}>
-            <label>Email</label>
-            <input type="email" ref={emailRef} required />
+            <label htmlFor="login-email">Email</label>
+            <input id="login-email" type="email" ref={emailRef} autoComplete="email" required />
           </div>
           <div className={styles.formGroup}>
-            <label>Password</label>
-            <input type="password" ref={passwordRef} required />
+            <label htmlFor="login-password">Password</label>
+            <input
+              id="login-password"
+              type="password"
+              ref={passwordRef}
+              autoComplete={isRegistering ? 'new-password' : 'current-password'}
+              required
+            />
           </div>
           <button disabled={loading} className={styles.loginButton} type="submit">
-            {isRegistering ? 'Sign Up' : 'Log In'}
+            {loading
+              ? (isRegistering ? 'Creating account...' : 'Signing in...')
+              : (isRegistering ? 'Sign Up' : 'Log In')}
           </button>
         </form>
         <div className={styles.toggleText}>
