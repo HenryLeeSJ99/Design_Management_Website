@@ -1,11 +1,79 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { FileText, Save } from 'lucide-react';
 import styles from './WallFormworkCalculator.module.css';
 import StandardChart from '../components/StandardChart';
 import { solveRateOfRise, generatePressureChartData, calculatePressureCiria108 } from '../engine/formwork/wallFormwork';
+import plytecLogoUrl from '../assets/PLYTEC_Logo.svg';
+
+const getSessionData = (key, defaultValue) => {
+  try {
+    const val = sessionStorage.getItem(key);
+    return val ? JSON.parse(val) : defaultValue;
+  } catch (e) {
+    return defaultValue;
+  }
+};
+
+const saveSessionData = (key, data) => {
+  try {
+    sessionStorage.setItem(key, JSON.stringify(data));
+  } catch (e) {}
+};
 
 export default function WallFormworkCalculator() {
   const [activeTab, setActiveTab] = useState('calculator');
+  const reportRef = useRef(null);
+
+  const handlePrint = () => {
+    const content = reportRef.current;
+    if (!content) return;
+    const printWindow = window.open('', '_blank', 'width=900,height=1200');
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <title>TempWorks – Concrete Pressure Check Report</title>
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            body { font-family: Inter, system-ui, sans-serif; background: #f1f5f9; color: #1e293b; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            @page { margin: 10mm; }
+            .report-page {
+              background: #fff;
+              width: 210mm;
+              height: 297mm;
+              padding: 24px 30px;
+              box-sizing: border-box;
+              display: flex;
+              flex-direction: column;
+              gap: 12px;
+              font-size: 11px;
+              color: #1e293b;
+              page-break-after: always;
+              break-after: page;
+            }
+            @media print {
+              body { background: #fff; }
+              .report-page {
+                height: 270mm !important;
+                padding: 5mm !important;
+                margin: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+              }
+            }
+          </style>
+        </head>
+        <body>\${content.innerHTML}</body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 400);
+  };
   const [boundary, setBoundary] = useState('wall');
   const [concreteType, setConcreteType] = useState('normal'); // normal or retarder
   
@@ -17,6 +85,23 @@ export default function WallFormworkCalculator() {
   
   const [maxPressure, setMaxPressure] = useState(60.0);
   const [rateOfRise, setRateOfRise] = useState(2.0);
+
+  // Metadata Inputs
+  const [projectId, setProjectId] = useState(() => getSessionData('tempworks_wallformwork_project_id', 'TW-2026-WALL'));
+  const [calculatedBy, setCalculatedBy] = useState(() => getSessionData('tempworks_wallformwork_calculated_by', 'Engineer'));
+  const [verificationDate, setVerificationDate] = useState(() => getSessionData('tempworks_wallformwork_verification_date', new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })));
+
+  useEffect(() => {
+    saveSessionData('tempworks_wallformwork_project_id', projectId);
+  }, [projectId]);
+
+  useEffect(() => {
+    saveSessionData('tempworks_wallformwork_calculated_by', calculatedBy);
+  }, [calculatedBy]);
+
+  useEffect(() => {
+    saveSessionData('tempworks_wallformwork_verification_date', verificationDate);
+  }, [verificationDate]);
 
   // Results
   const [calculatedPressure, setCalculatedPressure] = useState(0);
@@ -249,104 +334,340 @@ export default function WallFormworkCalculator() {
           </div>
           )}
 
-          {activeTab === 'report' && (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', width: '100%', paddingBottom: '40px' }}>
-              <div style={{ width: '100%', maxWidth: '800px', display: 'flex', justifyContent: 'flex-end' }}>
-                <button 
-                  onClick={() => window.print()}
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    backgroundColor: 'var(--primary)',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: '999px',
-                    padding: '10px 24px',
-                    fontSize: '14px',
-                    fontWeight: '800',
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 14px rgba(37, 99, 235, 0.2)',
-                    transition: 'transform 160ms cubic-bezier(0.23, 1, 0.32, 1)'
-                  }}
-                  onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.97)'}
-                  onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                >
-                  <FileText size={16} /> Export PDF
-                </button>
+             {activeTab === 'report' && (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', width: '100%', paddingBottom: '40px', overflowX: 'auto' }}>
+              {/* Configuration Panel */}
+              <div style={{
+                width: '210mm',
+                backgroundColor: '#ffffff',
+                border: '1px solid #cbd5e1',
+                borderRadius: '12px',
+                padding: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
+                boxShadow: '0 4px 15px rgba(0, 0, 0, 0.05)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>Report Configuration</h3>
+                  <button 
+                    onClick={handlePrint}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      backgroundColor: 'var(--primary)',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '999px',
+                      padding: '10px 24px',
+                      fontSize: '14px',
+                      fontWeight: '800',
+                      cursor: 'pointer',
+                      boxShadow: '0 4px 14px rgba(37, 99, 235, 0.2)',
+                      transition: 'transform 160ms cubic-bezier(0.23, 1, 0.32, 1)'
+                    }}
+                    onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.97)'}
+                    onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                  >
+                    <FileText size={16} /> Print Report
+                  </button>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Project ID</span>
+                    <input 
+                      type="text" 
+                      value={projectId} 
+                      onChange={(e) => setProjectId(e.target.value)} 
+                      placeholder="e.g. TW-2026-WALL"
+                      style={{
+                        padding: '8px 12px',
+                        borderRadius: '6px',
+                        border: '1px solid #cbd5e1',
+                        fontSize: '12px',
+                        fontWeight: 500,
+                        color: '#1e293b',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Calculated By</span>
+                    <input 
+                      type="text" 
+                      value={calculatedBy} 
+                      onChange={(e) => setCalculatedBy(e.target.value)} 
+                      placeholder="e.g. Engineer Name"
+                      style={{
+                        padding: '8px 12px',
+                        borderRadius: '6px',
+                        border: '1px solid #cbd5e1',
+                        fontSize: '12px',
+                        fontWeight: 500,
+                        color: '#1e293b',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                    <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Verification Date</span>
+                    <input 
+                      type="text" 
+                      value={verificationDate} 
+                      onChange={(e) => setVerificationDate(e.target.value)} 
+                      placeholder="DD MMM YYYY"
+                      style={{
+                        padding: '8px 12px',
+                        borderRadius: '6px',
+                        border: '1px solid #cbd5e1',
+                        fontSize: '12px',
+                        fontWeight: 500,
+                        color: '#1e293b',
+                        outline: 'none'
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
-              <div className={styles.card} style={{ maxWidth: '800px', width: '100%', backgroundColor: '#fff', padding: '2.5rem', fontFamily: 'serif', lineHeight: 1.6 }}>
-                <h2 style={{ borderBottom: '2px solid #cbd5e1', paddingBottom: '0.5rem', marginBottom: '1.5rem', fontSize: '1.5rem' }}>
-                  Engineering Audit Report
-                </h2>
-                <p style={{ fontStyle: 'italic', color: '#64748b' }}>Concrete Pressure on Formwork — CIRIA Report 108:1985</p>
 
-              <h3 style={{ marginTop: '2rem', fontSize: '1.1rem' }}>1. Design Parameters</h3>
-              <ul style={{ listStyle: 'none', padding: 0, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
-                <li><strong>Boundary Condition:</strong> {boundary === 'wall' ? 'Wall / base' : 'Column'} (C₁ = {boundary === 'wall' ? '1.0' : '1.5'})</li>
-                <li><strong>Concrete Type:</strong> {concreteType === 'normal' ? 'Normal without admixtures' : 'Retarder'} (C₂ = {concreteType === 'normal' ? '0.3' : '0.45'})</li>
-                <li><strong>Density (D):</strong> {density} kN/m³</li>
-                <li><strong>Temperature (T):</strong> {temp} °C</li>
-                <li><strong>Pouring / Form Height (H):</strong> {pourHeight} m</li>
-              </ul>
+              {/* A4 Printable Sheet */}
+              <div 
+                ref={reportRef} 
+                style={{
+                  width: '210mm',
+                  minHeight: '297mm',
+                  backgroundColor: '#ffffff',
+                  boxShadow: '0 4px 30px rgba(0, 0, 0, 0.15)',
+                  border: '1px solid #cbd5e1',
+                  padding: '24px 30px',
+                  boxSizing: 'border-box',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                  fontSize: '11px',
+                  color: '#1e293b',
+                  fontFamily: 'Inter, system-ui, -apple-system, sans-serif'
+                }}
+              >
+                {/* Header Block */}
+                <div style={{ borderBottom: '2.5px solid #2563eb', paddingBottom: '8px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <div style={{ fontSize: '18px', fontWeight: 800, color: '#2563eb', letterSpacing: '0.02em' }}>TEMPWORKS</div>
+                    <div style={{ fontSize: '8px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>Structural Design Solutions</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
+                      <span style={{ fontSize: '8px', color: '#94a3b8', textTransform: 'uppercase', fontWeight: 700 }}>System by</span>
+                      <img src={plytecLogoUrl} alt="PLYTEC" style={{ height: '16px', width: 'auto', objectFit: 'contain' }} />
+                    </div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a' }}>Wall Formwork Report - Concrete Pressure</div>
+                    <div style={{ fontSize: '8px', color: '#64748b', marginTop: '1px' }}>Standard: CIRIA Report 108:1985</div>
+                  </div>
+                </div>
 
-              <h3 style={{ marginTop: '2rem', fontSize: '1.1rem' }}>2. CIRIA 108 Formula</h3>
-              <div style={{ backgroundColor: '#f8fafc', padding: '1rem', border: '1px solid #e2e8f0', borderRadius: '4px', textAlign: 'center', margin: '1rem 0' }}>
-                <code style={{ fontSize: '1.1rem' }}>P_max = D [ C₁√R + C₂ K √(H - C₁√R) ]</code>
-                <p style={{ marginTop: '0.5rem', fontSize: '0.9rem' }}>or fluid pressure (D × h), whichever is smaller.</p>
-                <p style={{ fontSize: '0.9rem' }}>where K = (36 / (T + 16))²</p>
-              </div>
+                {/* Metadata */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', background: '#f8fafc', padding: '8px 12px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                  <div>
+                    <span style={{ color: '#64748b', fontSize: '8px', textTransform: 'uppercase', fontWeight: 700 }}>Project</span>
+                    <div style={{ fontWeight: 600, fontSize: '10px' }}>{projectId || 'TW-2026-WALL'}</div>
+                  </div>
+                  <div>
+                    <span style={{ color: '#64748b', fontSize: '8px', textTransform: 'uppercase', fontWeight: 700 }}>Prepared By</span>
+                    <div style={{ fontWeight: 600, fontSize: '10px' }}>{calculatedBy || 'Engineer'}</div>
+                  </div>
+                  <div>
+                    <span style={{ color: '#64748b', fontSize: '8px', textTransform: 'uppercase', fontWeight: 700 }}>Date</span>
+                    <div style={{ fontWeight: 600, fontSize: '10px' }}>{verificationDate || new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}</div>
+                  </div>
+                  <div>
+                    <span style={{ color: '#64748b', fontSize: '8px', textTransform: 'uppercase', fontWeight: 700 }}>Status</span>
+                    <div style={{ fontWeight: 800, fontSize: '10px', color: '#16a34a' }}>✅ DESIGN OK</div>
+                  </div>
+                </div>
 
-              <h3 style={{ marginTop: '2rem', fontSize: '1.1rem' }}>3. Step-by-Step Calculation</h3>
-              {inputMode === 'pressure' ? (
-                <>
-                  <p><strong>Goal:</strong> Determine allowable Rate of Rise (R) for Target P_max = {maxPressure} kN/m².</p>
-                  <p>1. Calculate Temperature Coefficient (K):</p>
-                  <pre style={{ background: '#f1f5f9', padding: '0.5rem' }}>K = (36 / ({temp} + 16))² = {Math.pow(36 / (Number(temp) + 16), 2).toFixed(3)}</pre>
-                  <p>2. Iteratively solve for R using the bisection method:</p>
-                  <pre style={{ background: '#f1f5f9', padding: '0.5rem' }}>Result R = {calculatedRate === Infinity ? 'Infinity (Hydrostatic)' : calculatedRate.toFixed(3)} m/h</pre>
-                </>
-              ) : (
-                <>
-                  <p><strong>Goal:</strong> Determine Max Pressure (P_max) for Rate of Rise R = {rateOfRise} m/h.</p>
-                  <p>1. Calculate Temperature Coefficient (K):</p>
-                  <pre style={{ background: '#f1f5f9', padding: '0.5rem' }}>K = (36 / ({temp} + 16))² = {Math.pow(36 / (Number(temp) + 16), 2).toFixed(3)}</pre>
+                {/* Layout Grid: Left Details & Math, Right Chart */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '20px', marginTop: '4px' }}>
                   
-                  <p>2. Calculate √R term:</p>
-                  <pre style={{ background: '#f1f5f9', padding: '0.5rem' }}>√R = √{rateOfRise} = {Math.sqrt(Number(rateOfRise)).toFixed(3)}</pre>
+                  {/* Left Column */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    
+                    {/* 1. Design Parameters */}
+                    <div>
+                      <div style={{ fontSize: '10px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', marginBottom: '4px', borderBottom: '1px solid #cbd5e1', paddingBottom: '2px' }}>
+                        1. Design Parameters
+                      </div>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px' }}>
+                        <tbody>
+                          <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                            <td style={{ padding: '4px 0', color: '#64748b' }}>Boundary Condition</td>
+                            <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{boundary === 'wall' ? 'Wall / base' : 'Column'} (C₁ = {boundary === 'wall' ? '1.0' : '1.5'})</td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                            <td style={{ padding: '4px 0', color: '#64748b' }}>Concrete Type</td>
+                            <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{concreteType === 'normal' ? 'Normal (no admixtures)' : 'Retarder'} (C₂ = {concreteType === 'normal' ? '0.3' : '0.45'})</td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                            <td style={{ padding: '4px 0', color: '#64748b' }}>Density (D)</td>
+                            <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{density} kN/m³</td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                            <td style={{ padding: '4px 0', color: '#64748b' }}>Placing Temp. (T)</td>
+                            <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{temp} °C</td>
+                          </tr>
+                          <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                            <td style={{ padding: '4px 0', color: '#64748b' }}>Pour Height (H)</td>
+                            <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{pourHeight} m</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
 
-                  <p>3. Evaluate condition C₁√R {'>'} H:</p>
-                  <pre style={{ background: '#f1f5f9', padding: '0.5rem' }}>{boundary === 'wall' ? '1.0' : '1.5'} × {Math.sqrt(Number(rateOfRise)).toFixed(3)} = {((boundary === 'wall' ? 1.0 : 1.5) * Math.sqrt(Number(rateOfRise))).toFixed(3)}</pre>
-                  {((boundary === 'wall' ? 1.0 : 1.5) * Math.sqrt(Number(rateOfRise))) > Number(pourHeight) ? (
-                    <p style={{ color: 'red' }}>Condition C₁√R {'>'} H is met. Design pressure is fully fluid.</p>
-                  ) : (
-                    <p>Condition is not met. Applying CIRIA equation.</p>
-                  )}
+                    {/* 2. Step-by-Step Calculation */}
+                    <div>
+                      <div style={{ fontSize: '10px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', marginBottom: '4px', borderBottom: '1px solid #cbd5e1', paddingBottom: '2px' }}>
+                        2. Calculation Steps & Formula
+                      </div>
+                      <div style={{ fontSize: '9px', background: '#f8fafc', border: '1px solid #e2e8f0', padding: '6px', borderRadius: '4px', margin: '4px 0' }}>
+                        <code style={{ fontWeight: 'bold' }}>Pmax = D [ C₁√R + C₂ K √(H - C₁√R) ]</code>
+                      </div>
+                      
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '10px' }}>
+                        <div>
+                          <strong>1. Temperature Coeff. (K):</strong>
+                          <div style={{ background: '#f1f5f9', padding: '3px 6px', borderRadius: '4px', fontFamily: 'monospace', marginTop: '2px' }}>
+                            K = (36 / ({temp} + 16))² = {Math.pow(36 / (Number(temp) + 16), 2).toFixed(3)}
+                          </div>
+                        </div>
 
-                  <p>4. Resulting Pressure P_max:</p>
-                  <pre style={{ background: '#f1f5f9', padding: '0.5rem' }}>P_calc = {calculatedPressure.toFixed(2)} kN/m²</pre>
-                </>
-              )}
+                        {inputMode === 'pressure' ? (
+                          <>
+                            <div style={{ marginTop: '2px' }}>
+                              <strong>2. Solved Rate of Rise (R):</strong>
+                              <div>Target Max Pressure: <strong>{maxPressure} kN/m²</strong></div>
+                              <div style={{ background: '#f1f5f9', padding: '3px 6px', borderRadius: '4px', fontFamily: 'monospace', marginTop: '2px' }}>
+                                Resulting R = {calculatedRate === Infinity ? 'Infinity (Hydrostatic)' : `${calculatedRate.toFixed(2)} m/h`}
+                              </div>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div style={{ marginTop: '2px' }}>
+                              <strong>2. Evaluate CIRIA Equation:</strong>
+                              <div>Pour Rate (R) = <strong>{rateOfRise} m/h</strong></div>
+                              <div style={{ background: '#f1f5f9', padding: '3px 6px', borderRadius: '4px', fontFamily: 'monospace', marginTop: '2px' }}>
+                                C₁√R = {(boundary === 'wall' ? 1.0 : 1.5).toFixed(1)} × √{rateOfRise} = {((boundary === 'wall' ? 1.0 : 1.5) * Math.sqrt(Number(rateOfRise))).toFixed(2)}
+                              </div>
+                              <div style={{ marginTop: '2px' }}>
+                                {((boundary === 'wall' ? 1.0 : 1.5) * Math.sqrt(Number(rateOfRise))) > Number(pourHeight) ? (
+                                  <span style={{ color: '#16a34a', fontWeight: 'bold' }}>C₁√R &gt; H (Hydrostatic envelope governs)</span>
+                                ) : (
+                                  <span>C₁√R &le; H (CIRIA limit governs)</span>
+                                )}
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
 
-              <h3 style={{ marginTop: '2rem', fontSize: '1.1rem' }}>4. Final Results Summary</h3>
-              <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
-                <tbody>
-                  <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                    <td style={{ padding: '0.5rem' }}>Max Concrete Pressure (P_max)</td>
-                    <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 'bold' }}>{calculatedPressure.toFixed(2)} kN/m²</td>
-                  </tr>
-                  <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                    <td style={{ padding: '0.5rem' }}>Rate of Rise (R)</td>
-                    <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 'bold' }}>{calculatedRate === Infinity ? '∞' : calculatedRate.toFixed(2)} m/h</td>
-                  </tr>
-                  <tr style={{ borderBottom: '1px solid #e2e8f0' }}>
-                    <td style={{ padding: '0.5rem' }}>Hydrostatic Head (hs)</td>
-                    <td style={{ padding: '0.5rem', textAlign: 'right', fontWeight: 'bold' }}>{hydroHead.toFixed(2)} m</td>
-                  </tr>
-                </tbody>
-              </table>
+                  </div>
+
+                  {/* Right Column: Chart */}
+                  <div>
+                    <div style={{ fontSize: '10px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', marginBottom: '4px', borderBottom: '1px solid #cbd5e1', paddingBottom: '2px' }}>
+                      3. Concrete Pressure Envelope
+                    </div>
+                    <div style={{ background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0', padding: '6px', marginTop: '4px' }}>
+                      <StandardChart
+                        layout="vertical"
+                        data={chartData}
+                        areas={[{ dataKey: 'actualPressure', name: 'Design Pressure Area', color: '#3b82f6', fillOpacity: 0.08, type: 'linear' }]}
+                        lines={[
+                          { dataKey: 'actualPressure', name: 'Design Pressure', color: '#1d4ed8', type: 'linear', dot: false, props: { strokeWidth: 2.5 } },
+                          { dataKey: 'hydrostatic', name: 'Hydrostatic (D × h)', color: '#2563eb', type: 'linear', dot: false, props: { strokeWidth: 1.5, strokeDasharray: '3 3' } }
+                        ]}
+                        xAxis={{ 
+                          label: 'p [kN/m²]',
+                          domain: [0, (dataMax) => Math.max(100, Math.ceil(dataMax / 50) * 50)],
+                          props: { type: 'number', style: { fontSize: '8px' } }
+                        }}
+                        yAxis={{ 
+                          label: 'h [m]', 
+                          dataKey: 'height',
+                          domain: [0, (dataMax) => Math.max(2, Math.ceil(dataMax))],
+                          props: { type: 'number', reversed: true, style: { fontSize: '8px' } }
+                        }}
+                        referenceLines={[
+                          { y: 0, stroke: '#94a3b8', strokeDasharray: '2 2' },
+                          { y: Number(pourHeight), stroke: '#94a3b8', strokeDasharray: '2 2' },
+                          { x: calculatedPressure, stroke: '#1d4ed8', strokeDasharray: '2 2' }
+                        ]}
+                        height={230}
+                      />
+                    </div>
+                  </div>
+
+                </div>
+
+                {/* 4. Final Results Summary */}
+                <div style={{ marginTop: '6px' }}>
+                  <div style={{ fontSize: '10px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', marginBottom: '4px', borderBottom: '1px solid #cbd5e1', paddingBottom: '2px' }}>
+                    4. Calculation Summary
+                  </div>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10px', marginTop: '4px' }}>
+                    <thead>
+                      <tr style={{ borderBottom: '1.5px solid #cbd5e1', color: '#475569', fontWeight: 700 }}>
+                        <th style={{ padding: '4px', textAlign: 'left' }}>Parameter</th>
+                        <th style={{ padding: '4px', textAlign: 'right' }}>Calculated Value</th>
+                        <th style={{ padding: '4px', textAlign: 'left', paddingLeft: '20px' }}>Unit</th>
+                        <th style={{ padding: '4px', textAlign: 'left' }}>Condition / Note</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '4px', fontWeight: 600 }}>Design Max. Pressure (Pmax)</td>
+                        <td style={{ padding: '4px', textAlign: 'right', fontWeight: 700, fontSize: '11px', color: '#0f172a' }}>{calculatedPressure.toFixed(2)}</td>
+                        <td style={{ padding: '4px', paddingLeft: '20px', color: '#64748b' }}>kN/m²</td>
+                        <td style={{ padding: '4px', color: '#475569' }}>Governing design envelope pressure</td>
+                      </tr>
+                      <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '4px', fontWeight: 600 }}>Rate of Rise (R)</td>
+                        <td style={{ padding: '4px', textAlign: 'right', fontWeight: 700 }}>{calculatedRate === Infinity ? '∞' : calculatedRate.toFixed(2)}</td>
+                        <td style={{ padding: '4px', paddingLeft: '20px', color: '#64748b' }}>m/h</td>
+                        <td style={{ padding: '4px', color: '#475569' }}>Allowable pouring velocity rate</td>
+                      </tr>
+                      <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '4px', fontWeight: 600 }}>Hydrostatic Pressure Head (hs)</td>
+                        <td style={{ padding: '4px', textAlign: 'right', fontWeight: 700 }}>{hydroHead.toFixed(2)}</td>
+                        <td style={{ padding: '4px', paddingLeft: '20px', color: '#64748b' }}>m</td>
+                        <td style={{ padding: '4px', color: '#475569' }}>Height above base where fluid envelope ends</td>
+                      </tr>
+                      <tr style={{ borderBottom: '1.5px solid #cbd5e1' }}>
+                        <td style={{ padding: '4px', fontWeight: 600 }}>Minimum Pouring Time (t)</td>
+                        <td style={{ padding: '4px', textAlign: 'right', fontWeight: 700 }}>{calculatedRate === Infinity ? 'Instant' : pourTime.toFixed(2)}</td>
+                        <td style={{ padding: '4px', paddingLeft: '20px', color: '#64748b' }}>hours</td>
+                        <td style={{ padding: '4px', color: '#475569' }}>Time required to safely complete the lift</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* 5. Design Notes */}
+                <div style={{ marginTop: 'auto', borderTop: '2.5px solid #cbd5e1', paddingTop: '8px' }}>
+                  <div style={{ fontSize: '9px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', marginBottom: '2px' }}>
+                    Design Notes & Methodology
+                  </div>
+                  <ul style={{ fontSize: '9px', color: '#475569', paddingLeft: '12px', margin: '0' }}>
+                    <li>Concrete pressure calculated in accordance with the CIRIA Report 108 code rules.</li>
+                    <li>Temperature coeff. K accounts for hydration temperature kinetics of concrete mix.</li>
+                    <li>Fluid pressure limit (D × H) forms an absolute upper bound to the design pressure envelope.</li>
+                    <li>Ensure placing rates, vibration depths, and formwork tie configurations match calculations.</li>
+                  </ul>
+                </div>
+
+              </div>
             </div>
-          </div>
           )}
         </div>
       </div>

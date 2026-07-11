@@ -342,7 +342,7 @@ export default function ResultsView({ results, sectionName }) {
       </div>
 
       {/* ── Summary cards ── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
+      <div className={styles.resultsGrid}>
         {[
           { label: 'Max Bending Moment', value: maxM, cap: checks.bending?.Mc_Rd, unit: 'kNm', ratio: checks.bending?.ratio, pass: checks.bending?.pass, color: CLR.bmd },
           { label: 'Max Shear Force', value: maxV, cap: checks.shear?.Vc_Rd, unit: 'kN', ratio: checks.shear?.ratio, pass: checks.shear?.pass, color: CLR.sfd },
@@ -452,7 +452,8 @@ export default function ResultsView({ results, sectionName }) {
           </div>
         )}
 
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+        <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', width: '100%' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '650px' }}>
           <thead>
             <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
               {['Check', 'Reference', 'Applied', 'Capacity', 'Utilization', 'Status'].map((h) => (
@@ -535,6 +536,7 @@ export default function ResultsView({ results, sectionName }) {
             )}
           </tbody>
         </table>
+      </div>
 
         {/* Reaction summary */}
         {reactions.length > 0 && (

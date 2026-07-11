@@ -43,7 +43,7 @@ const CLR = {
 
 function roundN(v, n = 2) {
   if (v == null || !isFinite(v)) return '—';
-  return +v.toFixed(n);
+  return Number(v).toFixed(2);
 }
 
 function flattenPoints(analysis) {
@@ -60,7 +60,7 @@ function UtilBar({ ratio }) {
         <div style={{ width: `${Math.min(pct, 100)}%`, height: '100%', background: color, borderRadius: 4 }} />
       </div>
       <span style={{ fontSize: 11, fontWeight: 700, color, minWidth: 44, textAlign: 'right' }}>
-        {(ratio * 100).toFixed(1)}%
+        {(ratio * 100).toFixed(2)}%
       </span>
     </div>
   );
@@ -407,7 +407,30 @@ export default function MultiBeamCalculator() {
     const savedInputs = getSessionData('tempworks_multibeam_inputs', null);
     const currentInputs = { material, sectionType, steelGrade, sectionSize, systemCompany, isTwinProfile, includeSelfWeight, loadFactor, materialFactor, deflectionLimit, spans, loads, projectId, calculatedBy, verificationDate };
 
+    // Separate structural vs metadata inputs for comparison
+    const structuralInputs = { material, sectionType, steelGrade, sectionSize, systemCompany, isTwinProfile, includeSelfWeight, loadFactor, materialFactor, deflectionLimit, spans, loads };
+    const savedStructuralInputs = savedInputs ? {
+      material: savedInputs.material,
+      sectionType: savedInputs.sectionType,
+      steelGrade: savedInputs.steelGrade,
+      sectionSize: savedInputs.sectionSize,
+      systemCompany: savedInputs.systemCompany,
+      isTwinProfile: savedInputs.isTwinProfile,
+      includeSelfWeight: savedInputs.includeSelfWeight,
+      loadFactor: savedInputs.loadFactor,
+      materialFactor: savedInputs.materialFactor,
+      deflectionLimit: savedInputs.deflectionLimit,
+      spans: savedInputs.spans,
+      loads: savedInputs.loads
+    } : null;
+
     if (savedInputs && JSON.stringify(currentInputs) === JSON.stringify(savedInputs)) {
+      return;
+    }
+
+    if (savedStructuralInputs && JSON.stringify(structuralInputs) === JSON.stringify(savedStructuralInputs)) {
+      // Only metadata changed, save updated data but do NOT clear results
+      saveSessionData('tempworks_multibeam_inputs', currentInputs);
       return;
     }
 
@@ -732,10 +755,12 @@ export default function MultiBeamCalculator() {
         </div>
       )}
 
-      <div className={styles.tabs}>
-        <div className={`${styles.tab} ${activeTab === 'configuration' ? styles.active : ''}`} onClick={() => setActiveTab('configuration')}>Configuration</div>
-        <div className={`${styles.tab} ${activeTab === 'results' ? styles.active : ''}`} onClick={() => setActiveTab('results')}>Analysis Results</div>
-        <div className={`${styles.tab} ${activeTab === 'report' ? styles.active : ''}`} onClick={() => setActiveTab('report')}>Report</div>
+      <div className={styles.tabsWrapper}>
+        <div className={styles.tabs}>
+          <div className={`${styles.tab} ${activeTab === 'configuration' ? styles.active : ''}`} onClick={() => setActiveTab('configuration')}>Configuration</div>
+          <div className={`${styles.tab} ${activeTab === 'results' ? styles.active : ''}`} onClick={() => setActiveTab('results')}>Analysis Results</div>
+          <div className={`${styles.tab} ${activeTab === 'report' ? styles.active : ''}`} onClick={() => setActiveTab('report')}>Report</div>
+        </div>
       </div>
 
       <div className={styles.contentArea}>
@@ -854,17 +879,17 @@ export default function MultiBeamCalculator() {
                                 <span>b <strong>{sec.b} mm</strong></span>
                                 <span>tw <strong>{sec.tw} mm</strong></span>
                                 <span>tf <strong>{sec.tf} mm</strong></span>
-                                <span>Iy <strong>{(sec.Iy * N).toFixed(1)} cm⁴</strong></span>
-                                <span>Wpl,y <strong>{(sec.Wpl_y * N).toFixed(1)} cm³</strong></span>
+                                <span>Iy <strong>{(sec.Iy * N).toFixed(2)} cm⁴</strong></span>
+                                <span>Wpl,y <strong>{(sec.Wpl_y * N).toFixed(2)} cm³</strong></span>
                               </>
                             ) : (
                               <>
                                 <span>h <strong>{sec.h} mm</strong></span>
                                 <span>b <strong>{sec.b} mm</strong></span>
-                                <span>Iy <strong>{(sec.Iy * N).toFixed(1)} cm⁴</strong></span>
+                                <span>Iy <strong>{(sec.Iy * N).toFixed(2)} cm⁴</strong></span>
                                 <span>Allow. Moment <strong>{(sec.Mallow * N).toFixed(2)} kNm</strong></span>
                                 <span>Allow. Shear <strong>{(sec.Vallow * N).toFixed(2)} kN</strong></span>
-                                <span>Weight <strong>{(sec.mass * N).toFixed(1)} kg/m</strong></span>
+                                <span>Weight <strong>{(sec.mass * N).toFixed(2)} kg/m</strong></span>
                               </>
                             )}
                           </div>
@@ -896,10 +921,11 @@ export default function MultiBeamCalculator() {
                       <label className={styles.field}>
                         <span>Deflection Limit</span>
                         <select value={deflectionLimit} onChange={(e) => setDeflectionLimit(Number(e.target.value))}>
-                          <option value={250}>L / 250 (General)</option>
-                          <option value={300}>L / 300 (Standard)</option>
-                          <option value={360}>L / 360 (Concrete Finish)</option>
-                          <option value={500}>L / 500 (Tight Tolerance)</option>
+                          <option value={200}>L / 200</option>
+                          <option value={270}>L / 270</option>
+                          <option value={360}>L / 360</option>
+                          <option value={400}>L / 400</option>
+                          <option value={500}>L / 500</option>
                         </select>
                       </label>
                     </div>
@@ -1115,7 +1141,7 @@ function ResultsPanel({ results, spans, loads }) {
   const deflectionLimit = results.checks.deflection?.limitRatio || 360;
 
   return (
-    <div className={styles.resultsFadeIn} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div className={styles.resultsFadeIn} style={{ display: 'flex', flexDirection: 'column', gap: 20, minWidth: 0 }}>
       
       {/* Overall banner */}
       <div className={overallPass ? styles.bannerPass : styles.bannerFail} style={{
@@ -1139,7 +1165,7 @@ function ResultsPanel({ results, spans, loads }) {
       </div>
  
       {/* Summary cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
+      <div className={styles.summaryGrid}>
         {[
           { 
             label: 'Max Bending Moment', 
@@ -1247,14 +1273,15 @@ function ResultsPanel({ results, spans, loads }) {
           </div>
         )}
  
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-              {['Check', 'Reference', 'Applied', 'Capacity', 'Utilization', 'Status'].map((h) => (
-                <th key={h} style={{ padding: '8px 14px', textAlign: (h === 'Applied' || h === 'Capacity') ? 'right' : 'left', fontSize: 10, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
+        <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', width: '100%' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '650px' }}>
+            <thead>
+              <tr style={{ background: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
+                {['Check', 'Reference', 'Applied', 'Capacity', 'Utilization', 'Status'].map((h) => (
+                  <th key={h} style={{ padding: '8px 14px', textAlign: (h === 'Applied' || h === 'Capacity') ? 'right' : 'left', fontSize: 10, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
           <tbody>
             {material === 'system' && checks.systemBeam ? (
               <>
@@ -1304,6 +1331,7 @@ function ResultsPanel({ results, spans, loads }) {
             )}
           </tbody>
         </table>
+      </div>
  
         {/* Reactions */}
         {reactions.length > 0 && (
@@ -1328,11 +1356,11 @@ function ResultsPanel({ results, spans, loads }) {
           
           <div style={{ borderBottom: '1px solid #f1f5f9', paddingBottom: '10px' }}>
             <h4 style={{ margin: '0 0 6px 0', fontSize: '14px', color: '#0f172a' }}>1. Section Stiffness & Capacity Parameters</h4>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', fontSize: '12px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '8px', fontSize: '12px' }}>
               <div>Profile Multiplier: <strong>N = {isTwinProfile ? '2 (Twin Profile)' : '1 (Single Profile)'}</strong></div>
-              <div>Stiffness: <strong>EI = E &middot; I = {section.E || 210000} &middot; {section.Iy} {isTwinProfile ? '&middot; 2 ' : ''} = {((section.E || 210000) * section.Iy * 1e4 * (isTwinProfile ? 2 : 1) / 1e9).toFixed(2)} &times; 10⁹ N&middot;mm² ({((section.E || 210000) * section.Iy * (isTwinProfile ? 2 : 1) / 100000).toFixed(1)} kNm²)</strong></div>
+              <div>Stiffness: <strong>EI = E &middot; I = {section.E || 210000} &middot; {section.Iy} {isTwinProfile ? '&middot; 2 ' : ''} = {((section.E || 210000) * section.Iy * 1e4 * (isTwinProfile ? 2 : 1) / 1e9).toFixed(2)} &times; 10⁹ N&middot;mm² ({((section.E || 210000) * section.Iy * (isTwinProfile ? 2 : 1) / 100000).toFixed(2)} kNm²)</strong></div>
               {includeSelfWeight && (
-                <div>Self-weight UDL: <strong>w<sub>sw</sub> = N &middot; mass &middot; g = {isTwinProfile ? '2 &middot; ' : ''}{section.mass} kg/m &middot; 9.81 m/s² = {w_sw.toFixed(4)} kN/m</strong></div>
+                <div>Self-weight UDL: <strong>w<sub>sw</sub> = N &middot; mass &middot; g = {isTwinProfile ? '2 &middot; ' : ''}{section.mass} kg/m &middot; 9.81 m/s² = {w_sw.toFixed(2)} kN/m</strong></div>
               )}
               {material === 'steel' ? (
                 <>
@@ -1433,9 +1461,9 @@ function PDFReportPreview({ results, spans, loads, systemCompany, projectId, set
   const deflPts = flattenPoints(analysis).map((p) => ({ x: p.x, value: p.deflection }));
 
   // Helpers to round numbers
-  const roundN = (num, decimals = 2) => {
+  const roundN = (num) => {
     if (num == null || isNaN(num)) return '-';
-    return Number(num).toFixed(decimals);
+    return Number(num).toFixed(2);
   };
 
   // Print only the report preview div, not the entire page
@@ -1468,19 +1496,20 @@ function PDFReportPreview({ results, spans, loads, systemCompany, projectId, set
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', paddingBottom: '40px', width: '100%' }}>
-      {/* Export & Configuration Action Area */}
-      <div style={{
-        width: '210mm',
-        backgroundColor: '#ffffff',
-        border: '1px solid #cbd5e1',
-        borderRadius: '8px',
-        padding: '16px 20px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '14px',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
-      }}>
+    <div style={{ width: '100%', overflowX: 'auto', WebkitOverflowScrolling: 'touch', paddingBottom: '2rem' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', minWidth: '210mm', margin: '0 auto' }}>
+        {/* Export & Configuration Action Area */}
+        <div style={{
+          width: '210mm',
+          backgroundColor: '#ffffff',
+          border: '1px solid #cbd5e1',
+          borderRadius: '8px',
+          padding: '16px 20px',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '14px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+        }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>Report Metadata Customization</h3>
           <button 
@@ -1506,7 +1535,7 @@ function PDFReportPreview({ results, spans, loads, systemCompany, projectId, set
             <FileText size={15} /> Print Report
           </button>
         </div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
             <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Project ID</span>
             <input 
@@ -1648,15 +1677,19 @@ function PDFReportPreview({ results, spans, loads, systemCompany, projectId, set
                   <td style={{ padding: '4px 0', color: '#64748b' }}>Profile Name</td>
                   <td style={{ padding: '4px 0', fontWeight: 700, textAlign: 'right' }}>{isTwinProfile ? 'Twin ' : ''}{section.name}</td>
                 </tr>
-                <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ padding: '4px 0', color: '#64748b' }}>Material Classification</td>
-                  <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>{material === 'steel' ? 'Structural Steel' : `Proprietary System (${section.material})`}</td>
-                </tr>
-                {material === 'steel' && cls && (
-                  <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                    <td style={{ padding: '4px 0', color: '#64748b' }}>Section Class</td>
-                    <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>Class {cls.sectionClass}</td>
-                  </tr>
+                {material === 'steel' && (
+                  <>
+                    <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                      <td style={{ padding: '4px 0', color: '#64748b' }}>Material Classification</td>
+                      <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>Structural Steel</td>
+                    </tr>
+                    {cls && (
+                      <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '4px 0', color: '#64748b' }}>Section Class</td>
+                        <td style={{ padding: '4px 0', fontWeight: 600, textAlign: 'right' }}>Class {cls.sectionClass}</td>
+                      </tr>
+                    )}
+                  </>
                 )}
                 <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
                   <td style={{ padding: '4px 0', color: '#64748b' }}>Moment of Inertia (Iy)</td>
@@ -1808,6 +1841,7 @@ function PDFReportPreview({ results, spans, loads, systemCompany, projectId, set
           </div>
         </div>
       </div>
+    </div>
     </div>
   );
 }

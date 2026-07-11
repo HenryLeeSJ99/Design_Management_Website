@@ -3,10 +3,10 @@ import { useMemo, useState, useEffect, useRef } from 'react';
 export default function DynamicBeamDiagram({ spans = [], loads = [], reactions = [] }) {
   // Constants for drawing - matched to AnalysisDiagram for alignment
   const svgWidth = 860;
-  const svgHeight = 160;
+  const svgHeight = 180;
   const margin = { top: 40, right: 20, bottom: 40, left: 62 };
   const drawWidth = svgWidth - margin.left - margin.right;
-  const beamY = svgHeight / 2 + 10; // offset slightly down to leave room for loads
+  const beamY = 90; // offset slightly down to leave room for loads
 
   const [textScale, setTextScale] = useState(1);
   const containerRef = useRef(null);

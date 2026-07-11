@@ -196,6 +196,7 @@ function checkPanel(areaLoad, panelData, secondarySpacing_m, spanCount, deflLimi
       ratio: round(deflRatio, 4),
       pass: deflRatio <= 1.0,
     },
+    analysis,
   };
 }
 

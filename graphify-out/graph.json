@@ -2797,7 +2797,7 @@
       "label": "ResultsPanel()",
       "file_type": "code",
       "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L1092",
+      "source_location": "L1115",
       "_origin": "ast",
       "id": "src_pages_multibeamcalculator_resultspanel",
       "community": 1,
@@ -15997,7 +15997,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L1092",
+      "source_location": "L1115",
       "weight": 1.0,
       "source": "src_pages_multibeamcalculator",
       "target": "src_pages_multibeamcalculator_resultspanel",
@@ -16050,7 +16050,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L1135",
+      "source_location": "L1158",
       "weight": 1.0,
       "source": "src_pages_multibeamcalculator_resultspanel",
       "target": "src_pages_multibeamcalculator_roundn",
@@ -16061,7 +16061,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L1108",
+      "source_location": "L1131",
       "weight": 1.0,
       "source": "src_pages_multibeamcalculator_resultspanel",
       "target": "src_pages_multibeamcalculator_flattenpoints",
@@ -22901,5 +22901,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "e5f9a998b4a79a0e719e56323339860cdf9baccf"
+  "built_at_commit": "903158bb56feef9c1184f9a39a91bbf1edd091c3"
 }

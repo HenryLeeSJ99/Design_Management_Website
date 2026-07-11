@@ -4,66 +4,6 @@
   "graph": {},
   "nodes": [
     {
-      "label": "sections.js",
-      "file_type": "code",
-      "source_file": "src/engine/materials/sections.js",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_engine_materials_sections",
-      "community": 2,
-      "norm_label": "sections.js"
-    },
-    {
-      "label": "STEEL_GRADES",
-      "file_type": "code",
-      "source_file": "src/engine/materials/sections.js",
-      "source_location": "L28",
-      "_origin": "ast",
-      "id": "src_engine_materials_sections_steel_grades",
-      "community": 2,
-      "norm_label": "steel_grades"
-    },
-    {
-      "label": "SECTION_TYPES",
-      "file_type": "code",
-      "source_file": "src/engine/materials/sections.js",
-      "source_location": "L38",
-      "_origin": "ast",
-      "id": "src_engine_materials_sections_section_types",
-      "community": 2,
-      "norm_label": "section_types"
-    },
-    {
-      "label": "SECTIONS",
-      "file_type": "code",
-      "source_file": "src/engine/materials/sections.js",
-      "source_location": "L62",
-      "_origin": "ast",
-      "id": "src_engine_materials_sections_sections",
-      "community": 2,
-      "norm_label": "sections"
-    },
-    {
-      "label": "getSectionByName()",
-      "file_type": "code",
-      "source_file": "src/engine/materials/sections.js",
-      "source_location": "L308",
-      "_origin": "ast",
-      "id": "src_engine_materials_sections_getsectionbyname",
-      "community": 2,
-      "norm_label": "getsectionbyname()"
-    },
-    {
-      "label": "getAllSectionNames()",
-      "file_type": "code",
-      "source_file": "src/engine/materials/sections.js",
-      "source_location": "L331",
-      "_origin": "ast",
-      "id": "src_engine_materials_sections_getallsectionnames",
-      "community": 2,
-      "norm_label": "getallsectionnames()"
-    },
-    {
       "label": "MultiBeamCalculator.jsx",
       "file_type": "code",
       "source_file": "src/pages/MultiBeamCalculator.jsx",
@@ -137,121 +77,11 @@
       "label": "ResultsPanel()",
       "file_type": "code",
       "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L1132",
+      "source_location": "L1115",
       "_origin": "ast",
       "id": "src_pages_multibeamcalculator_resultspanel",
       "community": 1,
       "norm_label": "resultspanel()"
-    },
-    {
-      "label": "SlabFormworkCalculator.jsx",
-      "file_type": "code",
-      "source_file": "src/pages/SlabFormworkCalculator.jsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator",
-      "community": 1,
-      "norm_label": "slabformworkcalculator.jsx"
-    },
-    {
-      "label": "getSessionData()",
-      "file_type": "code",
-      "source_file": "src/pages/SlabFormworkCalculator.jsx",
-      "source_location": "L8",
-      "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator_getsessiondata",
-      "community": 1,
-      "norm_label": "getsessiondata()"
-    },
-    {
-      "label": "saveSessionData()",
-      "file_type": "code",
-      "source_file": "src/pages/SlabFormworkCalculator.jsx",
-      "source_location": "L17",
-      "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator_savesessiondata",
-      "community": 1,
-      "norm_label": "savesessiondata()"
-    },
-    {
-      "label": "SlabFormworkCalculator()",
-      "file_type": "code",
-      "source_file": "src/pages/SlabFormworkCalculator.jsx",
-      "source_location": "L23",
-      "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator_slabformworkcalculator",
-      "community": 1,
-      "norm_label": "slabformworkcalculator()"
-    },
-    {
-      "label": "InteractiveDiagram()",
-      "file_type": "code",
-      "source_file": "src/pages/SlabFormworkCalculator.jsx",
-      "source_location": "L522",
-      "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator_interactivediagram",
-      "community": 1,
-      "norm_label": "interactivediagram()"
-    },
-    {
-      "label": "Marker()",
-      "file_type": "code",
-      "source_file": "src/pages/SlabFormworkCalculator.jsx",
-      "source_location": "L550",
-      "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator_marker",
-      "community": 1,
-      "norm_label": "marker()"
-    },
-    {
-      "label": "ResultsTab()",
-      "file_type": "code",
-      "source_file": "src/pages/SlabFormworkCalculator.jsx",
-      "source_location": "L568",
-      "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator_resultstab",
-      "community": 1,
-      "norm_label": "resultstab()"
-    },
-    {
-      "label": "ResultRow()",
-      "file_type": "code",
-      "source_file": "src/pages/SlabFormworkCalculator.jsx",
-      "source_location": "L673",
-      "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator_resultrow",
-      "community": 1,
-      "norm_label": "resultrow()"
-    },
-    {
-      "label": "SlabPDFReportPreview()",
-      "file_type": "code",
-      "source_file": "src/pages/SlabFormworkCalculator.jsx",
-      "source_location": "L694",
-      "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator_slabpdfreportpreview",
-      "community": 1,
-      "norm_label": "slabpdfreportpreview()"
-    },
-    {
-      "label": "WallFormworkCalculator.jsx",
-      "file_type": "code",
-      "source_file": "src/pages/WallFormworkCalculator.jsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "id": "src_pages_wallformworkcalculator",
-      "community": 1,
-      "norm_label": "wallformworkcalculator.jsx"
-    },
-    {
-      "label": "WallFormworkCalculator()",
-      "file_type": "code",
-      "source_file": "src/pages/WallFormworkCalculator.jsx",
-      "source_location": "L7",
-      "_origin": "ast",
-      "id": "src_pages_wallformworkcalculator_wallformworkcalculator",
-      "community": 1,
-      "norm_label": "wallformworkcalculator()"
     },
     {
       "label": "eslint.config.js",
@@ -1719,7 +1549,7 @@
       "source_file": "src/calculators/MultiSpanBeam/DynamicBeamDiagram.jsx",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 79,
+      "community": 77,
       "norm_label": "dynamicbeamdiagram.jsx",
       "id": "src_calculators_multispanbeam_dynamicbeamdiagram"
     },
@@ -1729,7 +1559,7 @@
       "source_file": "src/calculators/MultiSpanBeam/DynamicBeamDiagram.jsx",
       "source_location": "L3",
       "_origin": "ast",
-      "community": 79,
+      "community": 77,
       "norm_label": "dynamicbeamdiagram()",
       "id": "src_calculators_multispanbeam_dynamicbeamdiagram_dynamicbeamdiagram"
     },
@@ -1949,7 +1779,7 @@
       "source_file": "src/components/StandardChart.jsx",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 80,
+      "community": 1,
       "norm_label": "standardchart.jsx",
       "id": "src_components_standardchart"
     },
@@ -1959,7 +1789,7 @@
       "source_file": "src/components/StandardChart.jsx",
       "source_location": "L25",
       "_origin": "ast",
-      "community": 80,
+      "community": 1,
       "norm_label": "standardchart()",
       "id": "src_components_standardchart_standardchart"
     },
@@ -2359,7 +2189,7 @@
       "source_file": "src/engine/formwork/wallFormwork.js",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 77,
+      "community": 1,
       "norm_label": "wallformwork.js",
       "id": "src_engine_formwork_wallformwork"
     },
@@ -2369,7 +2199,7 @@
       "source_file": "src/engine/formwork/wallFormwork.js",
       "source_location": "L10",
       "_origin": "ast",
-      "community": 77,
+      "community": 1,
       "norm_label": "calculatepressureciria108()",
       "id": "src_engine_formwork_wallformwork_calculatepressureciria108"
     },
@@ -2379,7 +2209,7 @@
       "source_file": "src/engine/formwork/wallFormwork.js",
       "source_location": "L30",
       "_origin": "ast",
-      "community": 77,
+      "community": 1,
       "norm_label": "solverateofrise()",
       "id": "src_engine_formwork_wallformwork_solverateofrise"
     },
@@ -2389,7 +2219,7 @@
       "source_file": "src/engine/formwork/wallFormwork.js",
       "source_location": "L60",
       "_origin": "ast",
-      "community": 77,
+      "community": 1,
       "norm_label": "generatepressurechartdata()",
       "id": "src_engine_formwork_wallformwork_generatepressurechartdata"
     },
@@ -2784,6 +2614,66 @@
       "id": "src_engine_materials_index"
     },
     {
+      "label": "sections.js",
+      "file_type": "code",
+      "source_file": "src/engine/materials/sections.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "sections.js",
+      "id": "src_engine_materials_sections"
+    },
+    {
+      "label": "STEEL_GRADES",
+      "file_type": "code",
+      "source_file": "src/engine/materials/sections.js",
+      "source_location": "L28",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "steel_grades",
+      "id": "src_engine_materials_sections_steel_grades"
+    },
+    {
+      "label": "SECTION_TYPES",
+      "file_type": "code",
+      "source_file": "src/engine/materials/sections.js",
+      "source_location": "L38",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "section_types",
+      "id": "src_engine_materials_sections_section_types"
+    },
+    {
+      "label": "SECTIONS",
+      "file_type": "code",
+      "source_file": "src/engine/materials/sections.js",
+      "source_location": "L62",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "sections",
+      "id": "src_engine_materials_sections_sections"
+    },
+    {
+      "label": "getSectionByName()",
+      "file_type": "code",
+      "source_file": "src/engine/materials/sections.js",
+      "source_location": "L308",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "getsectionbyname()",
+      "id": "src_engine_materials_sections_getsectionbyname"
+    },
+    {
+      "label": "getAllSectionNames()",
+      "file_type": "code",
+      "source_file": "src/engine/materials/sections.js",
+      "source_location": "L331",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "getallsectionnames()",
+      "id": "src_engine_materials_sections_getallsectionnames"
+    },
+    {
       "label": "firebase.js",
       "file_type": "code",
       "source_file": "src/firebase.js",
@@ -2972,6 +2862,116 @@
       "community": 46,
       "norm_label": "projects()",
       "id": "src_pages_projects_projects"
+    },
+    {
+      "label": "SlabFormworkCalculator.jsx",
+      "file_type": "code",
+      "source_file": "src/pages/SlabFormworkCalculator.jsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "slabformworkcalculator.jsx",
+      "id": "src_pages_slabformworkcalculator"
+    },
+    {
+      "label": "getSessionData()",
+      "file_type": "code",
+      "source_file": "src/pages/SlabFormworkCalculator.jsx",
+      "source_location": "L8",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "getsessiondata()",
+      "id": "src_pages_slabformworkcalculator_getsessiondata"
+    },
+    {
+      "label": "saveSessionData()",
+      "file_type": "code",
+      "source_file": "src/pages/SlabFormworkCalculator.jsx",
+      "source_location": "L17",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "savesessiondata()",
+      "id": "src_pages_slabformworkcalculator_savesessiondata"
+    },
+    {
+      "label": "SlabFormworkCalculator()",
+      "file_type": "code",
+      "source_file": "src/pages/SlabFormworkCalculator.jsx",
+      "source_location": "L23",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "slabformworkcalculator()",
+      "id": "src_pages_slabformworkcalculator_slabformworkcalculator"
+    },
+    {
+      "label": "InteractiveDiagram()",
+      "file_type": "code",
+      "source_file": "src/pages/SlabFormworkCalculator.jsx",
+      "source_location": "L522",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "interactivediagram()",
+      "id": "src_pages_slabformworkcalculator_interactivediagram"
+    },
+    {
+      "label": "Marker()",
+      "file_type": "code",
+      "source_file": "src/pages/SlabFormworkCalculator.jsx",
+      "source_location": "L550",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "marker()",
+      "id": "src_pages_slabformworkcalculator_marker"
+    },
+    {
+      "label": "ResultsTab()",
+      "file_type": "code",
+      "source_file": "src/pages/SlabFormworkCalculator.jsx",
+      "source_location": "L568",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "resultstab()",
+      "id": "src_pages_slabformworkcalculator_resultstab"
+    },
+    {
+      "label": "ResultRow()",
+      "file_type": "code",
+      "source_file": "src/pages/SlabFormworkCalculator.jsx",
+      "source_location": "L673",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "resultrow()",
+      "id": "src_pages_slabformworkcalculator_resultrow"
+    },
+    {
+      "label": "SlabPDFReportPreview()",
+      "file_type": "code",
+      "source_file": "src/pages/SlabFormworkCalculator.jsx",
+      "source_location": "L694",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "slabpdfreportpreview()",
+      "id": "src_pages_slabformworkcalculator_slabpdfreportpreview"
+    },
+    {
+      "label": "WallFormworkCalculator.jsx",
+      "file_type": "code",
+      "source_file": "src/pages/WallFormworkCalculator.jsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "wallformworkcalculator.jsx",
+      "id": "src_pages_wallformworkcalculator"
+    },
+    {
+      "label": "WallFormworkCalculator()",
+      "file_type": "code",
+      "source_file": "src/pages/WallFormworkCalculator.jsx",
+      "source_location": "L7",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "wallformworkcalculator()",
+      "id": "src_pages_wallformworkcalculator_wallformworkcalculator"
     },
     {
       "label": "localDb.js",
@@ -8529,7 +8529,7 @@
       "source_file": ".agents/skills/taste-skill/SKILL.md",
       "source_location": "L43",
       "_origin": "ast",
-      "community": 38,
+      "community": 11,
       "norm_label": "1. the three dials (core configuration)",
       "id": "agents_skills_taste_skill_skill_1_the_three_dials_core_configuration"
     },
@@ -8539,7 +8539,7 @@
       "source_file": ".agents/skills/taste-skill/SKILL.md",
       "source_location": "L53",
       "_origin": "ast",
-      "community": 38,
+      "community": 11,
       "norm_label": "1.a dial inference (design read \u2192 dial values)",
       "id": "agents_skills_taste_skill_skill_1_a_dial_inference_design_read_dial_values"
     },
@@ -8549,7 +8549,7 @@
       "source_file": ".agents/skills/taste-skill/SKILL.md",
       "source_location": "L64",
       "_origin": "ast",
-      "community": 38,
+      "community": 11,
       "norm_label": "1.b use-case presets",
       "id": "agents_skills_taste_skill_skill_1_b_use_case_presets"
     },
@@ -8559,7 +8559,7 @@
       "source_file": ".agents/skills/taste-skill/SKILL.md",
       "source_location": "L77",
       "_origin": "ast",
-      "community": 38,
+      "community": 11,
       "norm_label": "1.c how the dials drive output",
       "id": "agents_skills_taste_skill_skill_1_c_how_the_dials_drive_output"
     },
@@ -8909,7 +8909,7 @@
       "source_file": ".agents/skills/taste-skill/SKILL.md",
       "source_location": "L552",
       "_origin": "ast",
-      "community": 11,
+      "community": 38,
       "norm_label": "7. dial definitions (technical reference)",
       "id": "agents_skills_taste_skill_skill_7_dial_definitions_technical_reference"
     },
@@ -8919,7 +8919,7 @@
       "source_file": ".agents/skills/taste-skill/SKILL.md",
       "source_location": "L554",
       "_origin": "ast",
-      "community": 11,
+      "community": 38,
       "norm_label": "design_variance (level 1-10)",
       "id": "agents_skills_taste_skill_skill_design_variance_level_1_10"
     },
@@ -8929,7 +8929,7 @@
       "source_file": ".agents/skills/taste-skill/SKILL.md",
       "source_location": "L560",
       "_origin": "ast",
-      "community": 11,
+      "community": 38,
       "norm_label": "motion_intensity (level 1-10)",
       "id": "agents_skills_taste_skill_skill_motion_intensity_level_1_10"
     },
@@ -8939,7 +8939,7 @@
       "source_file": ".agents/skills/taste-skill/SKILL.md",
       "source_location": "L565",
       "_origin": "ast",
-      "community": 11,
+      "community": 38,
       "norm_label": "visual_density (level 1-10)",
       "id": "agents_skills_taste_skill_skill_visual_density_level_1_10"
     },
@@ -9624,144 +9624,6 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L13",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks",
-      "target": "src_engine_materials_sections"
-    },
-    {
-      "relation": "re_exports",
-      "context": "export",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/materials/index.js",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_materials_index",
-      "target": "src_engine_materials_sections"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/materials/sections.js",
-      "source_location": "L331",
-      "weight": 1.0,
-      "source": "src_engine_materials_sections",
-      "target": "src_engine_materials_sections_getallsectionnames",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/materials/sections.js",
-      "source_location": "L308",
-      "weight": 1.0,
-      "source": "src_engine_materials_sections",
-      "target": "src_engine_materials_sections_getsectionbyname",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/materials/sections.js",
-      "source_location": "L38",
-      "weight": 1.0,
-      "source": "src_engine_materials_sections",
-      "target": "src_engine_materials_sections_section_types",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/materials/sections.js",
-      "source_location": "L62",
-      "weight": 1.0,
-      "source": "src_engine_materials_sections",
-      "target": "src_engine_materials_sections_sections",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/materials/sections.js",
-      "source_location": "L28",
-      "weight": 1.0,
-      "source": "src_engine_materials_sections",
-      "target": "src_engine_materials_sections_steel_grades",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L13",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks",
-      "target": "src_engine_materials_sections_steel_grades"
-    },
-    {
-      "relation": "re_exports",
-      "context": "re-export",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/materials/index.js",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_materials_index",
-      "target": "src_engine_materials_sections_steel_grades"
-    },
-    {
-      "relation": "re_exports",
-      "context": "re-export",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/materials/index.js",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_materials_index",
-      "target": "src_engine_materials_sections_section_types"
-    },
-    {
-      "relation": "re_exports",
-      "context": "re-export",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/materials/index.js",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_materials_index",
-      "target": "src_engine_materials_sections_sections"
-    },
-    {
-      "relation": "re_exports",
-      "context": "re-export",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/materials/index.js",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_materials_index",
-      "target": "src_engine_materials_sections_getsectionbyname"
-    },
-    {
-      "relation": "re_exports",
-      "context": "re-export",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/materials/index.js",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_materials_index",
-      "target": "src_engine_materials_sections_getallsectionnames"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "src/App.jsx",
       "source_location": "L14",
       "weight": 1.0,
@@ -9813,7 +9675,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L1132",
+      "source_location": "L1115",
       "weight": 1.0,
       "source": "src_pages_multibeamcalculator",
       "target": "src_pages_multibeamcalculator_resultspanel",
@@ -9866,7 +9728,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L1175",
+      "source_location": "L1158",
       "weight": 1.0,
       "source": "src_pages_multibeamcalculator_resultspanel",
       "target": "src_pages_multibeamcalculator_roundn",
@@ -9877,7 +9739,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L1148",
+      "source_location": "L1131",
       "weight": 1.0,
       "source": "src_pages_multibeamcalculator_resultspanel",
       "target": "src_pages_multibeamcalculator_flattenpoints",
@@ -9893,162 +9755,6 @@
       "confidence_score": 1.0,
       "source": "src_app",
       "target": "src_pages_multibeamcalculator_multibeamcalculator"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/App.jsx",
-      "source_location": "L15",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_app",
-      "target": "src_pages_slabformworkcalculator"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/SlabFormworkCalculator.jsx",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "src_pages_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_getsessiondata",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/SlabFormworkCalculator.jsx",
-      "source_location": "L522",
-      "weight": 1.0,
-      "source": "src_pages_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_interactivediagram",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/SlabFormworkCalculator.jsx",
-      "source_location": "L550",
-      "weight": 1.0,
-      "source": "src_pages_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_marker",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/SlabFormworkCalculator.jsx",
-      "source_location": "L673",
-      "weight": 1.0,
-      "source": "src_pages_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_resultrow",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/SlabFormworkCalculator.jsx",
-      "source_location": "L568",
-      "weight": 1.0,
-      "source": "src_pages_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_resultstab",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/SlabFormworkCalculator.jsx",
-      "source_location": "L17",
-      "weight": 1.0,
-      "source": "src_pages_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_savesessiondata",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/SlabFormworkCalculator.jsx",
-      "source_location": "L23",
-      "weight": 1.0,
-      "source": "src_pages_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_slabformworkcalculator",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/SlabFormworkCalculator.jsx",
-      "source_location": "L694",
-      "weight": 1.0,
-      "source": "src_pages_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_slabpdfreportpreview",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/SlabFormworkCalculator.jsx",
-      "source_location": "L24",
-      "weight": 1.0,
-      "source": "src_pages_slabformworkcalculator_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_getsessiondata",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/SlabFormworkCalculator.jsx",
-      "source_location": "L94",
-      "weight": 1.0,
-      "source": "src_pages_slabformworkcalculator_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_savesessiondata",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/App.jsx",
-      "source_location": "L15",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_app",
-      "target": "src_pages_slabformworkcalculator_slabformworkcalculator"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/App.jsx",
-      "source_location": "L16",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_app",
-      "target": "src_pages_wallformworkcalculator"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/WallFormworkCalculator.jsx",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "src_pages_wallformworkcalculator",
-      "target": "src_pages_wallformworkcalculator_wallformworkcalculator",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/App.jsx",
-      "source_location": "L16",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_app",
-      "target": "src_pages_wallformworkcalculator_wallformworkcalculator"
     },
     {
       "relation": "contains",
@@ -13407,6 +13113,50 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "src/App.jsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_app",
+      "target": "src_pages_slabformworkcalculator"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.jsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_app",
+      "target": "src_pages_slabformworkcalculator_slabformworkcalculator"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.jsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_app",
+      "target": "src_pages_wallformworkcalculator"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.jsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_app",
+      "target": "src_pages_wallformworkcalculator_wallformworkcalculator"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "src/main.jsx",
       "source_location": "L4",
       "weight": 1.0,
@@ -13847,6 +13597,28 @@
       "weight": 1.0,
       "confidence_score": 1.0,
       "source": "src_components_standardchart",
+      "target": "src_components_standardchart_standardchart"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pages/WallFormworkCalculator.jsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_pages_wallformworkcalculator",
+      "target": "src_components_standardchart"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pages/WallFormworkCalculator.jsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_pages_wallformworkcalculator",
       "target": "src_components_standardchart_standardchart"
     },
     {
@@ -14420,6 +14192,28 @@
       "target": "src_engine_design_ec3_checks_roundto"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L13",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks",
+      "target": "src_engine_materials_sections"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L13",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks",
+      "target": "src_engine_materials_sections_steel_grades"
+    },
+    {
       "relation": "re_exports",
       "context": "export",
       "confidence": "EXTRACTED",
@@ -14865,6 +14659,17 @@
       "target": "src_engine_materials_formworkbeams_getshoringtower"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pages/SlabFormworkCalculator.jsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_pages_slabformworkcalculator",
+      "target": "src_engine_formwork_slabformwork"
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -14953,6 +14758,28 @@
       "target": "src_engine_materials_formworkbeams_getshoringtower"
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pages/SlabFormworkCalculator.jsx",
+      "source_location": "L3",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_pages_slabformworkcalculator",
+      "target": "src_engine_formwork_slabformwork_calculateslabformwork"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/pages/SlabFormworkCalculator.jsx",
+      "source_location": "L113",
+      "weight": 1.0,
+      "source": "src_pages_slabformworkcalculator_slabformworkcalculator",
+      "target": "src_engine_formwork_slabformwork_calculateslabformwork"
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/engine/formwork/wallFormwork.js",
@@ -14983,6 +14810,17 @@
       "target": "src_engine_formwork_wallformwork_solverateofrise"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pages/WallFormworkCalculator.jsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_pages_wallformworkcalculator",
+      "target": "src_engine_formwork_wallformwork"
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -14992,6 +14830,72 @@
       "confidence_score": 1.0,
       "source": "src_engine_formwork_wallformwork_solverateofrise",
       "target": "src_engine_formwork_wallformwork_calculatepressureciria108"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pages/WallFormworkCalculator.jsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_pages_wallformworkcalculator",
+      "target": "src_engine_formwork_wallformwork_calculatepressureciria108"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/pages/WallFormworkCalculator.jsx",
+      "source_location": "L50",
+      "weight": 1.0,
+      "source": "src_pages_wallformworkcalculator_wallformworkcalculator",
+      "target": "src_engine_formwork_wallformwork_calculatepressureciria108"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pages/WallFormworkCalculator.jsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_pages_wallformworkcalculator",
+      "target": "src_engine_formwork_wallformwork_solverateofrise"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/pages/WallFormworkCalculator.jsx",
+      "source_location": "L37",
+      "weight": 1.0,
+      "source": "src_pages_wallformworkcalculator_wallformworkcalculator",
+      "target": "src_engine_formwork_wallformwork_solverateofrise"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pages/WallFormworkCalculator.jsx",
+      "source_location": "L5",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_pages_wallformworkcalculator",
+      "target": "src_engine_formwork_wallformwork_generatepressurechartdata"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/pages/WallFormworkCalculator.jsx",
+      "source_location": "L70",
+      "weight": 1.0,
+      "source": "src_pages_wallformworkcalculator_wallformworkcalculator",
+      "target": "src_engine_formwork_wallformwork_generatepressurechartdata"
     },
     {
       "relation": "contains",
@@ -15891,6 +15795,122 @@
       "target": "src_engine_materials_formworkbeams_getshoringtower"
     },
     {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/materials/index.js",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_materials_index",
+      "target": "src_engine_materials_sections"
+    },
+    {
+      "relation": "re_exports",
+      "context": "re-export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/materials/index.js",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_materials_index",
+      "target": "src_engine_materials_sections_getallsectionnames"
+    },
+    {
+      "relation": "re_exports",
+      "context": "re-export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/materials/index.js",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_materials_index",
+      "target": "src_engine_materials_sections_getsectionbyname"
+    },
+    {
+      "relation": "re_exports",
+      "context": "re-export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/materials/index.js",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_materials_index",
+      "target": "src_engine_materials_sections_section_types"
+    },
+    {
+      "relation": "re_exports",
+      "context": "re-export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/materials/index.js",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_materials_index",
+      "target": "src_engine_materials_sections_sections"
+    },
+    {
+      "relation": "re_exports",
+      "context": "re-export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/materials/index.js",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_materials_index",
+      "target": "src_engine_materials_sections_steel_grades"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/materials/sections.js",
+      "source_location": "L331",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_materials_sections",
+      "target": "src_engine_materials_sections_getallsectionnames"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/materials/sections.js",
+      "source_location": "L308",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_materials_sections",
+      "target": "src_engine_materials_sections_getsectionbyname"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/materials/sections.js",
+      "source_location": "L38",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_materials_sections",
+      "target": "src_engine_materials_sections_section_types"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/materials/sections.js",
+      "source_location": "L62",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_materials_sections",
+      "target": "src_engine_materials_sections_sections"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/materials/sections.js",
+      "source_location": "L28",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_materials_sections",
+      "target": "src_engine_materials_sections_steel_grades"
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/firebase.js",
@@ -16230,6 +16250,118 @@
       "weight": 1.0,
       "source": "src_pages_projects_projects",
       "target": "src_services_localdb_saveproject"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pages/SlabFormworkCalculator.jsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_pages_slabformworkcalculator",
+      "target": "src_pages_slabformworkcalculator_getsessiondata"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pages/SlabFormworkCalculator.jsx",
+      "source_location": "L522",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_pages_slabformworkcalculator",
+      "target": "src_pages_slabformworkcalculator_interactivediagram"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pages/SlabFormworkCalculator.jsx",
+      "source_location": "L550",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_pages_slabformworkcalculator",
+      "target": "src_pages_slabformworkcalculator_marker"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pages/SlabFormworkCalculator.jsx",
+      "source_location": "L673",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_pages_slabformworkcalculator",
+      "target": "src_pages_slabformworkcalculator_resultrow"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pages/SlabFormworkCalculator.jsx",
+      "source_location": "L568",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_pages_slabformworkcalculator",
+      "target": "src_pages_slabformworkcalculator_resultstab"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pages/SlabFormworkCalculator.jsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_pages_slabformworkcalculator",
+      "target": "src_pages_slabformworkcalculator_savesessiondata"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pages/SlabFormworkCalculator.jsx",
+      "source_location": "L23",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_pages_slabformworkcalculator",
+      "target": "src_pages_slabformworkcalculator_slabformworkcalculator"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pages/SlabFormworkCalculator.jsx",
+      "source_location": "L694",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_pages_slabformworkcalculator",
+      "target": "src_pages_slabformworkcalculator_slabpdfreportpreview"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pages/SlabFormworkCalculator.jsx",
+      "source_location": "L24",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_pages_slabformworkcalculator_slabformworkcalculator",
+      "target": "src_pages_slabformworkcalculator_getsessiondata"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pages/SlabFormworkCalculator.jsx",
+      "source_location": "L94",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_pages_slabformworkcalculator_slabformworkcalculator",
+      "target": "src_pages_slabformworkcalculator_savesessiondata"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/pages/WallFormworkCalculator.jsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_pages_wallformworkcalculator",
+      "target": "src_pages_wallformworkcalculator_wallformworkcalculator"
     },
     {
       "relation": "contains",
@@ -22747,5 +22879,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "0c1d6a7ef4f4cc582bfbdce08773faff9fa29eb0"
+  "built_at_commit": "903158bb56feef9c1184f9a39a91bbf1edd091c3"
 }

@@ -106,7 +106,8 @@
 }
 
 .fieldInput {
-  width: 120px;
+  width: 100%;
+  max-width: 120px;
   padding: 0.5rem 0.75rem;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
@@ -188,7 +189,14 @@
 }
 
 .tabsContainer {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
   margin-bottom: 2rem;
+}
+.tabsContainer::-webkit-scrollbar {
+  display: none;
 }
 
 .tabs {
@@ -197,6 +205,7 @@
   background: var(--border-color-light);
   padding: 0.35rem;
   border-radius: 999px;
+  white-space: nowrap;
 }
 
 .tab {
@@ -246,5 +255,22 @@
 
   .pageContainer {
     padding: 1rem;
+  }
+
+  .fieldRow {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .fieldInput {
+    max-width: 100%;
+  }
+
+  .resultsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .chartContainer {
+    height: 350px;
   }
 }

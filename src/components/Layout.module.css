@@ -1,7 +1,7 @@
 .layoutContainer {
   display: flex;
   height: 100vh;
-  width: 100vw;
+  width: 100%;
   background-color: var(--bg-app);
 }
 
@@ -227,6 +227,7 @@
   height: 100vh;
   overflow: hidden;
   background-color: var(--bg-app);
+  min-width: 0;
 }
 
 .topHeader {
@@ -396,7 +397,10 @@
 
   .mainWrapper {
     height: auto;
+    min-height: 100vh;
     overflow: visible;
+    display: flex;
+    flex-direction: column;
   }
 
   .topHeader {
@@ -491,6 +495,9 @@
   /* Main content less padding on mobile */
   .mainContent {
     padding: 1.5rem 1rem;
+    flex: 1;
+    overflow-y: visible;
+    overflow-x: hidden;
   }
 
   /* Show the mobile project section */
@@ -513,6 +520,8 @@
 
   .mainContent {
     padding: 1rem 0.75rem;
+    overflow-y: visible;
+    overflow-x: hidden;
   }
 }
 
