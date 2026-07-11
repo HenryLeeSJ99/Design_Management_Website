@@ -196,10 +196,10 @@ function AnalysisDiagram({ unit, points, fillColor, lineColor, invertFill = fals
   const minPeaks = getDistinctExtremes([...localMins].sort((a, b) => a.value - b.value), 2);
   const displayPeaks = [...maxPeaks, ...minPeaks];
 
-  const handleInteraction = (clientX, currentTarget) => {
+  const handleInteraction = (clientX, clientY, currentTarget) => {
     const pt = currentTarget.createSVGPoint();
     pt.x = clientX;
-    pt.y = 0;
+    pt.y = clientY;
     const ctm = currentTarget.getScreenCTM();
     if (!ctm) return;
     const svgP = pt.matrixTransform(ctm.inverse());
@@ -225,13 +225,13 @@ function AnalysisDiagram({ unit, points, fillColor, lineColor, invertFill = fals
   };
 
   const handleMouseMove = (e) => {
-    handleInteraction(e.clientX, e.currentTarget);
+    handleInteraction(e.clientX, e.clientY, e.currentTarget);
   };
 
   const handleTouch = (e) => {
     if (e.touches && e.touches[0]) {
       if (e.cancelable) e.preventDefault();
-      handleInteraction(e.touches[0].clientX, e.currentTarget);
+      handleInteraction(e.touches[0].clientX, e.touches[0].clientY, e.currentTarget);
     }
   };
 
@@ -303,31 +303,28 @@ function AnalysisDiagram({ unit, points, fillColor, lineColor, invertFill = fals
               stroke="#64748b" strokeWidth={1} strokeDasharray="4 2" 
             />
             <circle cx={px(hoverPt.x)} cy={py(hoverPt.value)} r={4} fill={lineColor} stroke="#fff" strokeWidth={2} />
+            
+            {/* Tooltip rendered INSIDE the SVG to guarantee absolute synchronization with vector coordinates */}
+            <g transform={`translate(${px(hoverPt.x) + (px(hoverPt.x) > W - 140 ? -130 : 12)}, ${Math.max(MT + 10, py(hoverPt.value) - 25)})`} pointerEvents="none">
+              <rect 
+                width="120" 
+                height="38" 
+                rx="4" 
+                fill="#1e293b" 
+                fillOpacity="0.95"
+                stroke="#475569"
+                strokeWidth="0.5"
+              />
+              <text x="8" y="16" fill="#ffffff" fontSize="11" fontWeight="bold" fontFamily="sans-serif">
+                {roundN(hoverPt.value, 2)} {unit}
+              </text>
+              <text x="8" y="28" fill="#94a3b8" fontSize="9" fontFamily="sans-serif">
+                x: {roundN(hoverPt.x / 1000, 2)}m
+              </text>
+            </g>
           </g>
         )}
       </svg>
-
-      {hoverPt && (
-        <div style={{
-          position: 'absolute',
-          left: `calc(${(px(hoverPt.x) / W) * 100}% + 8px)`,
-          top: `${(py(hoverPt.value) / H) * 100}%`,
-          transform: 'translateY(-100%)',
-          background: '#1e293b',
-          color: '#ffffff',
-          padding: '6px 10px',
-          borderRadius: '4px',
-          fontSize: '11px',
-          fontWeight: 600,
-          pointerEvents: 'none',
-          boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
-          zIndex: 10,
-          whiteSpace: 'nowrap'
-        }}>
-          <div>{roundN(hoverPt.value, 2)} {unit}</div>
-          <div style={{ fontSize: '9px', color: '#94a3b8', marginTop: '2px' }}>x: {roundN(hoverPt.x / 1000, 2)}m</div>
-        </div>
-      )}
     </div>
   );
 }

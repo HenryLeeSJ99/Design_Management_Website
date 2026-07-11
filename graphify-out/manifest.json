@@ -110,8 +110,8 @@
     "semantic_hash": "28193f15e2843c5861e65b2a20a4b979"
   },
   "src/engine/beam/solver.js": {
-    "mtime": 1783791165.5021956,
-    "ast_hash": "97b5b8c285d6a061f6e2bf5401f792d9",
+    "mtime": 1783791318.7789152,
+    "ast_hash": "cfc42cb283f8b347da0e72690322bf9c",
     "semantic_hash": ""
   },
   "src/engine/beam/types.js": {
@@ -230,8 +230,8 @@
     "semantic_hash": ""
   },
   "src/pages/MultiBeamCalculator.jsx": {
-    "mtime": 1783790926.5868187,
-    "ast_hash": "878f8fa3aa3ab49522a3a8af2cfb77ac",
+    "mtime": 1783792629.539222,
+    "ast_hash": "f41bcb4ce9dd3c52e174081338e3448e",
     "semantic_hash": ""
   },
   "src/pages/ProjectDetails.jsx": {
@@ -245,8 +245,8 @@
     "semantic_hash": ""
   },
   "src/pages/SlabFormworkCalculator.jsx": {
-    "mtime": 1783789921.961118,
-    "ast_hash": "cb28a4004aeecc5f9fd52bef50e7375b",
+    "mtime": 1783792640.1855037,
+    "ast_hash": "b268924bdeaeb5e5abd4323a31a4ce33",
     "semantic_hash": ""
   },
   "src/services/localDb.js": {
@@ -275,8 +275,8 @@
     "semantic_hash": "8f88e53d72fef57027d43c68602558e5"
   },
   "index.html": {
-    "mtime": 1783780362.9744148,
-    "ast_hash": "dce3c6003bbac800245bd422b76b444a",
+    "mtime": 1783792534.1565151,
+    "ast_hash": "eda2169cb0ca42a8bd2a05e1a762bff6",
     "semantic_hash": ""
   },
   "legacy/index.html": {
