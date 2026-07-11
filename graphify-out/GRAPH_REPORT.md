@@ -1,16 +1,16 @@
 # Graph Report - Design_Management_Website  (2026-07-11)
 
 ## Corpus Check
-- 79 files · ~127,316 words
+- 84 files · ~128,024 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 972 nodes · 1308 edges · 78 communities (71 shown, 7 thin omitted)
+- 996 nodes · 1316 edges · 80 communities (73 shown, 7 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 12 edges (avg confidence: 0.58)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `7e23324c`
+- Built from commit: `0dfc1e4b`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -20,7 +20,6 @@
 - Beam Solver Engine
 - Legacy Canvas Rendering
 - React Canvas Graphics
-- Project Configuration
 - Legacy PDF Reports
 - Eurocode 3 Design Engine
 - Legacy EC3 Checks
@@ -91,6 +90,8 @@
 - 15. DEFAULT SITE PACKS
 - 20. EXAMPLE INTERPRETATIONS
 - SlabFormworkCalculator.jsx
+- WallFormworkCalculator.jsx
+- solver.js
 
 ## God Nodes (most connected - your core abstractions)
 1. `CORE DIRECTIVE: IMAGE-FIRST WEBSITE DESIGN TO CODE` - 39 edges
@@ -119,15 +120,15 @@
 ## Import Cycles
 - None detected.
 
-## Communities (78 total, 7 thin omitted)
+## Communities (80 total, 7 thin omitted)
 
 ### Community 0 - "Legacy Application Core"
 Cohesion: 0.06
-Nodes (75): addCheckRow(), addLoad(), addSpan(), $btnAddLoad, $btnAddSpanRight, $btnCalculate, $btnDownload, $btnRemoveSpan (+67 more)
+Nodes (68): addCheckRow(), addLoad(), addSpan(), $btnAddLoad, $btnAddSpanRight, $btnCalculate, $btnDownload, $btnRemoveSpan (+60 more)
 
 ### Community 1 - "React Navigation & Components"
-Cohesion: 0.11
-Nodes (23): App(), Layout(), Logo(), SplashScreen(), StandardChart(), AuthContext, AuthProvider(), useAuth() (+15 more)
+Cohesion: 0.06
+Nodes (33): firebase, App(), Dashboard, Library, Login, MultiBeamCalculator, MultiSpanBeamCalculator, NotFound (+25 more)
 
 ### Community 2 - "Beam Solver Engine"
 Cohesion: 0.10
@@ -141,13 +142,9 @@ Nodes (43): 1. Logo Cover, 1. Monogram + Meaning, 2 × 3 REFERENCE-STYLE LAYOUT,
 Cohesion: 0.20
 Nodes (16): computeSpanDimensions(), computeSupportPositions(), computeLoadGlyph(), computeLoadGlyphs(), buildResultChartData(), buildResultChartOptions(), flattenAnalysisPoints(), RESULT_CHART_DATASETS (+8 more)
 
-### Community 5 - "Project Configuration"
-Cohesion: 0.09
-Nodes (20): devDependencies, eslint, @eslint/js, eslint-plugin-react, eslint-plugin-react-hooks, eslint-plugin-react-refresh, globals, @types/react (+12 more)
-
 ### Community 6 - "Legacy PDF Reports"
-Cohesion: 0.13
-Nodes (22): C, drawBoundaryConditions(), drawDesignChecks(), drawDiagrams(), drawFooter(), drawHeader(), drawResults(), drawVerdict() (+14 more)
+Cohesion: 0.06
+Nodes (41): C, drawBoundaryConditions(), drawDesignChecks(), drawDiagrams(), drawFooter(), drawHeader(), drawResults(), drawVerdict() (+33 more)
 
 ### Community 7 - "Eurocode 3 Design Engine"
 Cohesion: 0.41
@@ -397,8 +394,16 @@ Nodes (4): 20. EXAMPLE INTERPRETATIONS, Example 1, Example 2, Example 3
 Cohesion: 0.11
 Nodes (20): DynamicBeamDiagram(), AnalysisDiagram(), CheckRow(), CLR, COMPANY_LOGOS, flattenPoints(), getSessionData(), MultiBeamCalculator() (+12 more)
 
+### Community 79 - "WallFormworkCalculator.jsx"
+Cohesion: 0.42
+Nodes (7): StandardChart(), calculatePressureCiria108(), generatePressureChartData(), solveRateOfRise(), getSessionData(), saveSessionData(), WallFormworkCalculator()
+
+### Community 80 - "solver.js"
+Cohesion: 0.54
+Nodes (7): buildResults(), createMatrix(), elementStiffnessMatrix(), fixedEndForces(), gaussianElimination(), multiplyMatrixVector(), solveBeam()
+
 ## Knowledge Gaps
-- **598 isolated node(s):** `$tableGeometryBody`, `$tableLoadsBody`, `$btnAddSpanRight`, `$btnRemoveSpan`, `$btnAddLoad` (+593 more)
+- **611 isolated node(s):** `$tableGeometryBody`, `$tableLoadsBody`, `$btnAddSpanRight`, `$btnRemoveSpan`, `$btnAddLoad` (+606 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -406,16 +411,16 @@ Nodes (20): DynamicBeamDiagram(), AnalysisDiagram(), CheckRow(), CLR, COMPANY_LO
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `jspdf` connect `Legacy PDF Reports` to `solver.js`?**
-  _High betweenness centrality (0.052) - this node is a cross-community bridge._
+  _High betweenness centrality (0.030) - this node is a cross-community bridge._
+- **Why does `dependencies` connect `Legacy PDF Reports` to `React Navigation & Components`?**
+  _High betweenness centrality (0.027) - this node is a cross-community bridge._
 - **Why does `generateReport()` connect `Legacy PDF Reports` to `Legacy Application Core`?**
-  _High betweenness centrality (0.043) - this node is a cross-community bridge._
-- **Why does `ResultsView()` connect `solver.js` to `Legacy PDF Reports`?**
-  _High betweenness centrality (0.043) - this node is a cross-community bridge._
+  _High betweenness centrality (0.023) - this node is a cross-community bridge._
 - **Are the 9 inferred relationships involving `init()` (e.g. with `app.js` and `addLoad()`) actually correct?**
   _`init()` has 9 INFERRED edges - model-reasoned connections that need verification._
 - **What connects `$tableGeometryBody`, `$tableLoadsBody`, `$btnAddSpanRight` to the rest of the system?**
-  _599 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _612 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Legacy Application Core` be split into smaller, more focused modules?**
-  _Cohesion score 0.05709876543209876 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.06354642313546423 - nodes in this community are weakly interconnected._
 - **Should `React Navigation & Components` be split into smaller, more focused modules?**
-  _Cohesion score 0.10953058321479374 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0596078431372549 - nodes in this community are weakly interconnected._

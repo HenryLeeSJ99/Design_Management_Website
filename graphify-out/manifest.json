@@ -55,8 +55,8 @@
     "semantic_hash": "8566360453d46795feabf60a5f65a049"
   },
   "src/App.jsx": {
-    "mtime": 1783668235.501499,
-    "ast_hash": "47fa55b030391e9191c74921fec15f03",
+    "mtime": 1783779268.138543,
+    "ast_hash": "390c4b39bbe3e7550bab8a156939442c",
     "semantic_hash": ""
   },
   "src/calculators/MultiSpanBeam/DynamicBeamDiagram.jsx": {
@@ -80,13 +80,13 @@
     "semantic_hash": "31bee8fd520d9b5721851cf63f0421c8"
   },
   "src/calculators/MultiSpanBeam/ResultsView.jsx": {
-    "mtime": 1783762496.1053436,
-    "ast_hash": "bb94ebe29231957f29895232bbaffb61",
+    "mtime": 1783775493.0187435,
+    "ast_hash": "628cccc74e62b68e916486d713210bd5",
     "semantic_hash": ""
   },
   "src/components/Layout.jsx": {
-    "mtime": 1783764803.8176696,
-    "ast_hash": "2578840bfc5eeddef0056dd1c184a1b9",
+    "mtime": 1783775101.373178,
+    "ast_hash": "026042cab8d226c01308200d967e9d8c",
     "semantic_hash": ""
   },
   "src/components/Logo.jsx": {
@@ -200,8 +200,8 @@
     "semantic_hash": "b10a2ab3038db5d49b7e4cfaaa9c3369"
   },
   "src/engine/materials/sections.js": {
-    "mtime": 1783679368.6179984,
-    "ast_hash": "1db744ab66605adf0fc5f484dd3b686a",
+    "mtime": 1783779475.254663,
+    "ast_hash": "8b8a86e5d1e69e4b0b90e1054255714b",
     "semantic_hash": ""
   },
   "src/firebase.js": {
@@ -220,29 +220,29 @@
     "semantic_hash": ""
   },
   "src/pages/Library.jsx": {
-    "mtime": 1783500786.900161,
-    "ast_hash": "55db131a150c80fb393b5bde5d2dec3b",
-    "semantic_hash": "55db131a150c80fb393b5bde5d2dec3b"
+    "mtime": 1783774670.732488,
+    "ast_hash": "156284f1454919a651b3647c731369da",
+    "semantic_hash": ""
   },
   "src/pages/Login.jsx": {
-    "mtime": 1783656295.6304657,
-    "ast_hash": "bc93e3d0a3cd650e3fb3539656ea4de7",
+    "mtime": 1783774714.614458,
+    "ast_hash": "9761c8d0d377ab05822376a9ba45f687",
     "semantic_hash": ""
   },
   "src/pages/MultiBeamCalculator.jsx": {
-    "mtime": 1783767196.123536,
-    "ast_hash": "9fd1d82fb85c43ec08bb3ddd785d1af2",
+    "mtime": 1783779635.9593213,
+    "ast_hash": "3304a5786e4aa08f366ff740f52a00fe",
     "semantic_hash": ""
   },
   "src/pages/ProjectDetails.jsx": {
-    "mtime": 1783500786.917227,
-    "ast_hash": "904fa496c0f263b8fa2b83cb6b98c72f",
-    "semantic_hash": "904fa496c0f263b8fa2b83cb6b98c72f"
+    "mtime": 1783774692.369382,
+    "ast_hash": "bd66892c8f1ef2a2fb347530d32faa81",
+    "semantic_hash": ""
   },
   "src/pages/Projects.jsx": {
-    "mtime": 1783500786.919653,
-    "ast_hash": "7fbaf8387ae55be5ee58eb8ab176dfa3",
-    "semantic_hash": "7fbaf8387ae55be5ee58eb8ab176dfa3"
+    "mtime": 1783774598.662553,
+    "ast_hash": "06a877caa17cb6a36cbddcc53fc64a18",
+    "semantic_hash": ""
   },
   "src/pages/SlabFormworkCalculator.jsx": {
     "mtime": 1783766773.704817,
@@ -410,8 +410,8 @@
     "semantic_hash": ""
   },
   "src/pages/WallFormworkCalculator.jsx": {
-    "mtime": 1783766712.6252255,
-    "ast_hash": "e73efe970e20fd8e01c5941eba983370",
+    "mtime": 1783775587.4942877,
+    "ast_hash": "7b6e772fa35ed2eee44f194db16fa0f1",
     "semantic_hash": ""
   },
   "src/assets/slab-diagram.png": {
@@ -420,8 +420,8 @@
     "semantic_hash": ""
   },
   "src/pages/NotFound.jsx": {
-    "mtime": 1783668221.9783883,
-    "ast_hash": "c09a72dee5fd37f6ba65db18a1ad9fc8",
+    "mtime": 1783774907.5827353,
+    "ast_hash": "450df2b1eb38bbd6b5e7b513487b2290",
     "semantic_hash": ""
   },
   "public/favicon.svg": {
@@ -437,6 +437,31 @@
   "src/assets/PLYTEC_Logo.svg": {
     "mtime": 1783671736.192107,
     "ast_hash": "c3e38631f666fef239228e7c4b0d1333",
+    "semantic_hash": ""
+  },
+  ".claude/launch.json": {
+    "mtime": 1783773992.2070959,
+    "ast_hash": "13d552e9d6e18a8c558c5ad407e91708",
+    "semantic_hash": ""
+  },
+  ".claude/settings.local.json": {
+    "mtime": 1783774941.4157243,
+    "ast_hash": "856892d13efc78bc58079e7362257b56",
+    "semantic_hash": ""
+  },
+  "src/components/ErrorBoundary.jsx": {
+    "mtime": 1783779241.4784105,
+    "ast_hash": "d6d15ef4f1327b1e9bf47181147959dc",
+    "semantic_hash": ""
+  },
+  "src/components/RouteLoader.jsx": {
+    "mtime": 1783775115.796149,
+    "ast_hash": "53e393834f9b8e56ffc2ae1460c77c52",
+    "semantic_hash": ""
+  },
+  "src/pages/Home.jsx": {
+    "mtime": 1783773931.1328638,
+    "ast_hash": "86bf70e49ca2dbce9f8e4c261c3e80c8",
     "semantic_hash": ""
   }
 }
