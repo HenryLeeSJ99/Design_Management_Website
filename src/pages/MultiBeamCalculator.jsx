@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { FileText, Minus, Play, Plus, Save, Trash2, CheckCircle, XCircle, Box, Layers, Share2 } from 'lucide-react';
+import { FileText, Minus, Play, Plus, Save, Trash2, CheckCircle, XCircle, Box, Layers, Share2, HelpCircle } from 'lucide-react';
 import { isIOS, shareReportPdf } from '../utils/reportPdf';
 import DynamicBeamDiagram from '../calculators/MultiSpanBeam/DynamicBeamDiagram';
 import styles from './MultiBeamCalculator.module.css';
@@ -438,6 +438,21 @@ export default function MultiBeamCalculator() {
   const [results, setResults] = useState(() => getSessionData('tempworks_multibeam_results', null));
   const [calcError, setCalcError] = useState(null);
   const [isCalculating, setIsCalculating] = useState(false);
+
+  // Help popup for the system-beam "Design factors" note
+  const [factorsHelpOpen, setFactorsHelpOpen] = useState(false);
+  const factorsHelpRef = useRef(null);
+
+  useEffect(() => {
+    if (!factorsHelpOpen) return;
+    const onPointerDown = (e) => {
+      if (factorsHelpRef.current && !factorsHelpRef.current.contains(e.target)) {
+        setFactorsHelpOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    return () => document.removeEventListener('mousedown', onPointerDown);
+  }, [factorsHelpOpen]);
 
   // Save inputs and invalidate results if any input changes after initial load
   useEffect(() => {
@@ -1071,17 +1086,48 @@ export default function MultiBeamCalculator() {
                     <h3 className={styles.cardTitle}>Design Factors & Safety Limits</h3>
                     <div className={styles.formStack}>
                       {material === 'system' ? (
-                        <div style={{
-                          fontSize: '12px',
-                          color: '#475569',
-                          background: '#f8fafc',
-                          border: '1px solid #e2e8f0',
-                          borderRadius: '6px',
-                          padding: '10px 12px',
-                          lineHeight: 1.5,
-                        }}>
-                          System beams are checked against the manufacturer's <strong>permissible (allowable) capacities</strong>,
-                          so the analysis uses <strong>unfactored service loads</strong> — ULS load and material factors do not apply.
+                        <div ref={factorsHelpRef} style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ fontSize: '13px', fontWeight: 600, color: '#334155' }}>
+                            Design factors: Manufacturer declaration
+                          </span>
+                          <button
+                            type="button"
+                            aria-label="What does this mean?"
+                            onClick={() => setFactorsHelpOpen((o) => !o)}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              background: 'none',
+                              border: 'none',
+                              padding: '2px',
+                              cursor: 'pointer',
+                              color: factorsHelpOpen ? 'var(--primary)' : '#94a3b8',
+                              borderRadius: '50%',
+                            }}
+                          >
+                            <HelpCircle size={16} />
+                          </button>
+                          {factorsHelpOpen && (
+                            <div style={{
+                              position: 'absolute',
+                              top: 'calc(100% + 8px)',
+                              left: 0,
+                              zIndex: 60,
+                              width: '260px',
+                              background: '#ffffff',
+                              border: '1px solid #e2e8f0',
+                              borderRadius: '8px',
+                              boxShadow: '0 10px 30px rgba(15, 23, 42, 0.15)',
+                              padding: '10px 12px',
+                              fontSize: '12px',
+                              color: '#475569',
+                              lineHeight: 1.5,
+                            }}>
+                              System beams are checked against the manufacturer's <strong>permissible (allowable) capacities</strong>,
+                              so the analysis uses <strong>unfactored service loads</strong> — ULS load and material factors do not apply.
+                            </div>
+                          )}
                         </div>
                       ) : (
                         <>
