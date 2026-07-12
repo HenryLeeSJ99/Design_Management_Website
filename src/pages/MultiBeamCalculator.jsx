@@ -708,13 +708,20 @@ export default function MultiBeamCalculator() {
 
         const N = isTwinProfile ? 2 : 1;
         const w_sw = includeSelfWeight ? (N * section.mass * 9.80665 / 1000) : 0;
-        const lf = Number(loadFactor) || 1.5;
+        // System beams are checked against manufacturer PERMISSIBLE
+        // capacities, so the analysis uses unfactored (service) loads;
+        // ULS load factoring only applies to steel limit-state design.
+        const lf = material === 'system' ? 1.0 : (Number(loadFactor) || 1.5);
         const mf = Number(materialFactor) || 1.1;
+
+        // Span lengths live in state as strings while being edited —
+        // normalize to numbers before anything touches the solver.
+        const spansNorm = spans.map((s) => ({ ...s, length: Number(s.length) || 0 }));
 
         // Construct SLS loads
         const loads_SLS = loads.map((l) => {
           if (l.type === 'point') return { ...l, pos: Number(l.pos) };
-          const spanL = Number(spans[l.spanIndex]?.length || 0);
+          const spanL = Number(spansNorm[l.spanIndex]?.length || 0);
           return {
             ...l,
             posStart: Number(l.posStart),
@@ -723,7 +730,7 @@ export default function MultiBeamCalculator() {
         });
 
         if (w_sw > 0) {
-          spans.forEach((span, idx) => {
+          spansNorm.forEach((span, idx) => {
             loads_SLS.push({
               type: 'udl',
               spanIndex: idx,
@@ -734,7 +741,7 @@ export default function MultiBeamCalculator() {
           });
         }
 
-        // Construct ULS loads (factored by lf)
+        // Construct ULS loads (factored by lf; lf = 1.0 for system beams)
         const loads_ULS = loads_SLS.map((l) => ({
           ...l,
           magnitude: l.magnitude * lf
@@ -744,8 +751,8 @@ export default function MultiBeamCalculator() {
         const E_val = section.E || 210000;
         const I_val = section.Iy * N;
 
-        const { analysis: analysisSLS } = analyzeBeam({ spans, loads: loads_SLS, E: E_val, I: I_val });
-        const { analysis: analysisULS } = analyzeBeam({ spans, loads: loads_ULS, E: E_val, I: I_val });
+        const { analysis: analysisSLS } = analyzeBeam({ spans: spansNorm, loads: loads_SLS, E: E_val, I: I_val });
+        const { analysis: analysisULS } = analyzeBeam({ spans: spansNorm, loads: loads_ULS, E: E_val, I: I_val });
 
         // Merge ULS and SLS results
         const mergedResults = {
@@ -762,7 +769,7 @@ export default function MultiBeamCalculator() {
             };
           })
         };
-        mergedResults.physicalSpans = spans;
+        mergedResults.physicalSpans = spansNorm;
 
         const maxM = Math.abs(mergedResults.maxMoment.value);
         const maxV = Math.abs(mergedResults.maxShear.value);
@@ -1063,24 +1070,41 @@ export default function MultiBeamCalculator() {
                 <div className={`${styles.card} ${styles.areaFactors}`}>
                     <h3 className={styles.cardTitle}>Design Factors & Safety Limits</h3>
                     <div className={styles.formStack}>
-                      <label className={styles.field}>
-                        <span>ULS Load Factor (γ<sub>F</sub>)</span>
-                        <input
-                          type="number"
-                          step="0.05"
-                          value={loadFactor}
-                          onChange={(e) => setLoadFactor(cleanNumericInput(e.target.value))}
-                        />
-                      </label>
-                      <label className={styles.field}>
-                        <span>ULS Material Factor (γ<sub>M</sub>)</span>
-                        <input
-                          type="number"
-                          step="0.05"
-                          value={materialFactor}
-                          onChange={(e) => setMaterialFactor(cleanNumericInput(e.target.value))}
-                        />
-                      </label>
+                      {material === 'system' ? (
+                        <div style={{
+                          fontSize: '12px',
+                          color: '#475569',
+                          background: '#f8fafc',
+                          border: '1px solid #e2e8f0',
+                          borderRadius: '6px',
+                          padding: '10px 12px',
+                          lineHeight: 1.5,
+                        }}>
+                          System beams are checked against the manufacturer's <strong>permissible (allowable) capacities</strong>,
+                          so the analysis uses <strong>unfactored service loads</strong> — ULS load and material factors do not apply.
+                        </div>
+                      ) : (
+                        <>
+                          <label className={styles.field}>
+                            <span>ULS Load Factor (γ<sub>F</sub>)</span>
+                            <input
+                              type="number"
+                              step="0.05"
+                              value={loadFactor}
+                              onChange={(e) => setLoadFactor(cleanNumericInput(e.target.value))}
+                            />
+                          </label>
+                          <label className={styles.field}>
+                            <span>ULS Material Factor (γ<sub>M</sub>)</span>
+                            <input
+                              type="number"
+                              step="0.05"
+                              value={materialFactor}
+                              onChange={(e) => setMaterialFactor(cleanNumericInput(e.target.value))}
+                            />
+                          </label>
+                        </>
+                      )}
                       <label className={styles.field}>
                         <span>Deflection Limit</span>
                         <select value={deflectionLimit} onChange={(e) => setDeflectionLimit(Number(e.target.value))}>
