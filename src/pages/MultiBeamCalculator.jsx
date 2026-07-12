@@ -370,14 +370,14 @@ export default function MultiBeamCalculator() {
     includeSelfWeight: true,
     loadFactor: 1.5,
     materialFactor: 1.1,
-    deflectionLimit: 360,
+    deflectionLimit: 270,
     spans: [
-      { length: 3000, leftSupport: 'pin', rightSupport: 'roller' },
-      { length: 3000, leftSupport: 'continuous', rightSupport: 'roller' },
+      { length: 1500, leftSupport: 'pin', rightSupport: 'roller' },
+      { length: 1500, leftSupport: 'continuous', rightSupport: 'roller' },
     ],
     loads: [
-      { type: 'udl', spanIndex: 0, posStart: 0, posEnd: 3000, magnitude: 10 },
-      { type: 'point', spanIndex: 1, pos: 1500, magnitude: 5 },
+      { type: 'udl', spanIndex: 0, posStart: 0, posEnd: 1500, magnitude: 10 },
+      { type: 'point', spanIndex: 1, pos: 750, magnitude: 5 },
     ],
     projectId: 'TW-2026-MULTI',
     calculatedBy: 'Engineer',
@@ -426,8 +426,8 @@ export default function MultiBeamCalculator() {
   const [modalLoadType, setModalLoadType] = useState('udl');
   const [modalSpanIndex, setModalSpanIndex] = useState(0);
   const [modalPosStart, setModalPosStart] = useState(0);
-  const [modalPosEnd, setModalPosEnd] = useState(3000);
-  const [modalPos, setModalPos] = useState(1500);
+  const [modalPosEnd, setModalPosEnd] = useState(1500);
+  const [modalPos, setModalPos] = useState(750);
   const [modalMagnitude, setModalMagnitude] = useState(10);
   const [projectId, setProjectId] = useState(initialInputs.projectId);
   // Migrate the old 'Antigravity AI' prefill persisted in older sessions
@@ -532,7 +532,7 @@ export default function MultiBeamCalculator() {
         }
         return span;
       });
-      return [...updated, { length: 3000, leftSupport: 'continuous', rightSupport: 'roller' }];
+      return [...updated, { length: 1500, leftSupport: 'continuous', rightSupport: 'roller' }];
     });
   };
 
@@ -547,8 +547,8 @@ export default function MultiBeamCalculator() {
     setModalLoadType('udl');
     setModalSpanIndex(0);
     setModalPosStart('0');
-    setModalPosEnd(String(spans[0]?.length || 3000));
-    setModalPos(String(Math.round(Number(spans[0]?.length || 3000) / 2)));
+    setModalPosEnd(String(spans[0]?.length || 1500));
+    setModalPos(String(Math.round(Number(spans[0]?.length || 1500) / 2)));
     setModalMagnitude('10');
     setLoadModalOpen(true);
   };
@@ -560,8 +560,8 @@ export default function MultiBeamCalculator() {
     setModalLoadType(load.type);
     setModalSpanIndex(load.spanIndex);
     setModalPosStart(String(load.posStart !== undefined ? load.posStart : 0));
-    setModalPosEnd(String(load.posEnd !== undefined ? load.posEnd : Number(spans[load.spanIndex]?.length || 3000)));
-    setModalPos(String(load.pos !== undefined ? load.pos : Math.round(Number(spans[load.spanIndex]?.length || 3000) / 2)));
+    setModalPosEnd(String(load.posEnd !== undefined ? load.posEnd : Number(spans[load.spanIndex]?.length || 1500)));
+    setModalPos(String(load.pos !== undefined ? load.pos : Math.round(Number(spans[load.spanIndex]?.length || 1500) / 2)));
     setModalMagnitude(String(load.magnitude));
     setLoadModalOpen(true);
   };
@@ -592,7 +592,7 @@ export default function MultiBeamCalculator() {
   const handleModalSpanIndexChange = (val) => {
     const si = Number(val);
     setModalSpanIndex(si);
-    const spanLength = Number(spans[si]?.length || 3000);
+    const spanLength = Number(spans[si]?.length || 1500);
     if (modalPosStart > spanLength) setModalPosStart(0);
     if (modalPosEnd > spanLength || modalPosEnd === 0) setModalPosEnd(spanLength);
     if (modalPos > spanLength) setModalPos(Math.round(spanLength / 2));
@@ -1380,7 +1380,7 @@ export default function MultiBeamCalculator() {
                       />
                       <button
                         type="button"
-                        onClick={() => setModalPosEnd(Number(spans[modalSpanIndex]?.length || 3000))}
+                        onClick={() => setModalPosEnd(Number(spans[modalSpanIndex]?.length || 1500))}
                         style={{ padding: '0 8px', fontSize: '11px', fontWeight: 700, color: '#2563eb', background: '#f0f6ff', border: '1px solid #bfdbfe', borderRadius: '8px', cursor: 'pointer' }}
                       >
                         Full
@@ -1565,7 +1565,8 @@ function ResultsPanel({ results, spans, loads }) {
         {[
           { label: 'Bending Moment Diagram (BMD)', unit: 'kNm', pts: bmdPts, lc: CLR.bmd, fc: CLR.bmdFill, inv: true, rxns: [] },
           { label: 'Shear Force Diagram (SFD)', unit: 'kN', pts: sfdPts, lc: CLR.sfd, fc: CLR.sfdFill, inv: false, rxns: reactions },
-          { label: 'Deflected Shape', unit: 'mm', pts: deflPts, lc: CLR.defl, fc: CLR.deflFill, inv: true, rxns: [] },
+          {/* Not inverted: solver deflection is negative downward, so the curve sags like the real beam */}
+          { label: 'Deflected Shape', unit: 'mm', pts: deflPts, lc: CLR.defl, fc: CLR.deflFill, inv: false, rxns: [] },
         ].map((d, i) => (
           <div key={i} style={{ padding: '16px 14px 8px', borderBottom: i < 2 ? '1px solid #f1f5f9' : 'none' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
@@ -2094,7 +2095,7 @@ function PDFReportPreview({ results, spans, loads, systemCompany, projectId, set
             </div>
             <div style={{ background: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0', padding: '6px' }}>
               <div style={{ fontSize: '9px', fontWeight: 700, color: CLR.defl, marginBottom: '2px' }}>Deflected Shape (mm)</div>
-              <AnalysisDiagram unit="" points={deflPts} lineColor={CLR.defl} fillColor={CLR.deflFill} invertFill={true} reactions={[]} height={115} />
+              <AnalysisDiagram unit="" points={deflPts} lineColor={CLR.defl} fillColor={CLR.deflFill} invertFill={false} reactions={[]} height={115} />
             </div>
           </div>
         </div>
