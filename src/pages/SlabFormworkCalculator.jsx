@@ -104,6 +104,14 @@ export default function SlabFormworkCalculator() {
   const [shoringSystem, setShoringSystem] = useState(initialInputs.shoringSystem);
   const [shoringType, setShoringType] = useState(initialInputs.shoringType);
   const [towerHeight, setTowerHeight] = useState(initialInputs.towerHeight);
+
+  // Tower shoring is limited to WONDERCrab — migrate any stale session
+  // value (e.g. 'WonderCrab M', 'Ringlock Tower') to the single option.
+  useEffect(() => {
+    if (shoringSystem === 'tower' && shoringType !== 'WONDERCrab Modular') {
+      setShoringType('WONDERCrab Modular');
+    }
+  }, [shoringSystem, shoringType]);
   const [deflectionLimit, setDeflectionLimit] = useState(initialInputs.deflectionLimit || 360);
 
   const [projectId, setProjectId] = useState(() => getSessionData('tempworks_slabformwork_project_id', 'TW-2026-SLAB'));
@@ -486,7 +494,7 @@ export default function SlabFormworkCalculator() {
                           <input
                             type="radio"
                             checked={shoringSystem === 'tower'}
-                            onChange={() => { setShoringSystem('tower'); setShoringType('WonderCrab M'); }}
+                            onChange={() => { setShoringSystem('tower'); setShoringType('WONDERCrab Modular'); }}
                             onFocus={() => setActiveMarker('shoring')}
                           /> Tower
                         </label>
@@ -509,9 +517,9 @@ export default function SlabFormworkCalculator() {
                         >
                           {shoringSystem === 'tower' ? (
                             <>
-                              <option>WonderCrab M</option>
-                              <option>Ringlock Tower</option>
-                              <option>Frame Tower</option>
+                              {/* Tower shoring is limited to the WONDERCrab system —
+                                  checked per-configuration via the shoring tower engine */}
+                              <option>WONDERCrab Modular</option>
                             </>
                           ) : (
                             <>
@@ -687,10 +695,21 @@ function ResultsTab({ results }) {
             <ResultRow component="" check="Shear" applied={`${primary.shear.applied} kN`} capacity={`${primary.shear.capacity} kN`} utilization={primary.shear.ratio} pass={primary.shear.pass} />
             <ResultRow component="" check="Deflection" applied={`${primary.deflection.actual} mm`} capacity={`${primary.deflection.allowable} mm`} utilization={primary.deflection.ratio} pass={primary.deflection.pass} />
 
-            <ResultRow component="Shoring System" check="Axial Load" applied={`${tower.applied} kN`} capacity={`${tower.capacity} kN`} utilization={tower.utilization} pass={tower.pass} />
+            <ResultRow
+              component={tower.isWonderCrab ? `Shoring System${tower.bestConfig ? ` — ${tower.bestConfig}` : ''}` : 'Shoring System'}
+              check={tower.isWonderCrab ? 'Leg Axial Load' : 'Axial Load'}
+              applied={`${tower.applied} kN`}
+              capacity={`${tower.capacity} kN`}
+              utilization={tower.utilization}
+              pass={tower.pass}
+            />
             </div>
           </div>
         </div>
+
+        {tower.isWonderCrab && tower.configurations && (
+          <WonderCrabConfigTable tower={tower} />
+        )}
 
         <div className={styles.card}>
           <h3 className={styles.cardTitle}>Notes</h3>
@@ -750,6 +769,85 @@ function ResultsTab({ results }) {
         </div>
       </div>
     </div>
+    </div>
+  );
+}
+
+/**
+ * WONDERCrab per-configuration capacity table (from the shoring tower
+ * engine). Mirrors the standalone Shoring Tower calculator's results.
+ */
+function WonderCrabConfigTable({ tower }) {
+  const utilColor = (u) => {
+    if (u === null) return '#94a3b8';
+    if (u <= 0.8) return '#16a34a';
+    if (u <= 1.0) return '#d97706';
+    return '#dc2626';
+  };
+  const cell = { padding: '7px 8px', borderBottom: '1px solid #f1f5f9', fontSize: '13px', color: '#334155' };
+  const num = { ...cell, textAlign: 'right', fontVariantNumeric: 'tabular-nums', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap' };
+  return (
+    <div className={styles.card} style={{ marginTop: '24px' }}>
+      <h3 className={styles.cardTitle}>
+        WONDERCrab Tower Capacity — Top Held · H = {tower.height} m · {tower.passCount}/{tower.totalCount} configurations pass
+      </h3>
+      <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', width: '100%' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <thead>
+            <tr>
+              {['Configuration', 'Rated H [m]', 'Capacity [kN]', 'Utilisation', 'Status'].map((h, i) => (
+                <th key={h} style={{
+                  textAlign: i === 1 || i === 2 ? 'right' : 'left',
+                  padding: '6px 8px',
+                  color: '#64748b',
+                  fontSize: '11px',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.05em',
+                  borderBottom: '2px solid #e2e8f0',
+                  whiteSpace: 'nowrap',
+                }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {tower.configurations.map((row) => {
+              const isBest = tower.bestConfig === `${row.system} Type ${row.type}`;
+              return (
+                <tr
+                  key={`${row.system}-${row.type}`}
+                  style={{
+                    background: isBest
+                      ? 'rgba(37, 99, 235, 0.06)'
+                      : row.capacity !== null && !row.pass
+                        ? 'rgba(220, 38, 38, 0.04)'
+                        : 'transparent',
+                  }}
+                >
+                  <td style={cell}>
+                    <div style={{ fontWeight: 700, color: '#0f172a' }}>
+                      {row.system} · Type {row.type}{isBest ? ' ★' : ''}
+                    </div>
+                    <div style={{ fontSize: '11.5px', color: '#64748b', lineHeight: 1.35 }}>{row.description}</div>
+                  </td>
+                  <td style={num}>{row.tableHeight !== null ? row.tableHeight.toFixed(1) : '—'}</td>
+                  <td style={num}>{row.capacity !== null ? row.capacity.toFixed(1) : '—'}</td>
+                  <td style={{ ...cell, fontWeight: 700, whiteSpace: 'nowrap', color: utilColor(row.utilization) }}>
+                    {row.utilization !== null ? `${(row.utilization * 100).toFixed(0)}%` : 'Out of range'}
+                  </td>
+                  <td style={{ ...cell, fontWeight: 800, whiteSpace: 'nowrap', color: row.capacity === null ? '#94a3b8' : row.pass ? '#16a34a' : '#dc2626' }}>
+                    {row.capacity === null ? 'N/A' : row.pass ? 'PASS' : 'FAIL'}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      <p style={{ margin: '10px 0 0', fontSize: '12px', color: '#64748b', lineHeight: 1.45 }}>
+        Permissible loads per PLYTEC WONDERCrab manual (Issue 26/01), top-held towers, capacity at the first
+        tabulated height ≥ tower height. ★ = most economical passing configuration. Leg load = max primary
+        beam reaction ({tower.applied} kN); manual capacities already cover tower self-weight.
+      </p>
     </div>
   );
 }
@@ -1183,7 +1281,7 @@ function SlabPDFReportPreview({ results, inputs, projectId, setProjectId, calcul
                   <td style={{ padding: '4px', textAlign: 'center', fontWeight: 700, color: primary.deflection.pass ? '#16a34a' : '#ef4444' }}>{primary.deflection.pass ? 'PASS' : 'FAIL'}</td>
                 </tr>
                 <tr style={{ borderBottom: '1.5px solid #cbd5e1' }}>
-                  <td style={{ padding: '4px', fontWeight: 600 }}>Shoring System ({inputs.shoringType})</td>
+                  <td style={{ padding: '4px', fontWeight: 600 }}>Shoring System ({tower.isWonderCrab && tower.bestConfig ? `WONDERCrab ${tower.bestConfig}` : inputs.shoringType})</td>
                   <td style={{ padding: '4px' }}>Axial Support Load</td>
                   <td style={{ padding: '4px', textAlign: 'right' }}>{tower.applied} kN</td>
                   <td style={{ padding: '4px', textAlign: 'right' }}>{tower.capacity} kN</td>
@@ -1655,26 +1753,81 @@ function SlabPDFReportPreview({ results, inputs, projectId, setProjectId, calcul
                   <td style={{ padding: '5px 0', color: '#64748b', width: '50%' }}>Reaction Force from Primary Beam (F)</td>
                   <td style={{ padding: '5px 0', fontWeight: 600, textAlign: 'right' }}>{primary.maxReaction} kN</td>
                 </tr>
-                <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
-                  <td style={{ padding: '5px 0', color: '#64748b' }}>Shoring System Selfweight (SW)</td>
-                  <td style={{ padding: '5px 0', fontWeight: 600, textAlign: 'right' }}>{(tower.applied - primary.maxReaction).toFixed(2)} kN</td>
-                </tr>
+                {tower.isWonderCrab ? (
+                  <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '5px 0', color: '#64748b' }}>Shoring System Selfweight (SW)</td>
+                    <td style={{ padding: '5px 0', fontWeight: 600, textAlign: 'right' }}>Included in permissible capacities</td>
+                  </tr>
+                ) : (
+                  <tr style={{ borderBottom: '1px solid #f1f5f9' }}>
+                    <td style={{ padding: '5px 0', color: '#64748b' }}>Shoring System Selfweight (SW)</td>
+                    <td style={{ padding: '5px 0', fontWeight: 600, textAlign: 'right' }}>{(tower.applied - primary.maxReaction).toFixed(2)} kN</td>
+                  </tr>
+                )}
                 <tr style={{ borderTop: '1.5px solid #cbd5e1', fontWeight: 700 }}>
-                  <td style={{ padding: '6px 0', color: '#0f172a' }}>Total Axial Load on Shoring (N<sub>Ed</sub>)</td>
+                  <td style={{ padding: '6px 0', color: '#0f172a' }}>{tower.isWonderCrab ? <>Design Load per Shoring Leg (N<sub>Ed</sub>)</> : <>Total Axial Load on Shoring (N<sub>Ed</sub>)</>}</td>
                   <td style={{ padding: '6px 0', textAlign: 'right', color: '#0f172a' }}>{tower.applied} kN</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
+          {/* WONDERCrab per-configuration capacity table */}
+          {tower.isWonderCrab && tower.configurations && (
+            <div>
+              <div style={{ fontSize: '10px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', marginBottom: '4px', borderBottom: '1px solid #cbd5e1', paddingBottom: '2px' }}>
+                3. WONDERCrab Permissible Load Capacity Check — Top Held · H = {tower.height} m · {tower.passCount}/{tower.totalCount} pass
+              </div>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '8.5px', marginTop: '4px' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1.5px solid #cbd5e1', color: '#475569', fontWeight: 700 }}>
+                    <th style={{ padding: '3px 4px', textAlign: 'left' }}>System</th>
+                    <th style={{ padding: '3px 4px', textAlign: 'left' }}>Type</th>
+                    <th style={{ padding: '3px 4px', textAlign: 'left' }}>Configuration</th>
+                    <th style={{ padding: '3px 4px', textAlign: 'right' }}>Rated H [m]</th>
+                    <th style={{ padding: '3px 4px', textAlign: 'right' }}>Capacity [kN]</th>
+                    <th style={{ padding: '3px 4px', textAlign: 'right' }}>Util.</th>
+                    <th style={{ padding: '3px 4px', textAlign: 'center' }}>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tower.configurations.map((row) => {
+                    const isBest = tower.bestConfig === `${row.system} Type ${row.type}`;
+                    return (
+                      <tr key={`rep-${row.system}-${row.type}`} style={{ borderBottom: '1px solid #f1f5f9', background: isBest ? '#eff6ff' : row.capacity !== null && !row.pass ? '#fef2f2' : 'transparent' }}>
+                        <td style={{ padding: '2px 4px', fontWeight: 700 }}>{row.system}{isBest ? ' ★' : ''}</td>
+                        <td style={{ padding: '2px 4px' }}>{row.type}</td>
+                        <td style={{ padding: '2px 4px', color: '#475569' }}>{row.description}</td>
+                        <td style={{ padding: '2px 4px', textAlign: 'right' }}>{row.tableHeight !== null ? row.tableHeight.toFixed(1) : '—'}</td>
+                        <td style={{ padding: '2px 4px', textAlign: 'right', fontWeight: 600 }}>{row.capacity !== null ? row.capacity.toFixed(1) : '—'}</td>
+                        <td style={{ padding: '2px 4px', textAlign: 'right', fontWeight: 700, color: row.utilization === null ? '#94a3b8' : row.utilization <= 1 ? '#16a34a' : '#dc2626' }}>
+                          {row.utilization !== null ? `${(row.utilization * 100).toFixed(0)}%` : '—'}
+                        </td>
+                        <td style={{ padding: '2px 4px', textAlign: 'center', fontWeight: 800, color: row.capacity === null ? '#94a3b8' : row.pass ? '#16a34a' : '#dc2626' }}>
+                          {row.capacity === null ? 'N/A' : row.pass ? 'PASS' : 'FAIL'}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+              <div style={{ fontSize: '7.5px', color: '#64748b', marginTop: '2px' }}>
+                Permissible loads per PLYTEC WONDERCrab manual (Issue 26/01), top-held system. ★ = governing (most economical passing) configuration.
+              </div>
+            </div>
+          )}
+
           {/* Verification section */}
           <div>
             <div style={{ fontSize: '10px', fontWeight: 700, color: '#334155', textTransform: 'uppercase', marginBottom: '4px', borderBottom: '1px solid #cbd5e1', paddingBottom: '2px' }}>
-              3. Safety Limit Checks
+              {tower.isWonderCrab ? '4. Safety Limit Checks' : '3. Safety Limit Checks'}
             </div>
             <div style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '6px', padding: '10px 14px', fontSize: '11px', marginTop: '4px' }}>
+              {tower.isWonderCrab && tower.bestConfig && (
+                <div>Governing Configuration: <strong>{tower.bestConfig}</strong></div>
+              )}
               <div>Design Force (ULS): <strong>N<sub>Ed</sub> = {tower.applied} kN</strong></div>
-              <div>Allowable Capacity (Standard Limit): <strong>N<sub>allow</sub> = {tower.capacity} kN</strong></div>
+              <div>Allowable Capacity {tower.isWonderCrab ? '(Permissible Leg Load)' : '(Standard Limit)'}: <strong>N<sub>allow</sub> = {tower.capacity} kN</strong></div>
               <div style={{ marginTop: '4px', fontSize: '12px' }}>Safety Check: <strong>N<sub>Ed</sub> / N<sub>allow</sub> = {tower.applied} / {tower.capacity} = {(tower.utilization * 100).toFixed(2)}%</strong></div>
               <div style={{ color: tower.pass ? '#16a34a' : '#ef4444', fontWeight: 800, fontSize: '12px', marginTop: '4px' }}>
                 Status: {tower.pass ? '✓ PASS (Loads are within allowable limits)' : '✗ FAIL (Loads exceed shoring capacity limits)'}

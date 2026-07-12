@@ -13,6 +13,7 @@
 import { computeSlabAreaLoad } from '../loads/slabLoad.js';
 import { solveBeam } from '../beam/solver.js';
 import { getFormworkBeam, getFormworkPanel, getShoringTower } from '../materials/formworkBeams.js';
+import { evaluateConfigurations } from './shoringTower.js';
 
 /**
  * @typedef {Object} SlabFormworkInput
@@ -89,8 +90,13 @@ export function calculateSlabFormwork(input) {
   );
 
   // ── 5. Shoring Tower Check ──
-  const tower = getShoringTower(shoringType);
-  const towerResult = checkTower(primaryResult, tower, towerHeight);
+  // WONDERCrab towers use the shoring tower engine (per-configuration
+  // permissible loads from the PLYTEC manual); other types use the
+  // legacy single-capacity lookup.
+  const isWonderCrab = /wondercrab/i.test(shoringType || '');
+  const towerResult = isWonderCrab
+    ? checkWonderCrabTower(primaryResult, towerHeight)
+    : checkTower(primaryResult, getShoringTower(shoringType), towerHeight);
 
   // ── Overall ──
   const overallPass =
@@ -401,6 +407,51 @@ function checkPrimaryBeam(secondaryResult, secondarySpacing_m, primarySpacing_m,
 // ────────────────────────────────────────────────────────────────────────────
 // Shoring tower check
 // ────────────────────────────────────────────────────────────────────────────
+
+/**
+ * WONDERCrab check: the max primary beam reaction is the load on one
+ * shoring leg (U-head). Every WONDERCrab system/type configuration is
+ * evaluated against it via the shoring tower engine, mirroring the
+ * standalone Shoring Tower calculator (top-held, manual Issue 26/01).
+ */
+function checkWonderCrabTower(primaryResult, towerHeight_m) {
+  // Leg load excludes tower self-weight: the manual's permissible
+  // capacities already account for the shoring system self-weight
+  // (loading assumption 1, manual p.34).
+  const legLoad = primaryResult.maxReaction || 0;
+
+  const configurations = evaluateConfigurations({
+    height: Number(towerHeight_m),
+    legLoad,
+    mode: 'topHeld',
+  });
+
+  const rated = configurations.filter((c) => c.capacity !== null);
+  const passing = rated.filter((c) => c.pass);
+  // Governing choice = most economical passing configuration (highest
+  // utilization <= 1); if none pass, report the closest one so the
+  // utilization figure stays meaningful.
+  const best = passing.length > 0
+    ? passing.reduce((a, b) => (b.utilization > a.utilization ? b : a))
+    : rated.reduce((a, b) => (b.utilization < a.utilization ? b : a), rated[0] || null);
+
+  return {
+    component: 'Shoring Tower (WONDERCrab)',
+    checkType: 'Leg Axial Load',
+    pass: passing.length > 0,
+    utilization: best ? round(best.utilization, 4) : 999,
+    applied: round(legLoad, 3),
+    capacity: best ? best.capacity : 0,
+    unit: 'kN',
+    maxReaction: round(legLoad, 3),
+    isWonderCrab: true,
+    height: Number(towerHeight_m),
+    bestConfig: best ? `${best.system} Type ${best.type}` : null,
+    passCount: passing.length,
+    totalCount: configurations.length,
+    configurations,
+  };
+}
 
 function checkTower(primaryResult, tower, towerHeight_m) {
   if (!tower) {

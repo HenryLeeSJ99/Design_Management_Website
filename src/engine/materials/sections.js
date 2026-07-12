@@ -34,8 +34,9 @@ export const STEEL_GRADES = {
 // Section type identifiers
 // ────────────────────────────────────────────────────────────────────────────
 
-/** Supported section families. */
-export const SECTION_TYPES = ['IPE', 'UB', 'SHS', 'RHS', 'System Beam'];
+/** Supported section families (display order: RHS/SHS first as the
+    preferred profile families, then the I-sections). */
+export const SECTION_TYPES = ['RHS', 'SHS', 'IPE', 'UB', 'System Beam'];
 
 // ────────────────────────────────────────────────────────────────────────────
 // Section database

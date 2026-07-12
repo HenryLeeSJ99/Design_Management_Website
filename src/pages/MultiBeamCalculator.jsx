@@ -599,8 +599,9 @@ export default function MultiBeamCalculator() {
   const handleMaterialChange = (newMat) => {
     setMaterial(newMat);
     if (newMat === 'steel') {
-      setSectionType('IPE');
-      setSectionSize('IPE 200');
+      // RHS is the preferred default profile family
+      setSectionType('RHS');
+      setSectionSize((SECTIONS['RHS'] || [])[0]?.name || 'RHS 80x40x3.0');
     } else {
       setSectionType('System Beam');
       const filtered = (SECTIONS['System Beam'] || []).filter((s) => s.company === systemCompany);
@@ -888,7 +889,7 @@ export default function MultiBeamCalculator() {
                           >
                             <Box size={24} className={styles.materialBtnIcon} />
                             <div className={styles.materialBtnTitle}>Profile Beam</div>
-                            <div className={styles.materialBtnSubtitle}>Standard steel profiles (IPE, UB, etc.)</div>
+                            <div className={styles.materialBtnSubtitle}>Standard steel profiles (RHS, SHS, etc.)</div>
                           </button>
                           <button
                             type="button"
@@ -985,8 +986,8 @@ export default function MultiBeamCalculator() {
                               </>
                             ) : (
                               <>
-                                <span>h <strong>{sec.h} mm</strong></span>
-                                <span>b <strong>{sec.b} mm</strong></span>
+                                {/* h/b intentionally omitted for system beams —
+                                    dimensions are a manufacturer declaration */}
                                 <span>EI <strong>{EI_val.toFixed(2)} kNm²</strong></span>
                                 <span>Allow. Moment <strong>{(sec.Mallow * N).toFixed(2)} kNm</strong></span>
                                 <span>Allow. Shear <strong>{(sec.Vallow * N).toFixed(2)} kN</strong></span>

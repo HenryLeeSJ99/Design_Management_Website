@@ -457,10 +457,15 @@
 }
 
 /* ════════════════════════════════════════════════
-   MOBILE / TABLET RESPONSIVE  (≤ 768px)
+   MOBILE / TABLET RESPONSIVE
+   Collapses the sidebar into the slide-in panel with hamburger control:
+   - phones (≤ 768px, any orientation)
+   - short landscape phones (≤ 480px tall)
+   - iPads / tablets in portrait (≤ 1024px wide + portrait) so the
+     content area gets the full screen width
    ════════════════════════════════════════════════ */
 
-@media (max-width: 768px), (max-height: 480px) {
+@media (max-width: 768px), (max-height: 480px), (max-width: 1024px) and (orientation: portrait) {
   .layoutContainer {
     height: auto;
     min-height: 100vh;
