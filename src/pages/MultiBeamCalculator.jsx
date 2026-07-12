@@ -1565,7 +1565,7 @@ function ResultsPanel({ results, spans, loads }) {
         {[
           { label: 'Bending Moment Diagram (BMD)', unit: 'kNm', pts: bmdPts, lc: CLR.bmd, fc: CLR.bmdFill, inv: true, rxns: [] },
           { label: 'Shear Force Diagram (SFD)', unit: 'kN', pts: sfdPts, lc: CLR.sfd, fc: CLR.sfdFill, inv: false, rxns: reactions },
-          {/* Not inverted: solver deflection is negative downward, so the curve sags like the real beam */}
+          // Not inverted: solver deflection is negative downward, so the curve sags like the real beam
           { label: 'Deflected Shape', unit: 'mm', pts: deflPts, lc: CLR.defl, fc: CLR.deflFill, inv: false, rxns: [] },
         ].map((d, i) => (
           <div key={i} style={{ padding: '16px 14px 8px', borderBottom: i < 2 ? '1px solid #f1f5f9' : 'none' }}>
