@@ -21,10 +21,15 @@ const calculators = [
     icon: Building,
     description: 'Fresh concrete pressure on vertical formwork.',
   },
+  {
+    name: 'Shoring Tower',
+    path: '/calculators/shoring-tower',
+    icon: ChevronsUp,
+    description: 'WONDERCrab tower load capacity check per configuration.',
+  },
 ];
 
 const upcoming = [
-  { name: 'Shoring Tower', icon: ChevronsUp },
   { name: 'Column Formwork', icon: Columns },
   { name: 'Beam Formwork', icon: Cuboid },
 ];

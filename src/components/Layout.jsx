@@ -41,7 +41,7 @@ export default function Layout() {
         { name: 'Concrete Pressure', path: '/calculators/wall-formwork' }
       ]
     },
-    { name: 'Shoring Tower', path: '#', icon: ChevronsUp, active: false },
+    { name: 'Shoring Tower', path: '/calculators/shoring-tower', icon: ChevronsUp, active: true },
     { name: 'Column Formwork', path: '#', icon: Columns, active: false },
     { name: 'Beam Formwork', path: '#', icon: Cuboid, active: false },
   ];

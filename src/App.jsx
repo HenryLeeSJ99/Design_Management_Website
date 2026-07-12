@@ -20,6 +20,7 @@ const MultiSpanBeamCalculator = lazy(() => import('./calculators/MultiSpanBeam/M
 const MultiBeamCalculator = lazy(() => import('./pages/MultiBeamCalculator'));
 const SlabFormworkCalculator = lazy(() => import('./pages/SlabFormworkCalculator'));
 const WallFormworkCalculator = lazy(() => import('./pages/WallFormworkCalculator'));
+const ShoringTowerCalculator = lazy(() => import('./pages/ShoringTowerCalculator'));
 
 function PrivateRoute({ children }) {
   // Bypassing auth as requested by user
@@ -60,6 +61,7 @@ function App() {
                 <Route path="calculators/multi-beam" element={<MultiBeamCalculator />} />
                 <Route path="calculators/slab-formwork" element={<SlabFormworkCalculator />} />
                 <Route path="calculators/wall-formwork" element={<WallFormworkCalculator />} />
+                <Route path="calculators/shoring-tower" element={<ShoringTowerCalculator />} />
 
                 {/* Legacy Routes */}
                 <Route path="projects" element={<Projects />} />
