@@ -7,7 +7,6 @@
   "5": "devDependencies",
   "6": "Legacy PDF Reports",
   "7": "Eurocode 3 Design Engine",
-  "8": "Legacy EC3 Checks",
   "9": "React Multi-Span Beam Page",
   "10": "React Results Presentation",
   "11": "Legacy Beam Solver",
@@ -77,6 +76,12 @@
   "75": "15. DEFAULT SITE PACKS",
   "76": "20. EXAMPLE INTERPRETATIONS",
   "77": "SlabFormworkCalculator.jsx",
+  "78": "SlabFormworkCalculator.jsx",
   "79": "WallFormworkCalculator.jsx",
-  "81": "NotFound.jsx"
+  "80": "DynamicBeamDiagram.jsx",
+  "81": "NotFound.jsx",
+  "82": "ShoringTowerCalculator.jsx",
+  "83": "7. DIAL DEFINITIONS (Technical Reference)",
+  "84": "wallFormwork.js",
+  "85": "StandardChart.jsx"
 }

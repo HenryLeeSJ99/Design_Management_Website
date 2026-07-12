@@ -55,8 +55,8 @@
     "semantic_hash": "8566360453d46795feabf60a5f65a049"
   },
   "src/App.jsx": {
-    "mtime": 1783779268.138543,
-    "ast_hash": "390c4b39bbe3e7550bab8a156939442c",
+    "mtime": 1783829018.780661,
+    "ast_hash": "3b206d10e7a1a89f3fbcd3736a3c9242",
     "semantic_hash": ""
   },
   "src/calculators/MultiSpanBeam/DynamicBeamDiagram.jsx": {
@@ -85,8 +85,8 @@
     "semantic_hash": ""
   },
   "src/components/Layout.jsx": {
-    "mtime": 1783788520.2467663,
-    "ast_hash": "c42e9fa575f3b61dff4620080ba13ded",
+    "mtime": 1783852650.6572273,
+    "ast_hash": "a0e79f587b59779b51c7bf47eeb059ab",
     "semantic_hash": ""
   },
   "src/components/Logo.jsx": {
@@ -130,13 +130,13 @@
     "semantic_hash": "0c12079daa445b4edbdb9dfcb21281aa"
   },
   "src/engine/formwork/index.js": {
-    "mtime": 1783506476.3476875,
-    "ast_hash": "c8dc15fc9a29b69b11aa043fd5c5e4bb",
-    "semantic_hash": "c8dc15fc9a29b69b11aa043fd5c5e4bb"
+    "mtime": 1783829018.790656,
+    "ast_hash": "0f3ac95a730020b7f0f910721d3d1cd3",
+    "semantic_hash": ""
   },
   "src/engine/formwork/slabFormwork.js": {
-    "mtime": 1783748290.7067697,
-    "ast_hash": "4d5c4cab53c62264a665f880eecfb357",
+    "mtime": 1783862382.6880887,
+    "ast_hash": "d197c6878d1fe2f22fe71349e2720cb5",
     "semantic_hash": ""
   },
   "src/engine/graphics/core/beamLayout.js": {
@@ -200,8 +200,8 @@
     "semantic_hash": "b10a2ab3038db5d49b7e4cfaaa9c3369"
   },
   "src/engine/materials/sections.js": {
-    "mtime": 1783779475.254663,
-    "ast_hash": "8b8a86e5d1e69e4b0b90e1054255714b",
+    "mtime": 1783861867.6803603,
+    "ast_hash": "d9319931d6c79cff2f6a78e1ee5c5ce7",
     "semantic_hash": ""
   },
   "src/firebase.js": {
@@ -230,8 +230,8 @@
     "semantic_hash": ""
   },
   "src/pages/MultiBeamCalculator.jsx": {
-    "mtime": 1783792629.539222,
-    "ast_hash": "f41bcb4ce9dd3c52e174081338e3448e",
+    "mtime": 1783861878.6745894,
+    "ast_hash": "f14faadb806b3e89e82ae0ddcbb47211",
     "semantic_hash": ""
   },
   "src/pages/ProjectDetails.jsx": {
@@ -245,8 +245,8 @@
     "semantic_hash": ""
   },
   "src/pages/SlabFormworkCalculator.jsx": {
-    "mtime": 1783792640.1855037,
-    "ast_hash": "b268924bdeaeb5e5abd4323a31a4ce33",
+    "mtime": 1783862545.2659366,
+    "ast_hash": "666a3a9b727279b4bb6a0ee21518b04e",
     "semantic_hash": ""
   },
   "src/services/localDb.js": {
@@ -275,8 +275,8 @@
     "semantic_hash": "8f88e53d72fef57027d43c68602558e5"
   },
   "index.html": {
-    "mtime": 1783792534.1565151,
-    "ast_hash": "eda2169cb0ca42a8bd2a05e1a762bff6",
+    "mtime": 1783860922.0723162,
+    "ast_hash": "9f922db744f5696565712f690c416d43",
     "semantic_hash": ""
   },
   "legacy/index.html": {
@@ -410,8 +410,8 @@
     "semantic_hash": ""
   },
   "src/pages/WallFormworkCalculator.jsx": {
-    "mtime": 1783789985.959203,
-    "ast_hash": "419efcbbc87363df006a2e50bba3ea02",
+    "mtime": 1783853372.3689303,
+    "ast_hash": "9d2d9332b8dcc646891f64e8392bde60",
     "semantic_hash": ""
   },
   "src/assets/slab-diagram.png": {
@@ -460,8 +460,18 @@
     "semantic_hash": ""
   },
   "src/pages/Home.jsx": {
-    "mtime": 1783773931.1328638,
-    "ast_hash": "86bf70e49ca2dbce9f8e4c261c3e80c8",
+    "mtime": 1783829018.7974555,
+    "ast_hash": "d4ecf933393fb7623d78bef63dc16a49",
+    "semantic_hash": ""
+  },
+  "src/engine/formwork/shoringTower.js": {
+    "mtime": 1783829018.7974555,
+    "ast_hash": "8178d30907f76f2e451dfa07df17fbec",
+    "semantic_hash": ""
+  },
+  "src/pages/ShoringTowerCalculator.jsx": {
+    "mtime": 1783854258.0823996,
+    "ast_hash": "568ab930ff60acfafaa38d18fb519469",
     "semantic_hash": ""
   }
 }
