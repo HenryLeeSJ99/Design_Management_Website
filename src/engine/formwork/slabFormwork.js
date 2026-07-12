@@ -22,10 +22,10 @@ import { evaluateConfigurations } from './shoringTower.js';
  * @property {string} panelType         - e.g. 'WONDERBoard MG Series'
  * @property {string} panelThickness    - e.g. '12 mm'
  * @property {string} panelDirection    - 'Perpendicular to Secondary Beam' | 'Parallel to Secondary Beam'
- * @property {string} secondaryBeamType - e.g. 'WONDERBeam Alpha-Beam'
+ * @property {string} secondaryBeamType - e.g. 'Alpha-Beam' (shared system-beam library)
  * @property {number} secondarySpacing  - m (center-to-center)
  * @property {number} secondarySpanCount - 1–5 (number of continuous spans)
- * @property {string} primaryBeamType   - e.g. 'WONDERBeam Alpha-Beam'
+ * @property {string} primaryBeamType   - e.g. 'Alpha-Beam' (shared system-beam library)
  * @property {number} primarySpacing    - m (center-to-center)
  * @property {number} primarySpanCount  - 1–5 (number of continuous spans)
  * @property {string} shoringType       - e.g. 'WonderCrab M'

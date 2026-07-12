@@ -1,7 +1,8 @@
 /**
  * @module materials/formworkBeams
- * @description Database of proprietary / system formwork beams and panels
- * with manufacturer-published capacities for temporary works design.
+ * @description Proprietary / system formwork beams (shared with the Multi
+ * Beam calculator via sections.js), panels and shoring towers with
+ * manufacturer-published capacities for temporary works design.
  *
  * Units:
  *   - E: MPa (N/mm²)
@@ -9,8 +10,9 @@
  *   - Mallow: kNm  (allowable bending moment)
  *   - Vallow: kN   (allowable shear force)
  *   - weight: kN/m (self-weight)
- *   - maxSpan: mm  (maximum recommended span, informational)
  */
+
+import { SECTIONS } from './sections.js';
 
 // ────────────────────────────────────────────────────────────────────────────
 // Formwork beam catalogue
@@ -19,44 +21,42 @@
 /**
  * @typedef {Object} FormworkBeam
  * @property {string} name
+ * @property {string} company - System provider (e.g. 'PLYTEC', 'Doka')
  * @property {number} E       - Modulus of elasticity (MPa)
  * @property {number} I       - Second moment of area (cm⁴)
  * @property {number} Mallow  - Allowable bending moment (kNm)
  * @property {number} Vallow  - Allowable shear force (kN)
  * @property {number} weight  - Self-weight (kN/m)
- * @property {number} maxSpan - Max recommended span (mm)
  */
 
-/** @type {Object<string, FormworkBeam>} */
-export const FORMWORK_BEAMS = {
-  'WONDERBeam Alpha-Beam': {
-    name: 'WONDERBeam Alpha-Beam',
-    E: 70000,        // Aluminium alloy, MPa
-    I: 396,          // cm⁴
-    Mallow: 3.92,    // kNm
-    Vallow: 14.0,    // kN
-    weight: 0.058,   // kN/m (~5.8 kg/m)
-    maxSpan: 2500,
-  },
-  'Timber H20 Beam': {
-    name: 'Timber H20 Beam',
-    E: 12000,        // Timber, MPa
-    I: 2560,         // cm⁴
-    Mallow: 4.40,    // kNm
-    Vallow: 11.0,    // kN
-    weight: 0.055,   // kN/m (~5.5 kg/m)
-    maxSpan: 3000,
-  },
-  'Aluminium Joist': {
-    name: 'Aluminium Joist',
-    E: 70000,        // Aluminium, MPa
-    I: 320,          // cm⁴
-    Mallow: 3.50,    // kNm
-    Vallow: 12.0,    // kN
-    weight: 0.045,   // kN/m (~4.5 kg/m)
-    maxSpan: 2000,
-  },
+/**
+ * Derived from the shared system-beam library (sections.js) so the slab
+ * formwork checks use exactly the same manufacturer capacities as the
+ * Multi Beam Span calculator — single source of truth.
+ * @type {Object<string, FormworkBeam>}
+ */
+export const FORMWORK_BEAMS = Object.fromEntries(
+  (SECTIONS['System Beam'] || []).map((s) => [s.name, {
+    name: s.name,
+    company: s.company,
+    E: s.E,               // MPa
+    I: s.Iy,              // cm⁴ (back-solved so E·Iy reproduces published EI)
+    Mallow: s.Mallow,     // kNm (manufacturer permissible)
+    Vallow: s.Vallow,     // kN  (manufacturer permissible)
+    weight: round3(s.mass * 9.80665 / 1000), // kN/m from kg/m
+  }])
+);
+
+/** Legacy display names from the old standalone catalogue → shared library names */
+const LEGACY_BEAM_ALIASES = {
+  'WONDERBeam Alpha-Beam': 'Alpha-Beam',
+  'Timber H20 Beam': 'H20',
+  'Aluminium Joist': 'Alu-Beam 150H',
 };
+
+function round3(v) {
+  return Math.round(v * 1000) / 1000;
+}
 
 // ────────────────────────────────────────────────────────────────────────────
 // Formwork panel catalogue
@@ -149,12 +149,13 @@ export const SHORING_TOWERS = {
 // ────────────────────────────────────────────────────────────────────────────
 
 /**
- * Look up a formwork beam by name.
+ * Look up a formwork beam by name (legacy catalogue names are aliased
+ * to their shared-library equivalents).
  * @param {string} name
  * @returns {FormworkBeam|undefined}
  */
 export function getFormworkBeam(name) {
-  return FORMWORK_BEAMS[name];
+  return FORMWORK_BEAMS[name] || FORMWORK_BEAMS[LEGACY_BEAM_ALIASES[name]];
 }
 
 /**

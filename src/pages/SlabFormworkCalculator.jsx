@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Save, FileText, Play, CheckCircle, XCircle, AlertTriangle, Info, Layers, Grid, Columns, Rows, ArrowUpDown, Share2 } from 'lucide-react';
 import { isIOS, shareReportPdf } from '../utils/reportPdf';
 import { calculateSlabFormwork } from '../engine/formwork/slabFormwork.js';
+import { FORMWORK_BEAMS, getFormworkBeam } from '../engine/materials/formworkBeams.js';
 import styles from './SlabFormworkCalculator.module.css';
 import slabDiagram from '../assets/slab-diagram.png';
 import DynamicBeamDiagram from '../calculators/MultiSpanBeam/DynamicBeamDiagram';
@@ -41,10 +42,10 @@ export default function SlabFormworkCalculator() {
     panelType: 'WONDERBoard MG Series',
     panelThickness: '12 mm',
     panelDirection: 'Perpendicular to Secondary Beam',
-    secondaryBeamType: 'WONDERBeam Alpha-Beam',
+    secondaryBeamType: 'Alpha-Beam',
     secondarySpacing: 0.4,
     secondarySpanCount: 3,
-    primaryBeamType: 'WONDERBeam Alpha-Beam',
+    primaryBeamType: 'Alpha-Beam',
     primarySpacing: 1.5,
     primarySpanCount: 3,
     primarySpanLength: 1.5, // Replaces towerGrid
@@ -113,6 +114,15 @@ export default function SlabFormworkCalculator() {
       setShoringType('WONDERCrab Modular');
     }
   }, [shoringSystem, shoringType]);
+
+  // Beam types now come from the shared system-beam library — migrate
+  // legacy names ('WONDERBeam Alpha-Beam', 'Timber H20 Beam', …) held in
+  // older sessions to their shared-library equivalents.
+  useEffect(() => {
+    const migrate = (name) => getFormworkBeam(name)?.name || 'Alpha-Beam';
+    if (!FORMWORK_BEAMS[secondaryBeamType]) setSecondaryBeamType(migrate(secondaryBeamType));
+    if (!FORMWORK_BEAMS[primaryBeamType]) setPrimaryBeamType(migrate(primaryBeamType));
+  }, [secondaryBeamType, primaryBeamType]);
   const [deflectionLimit, setDeflectionLimit] = useState(initialInputs.deflectionLimit || 360);
 
   const [projectId, setProjectId] = useState(() => getSessionData('tempworks_slabformwork_project_id', 'TW-2026-SLAB'));
@@ -382,9 +392,9 @@ export default function SlabFormworkCalculator() {
                           onChange={(e) => setSecondaryBeamType(e.target.value)}
                           onFocus={() => setActiveMarker('secondary')}
                         >
-                          <option>WONDERBeam Alpha-Beam</option>
-                          <option>Timber H20 Beam</option>
-                          <option>Aluminium Joist</option>
+                          {Object.values(FORMWORK_BEAMS).map((b) => (
+                            <option key={b.name} value={b.name}>{b.name} ({b.company})</option>
+                          ))}
                         </select>
                       </label>
                       <label className={styles.field}>
@@ -433,9 +443,9 @@ export default function SlabFormworkCalculator() {
                           onChange={(e) => setPrimaryBeamType(e.target.value)}
                           onFocus={() => setActiveMarker('primary')}
                         >
-                          <option>WONDERBeam Alpha-Beam</option>
-                          <option>Timber H20 Beam</option>
-                          <option>Aluminium Joist</option>
+                          {Object.values(FORMWORK_BEAMS).map((b) => (
+                            <option key={b.name} value={b.name}>{b.name} ({b.company})</option>
+                          ))}
                         </select>
                       </label>
                       <label className={styles.field}>
