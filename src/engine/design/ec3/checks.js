@@ -369,7 +369,10 @@ export function checkDeflection(deflection, spanLength, limitRatio) {
     allowable: roundTo(allowable, 2),
     actual: roundTo(absDefl, 2),
     ratio: roundTo(ratio, 4),
-    pass: ratio <= 1.0
+    pass: ratio <= 1.0,
+    // Echoed back so the UI can label the check (e.g. "L/270 (SLS)")
+    // instead of falling back to a hard-coded default
+    limitRatio
   };
 }
 
