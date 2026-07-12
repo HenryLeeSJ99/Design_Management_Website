@@ -153,6 +153,12 @@ export default function Layout() {
             </button>
           </div>
         </nav>
+
+        {/* Credit & version */}
+        <div className={styles.sidebarFooter}>
+          <span className={styles.devCredit}>Developed by: Henry Lee | 2026</span>
+          <span className={styles.versionTag}>Version 0.34 (Beta)</span>
+        </div>
       </aside>
       
       <div className={styles.mainWrapper}>
