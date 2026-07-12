@@ -5,6 +5,24 @@ import Logo from './Logo';
 import RouteLoader from './RouteLoader';
 import { Menu, X, SquareMenu, Layers, Building, ChevronsUp, Columns, Cuboid, RefreshCw } from 'lucide-react';
 
+// Page titles shown beside the hamburger in the mobile top header
+// (pages hide their own title blocks on small viewports)
+const PAGE_TITLES = [
+  { path: '/calculators/multi-beam', title: 'Multi Beam Span' },
+  { path: '/calculators/slab-formwork', title: 'Slab Formwork' },
+  { path: '/calculators/wall-formwork', title: 'Wall Formwork' },
+  { path: '/calculators/shoring-tower', title: 'Shoring Tower' },
+  { path: '/dashboard', title: 'Dashboard' },
+  { path: '/projects', title: 'Projects' },
+  { path: '/library', title: 'Library' },
+];
+
+function getPageTitle(pathname) {
+  if (pathname === '/') return 'Home';
+  const match = PAGE_TITLES.find((p) => pathname.startsWith(p.path));
+  return match ? match.title : 'TempWorks';
+}
+
 export default function Layout() {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -147,6 +165,8 @@ export default function Layout() {
           >
             <Menu size={22} />
           </button>
+          {/* Current page title – fills the otherwise-empty mobile header */}
+          <h1 className={styles.headerTitle}>{getPageTitle(location.pathname)}</h1>
         </header>
 
         <main className={styles.mainContent}>

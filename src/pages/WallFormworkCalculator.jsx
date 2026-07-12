@@ -207,6 +207,24 @@ export default function WallFormworkCalculator() {
         </div>
       </header>
 
+      {/* Tabs – above the grid so they stay at the top of the page on mobile */}
+      <div ref={tabsContainerRef} className={styles.tabsContainer}>
+        <div className={styles.tabs}>
+          <button
+            className={`${styles.tab} ${activeTab === 'calculator' ? styles.active : ''}`}
+            onClick={() => setActiveTab('calculator')}
+          >
+            Calculator UI
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'report' ? styles.active : ''}`}
+            onClick={() => setActiveTab('report')}
+          >
+            Engineering Audit Report
+          </button>
+        </div>
+      </div>
+
       <div className={styles.mainGrid}>
         {/* Left Sidebar */}
         <div className={styles.sidebarPanel}>
@@ -284,23 +302,6 @@ export default function WallFormworkCalculator() {
 
         {/* Right Content */}
         <div className={styles.mainContent}>
-          <div ref={tabsContainerRef} className={styles.tabsContainer}>
-            <div className={styles.tabs}>
-              <button 
-                className={`${styles.tab} ${activeTab === 'calculator' ? styles.active : ''}`}
-                onClick={() => setActiveTab('calculator')}
-              >
-                Calculator UI
-              </button>
-              <button 
-                className={`${styles.tab} ${activeTab === 'report' ? styles.active : ''}`}
-                onClick={() => setActiveTab('report')}
-              >
-                Engineering Audit Report
-              </button>
-            </div>
-          </div>
-
           {activeTab === 'calculator' && (
             <div className={styles.card}>
             <div className={styles.cardHeader} style={{ marginBottom: '1rem' }}>Results</div>

@@ -5,12 +5,12 @@
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 999 nodes · 1322 edges · 80 communities (73 shown, 7 thin omitted)
+- 999 nodes · 1315 edges · 82 communities (75 shown, 7 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 12 edges (avg confidence: 0.58)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `17eb0fd4`
+- Built from commit: `5db66729`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -91,6 +91,7 @@
 - 15. DEFAULT SITE PACKS
 - 20. EXAMPLE INTERPRETATIONS
 - SlabFormworkCalculator.jsx
+- SlabFormworkCalculator.jsx
 - WallFormworkCalculator.jsx
 
 ## God Nodes (most connected - your core abstractions)
@@ -120,7 +121,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (80 total, 7 thin omitted)
+## Communities (82 total, 7 thin omitted)
 
 ### Community 0 - "Legacy Application Core"
 Cohesion: 0.06
@@ -395,15 +396,19 @@ Cohesion: 0.50
 Nodes (4): 20. EXAMPLE INTERPRETATIONS, Example 1, Example 2, Example 3
 
 ### Community 77 - "SlabFormworkCalculator.jsx"
-Cohesion: 0.10
-Nodes (22): DynamicBeamDiagram(), AnalysisDiagram(), CheckRow(), cleanNumericInput(), CLR, COMPANY_LOGOS, flattenPoints(), getSessionData() (+14 more)
+Cohesion: 0.24
+Nodes (12): AnalysisDiagram(), CheckRow(), cleanNumericInput(), CLR, COMPANY_LOGOS, flattenPoints(), getSessionData(), MultiBeamCalculator() (+4 more)
+
+### Community 78 - "SlabFormworkCalculator.jsx"
+Cohesion: 0.20
+Nodes (9): AnalysisDiagram(), cleanNumericInput(), CLR, flattenPoints(), getSessionData(), roundN(), saveSessionData(), SlabFormworkCalculator() (+1 more)
 
 ### Community 79 - "WallFormworkCalculator.jsx"
 Cohesion: 0.38
 Nodes (8): StandardChart(), calculatePressureCiria108(), generatePressureChartData(), solveRateOfRise(), cleanNumericInput(), getSessionData(), saveSessionData(), WallFormworkCalculator()
 
 ## Knowledge Gaps
-- **611 isolated node(s):** `$tableGeometryBody`, `$tableLoadsBody`, `$btnAddSpanRight`, `$btnRemoveSpan`, `$btnAddLoad` (+606 more)
+- **611 isolated node(s):** `COMPANY_LOGOS`, `CLR`, `CLR`, `$tableGeometryBody`, `$tableLoadsBody` (+606 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **7 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -418,7 +423,7 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.023) - this node is a cross-community bridge._
 - **Are the 9 inferred relationships involving `init()` (e.g. with `app.js` and `addLoad()`) actually correct?**
   _`init()` has 9 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `$tableGeometryBody`, `$tableLoadsBody`, `$btnAddSpanRight` to the rest of the system?**
+- **What connects `COMPANY_LOGOS`, `CLR`, `CLR` to the rest of the system?**
   _612 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Legacy Application Core` be split into smaller, more focused modules?**
   _Cohesion score 0.05709876543209876 - nodes in this community are weakly interconnected._

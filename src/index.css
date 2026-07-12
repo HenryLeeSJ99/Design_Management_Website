@@ -122,6 +122,17 @@ table, tbody, .tabular {
   }
 }
 
+/* iOS Safari auto-zooms the page when a focused input's font-size is
+   below 16px. Force 16px on all form controls at mobile widths so no
+   calculator ever triggers the zoom (backs up the viewport meta cap). */
+@media (max-width: 768px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
 #root {
   min-height: 100vh;
   display: flex;

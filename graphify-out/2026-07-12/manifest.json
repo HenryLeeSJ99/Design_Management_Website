@@ -230,8 +230,8 @@
     "semantic_hash": ""
   },
   "src/pages/MultiBeamCalculator.jsx": {
-    "mtime": 1783792258.4332361,
-    "ast_hash": "9a8b248deb5330a3a471ece0708d468f",
+    "mtime": 1783792629.539222,
+    "ast_hash": "f41bcb4ce9dd3c52e174081338e3448e",
     "semantic_hash": ""
   },
   "src/pages/ProjectDetails.jsx": {
@@ -245,8 +245,8 @@
     "semantic_hash": ""
   },
   "src/pages/SlabFormworkCalculator.jsx": {
-    "mtime": 1783792261.9139967,
-    "ast_hash": "aa4e92a5aaa5d2e0ab398c99c829c7b0",
+    "mtime": 1783792640.1855037,
+    "ast_hash": "b268924bdeaeb5e5abd4323a31a4ce33",
     "semantic_hash": ""
   },
   "src/services/localDb.js": {

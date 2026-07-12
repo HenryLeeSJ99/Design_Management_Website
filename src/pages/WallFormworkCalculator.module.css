@@ -2,6 +2,10 @@
   padding: 0;
   max-width: 1400px;
   margin: 0 auto;
+  /* As a flex item of the route wrapper, min-width:auto would let the
+     scrollable tab strip's intrinsic width blow the page out on mobile */
+  width: 100%;
+  min-width: 0;
 }
 
 .pageHeader {
@@ -194,8 +198,10 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* Height comes from the chart itself (StandardChart height prop);
+   a fixed container height clips the axis/legend on small screens. */
 .chartContainer {
-  height: 500px;
+  height: auto;
   margin-top: 1rem;
 }
 
@@ -321,10 +327,6 @@
 
   .resultsGrid {
     grid-template-columns: 1fr;
-  }
-
-  .chartContainer {
-    height: 350px;
   }
 
   .selectInputAuto {

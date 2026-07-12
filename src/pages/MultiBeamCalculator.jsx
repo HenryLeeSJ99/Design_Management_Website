@@ -1016,32 +1016,40 @@ export default function MultiBeamCalculator() {
                       {spans.map((span, i) => (
                         <div className={styles.tableRow} key={`span-${i}`}>
                           <strong>Span {i + 1}</strong>
-                          <input type="number" value={span.length} onChange={(e) => updateSpan(i, 'length', e.target.value)} />
-                          {i === 0 ? (
-                            <select value={span.leftSupport} onChange={(e) => updateSpan(i, 'leftSupport', e.target.value)}>
-                              {supportOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                          {/* cellField wrappers are display:contents on desktop; on mobile
+                              they show the data-label beside the input (headers are hidden) */}
+                          <div className={styles.cellField} data-label="Length (mm)">
+                            <input type="number" value={span.length} onChange={(e) => updateSpan(i, 'length', e.target.value)} />
+                          </div>
+                          <div className={styles.cellField} data-label="Left Support">
+                            {i === 0 ? (
+                              <select value={span.leftSupport} onChange={(e) => updateSpan(i, 'leftSupport', e.target.value)}>
+                                {supportOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                              </select>
+                            ) : (
+                              <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                minHeight: '36px',
+                                padding: '0.45rem 0.65rem',
+                                color: '#64748b',
+                                background: '#f1f5f9',
+                                borderRadius: '5px',
+                                border: '1px solid #cbd5e1',
+                                fontSize: '13px',
+                                fontWeight: 500
+                              }}>
+                                Continuous
+                              </div>
+                            )}
+                          </div>
+                          <div className={styles.cellField} data-label="Right Support">
+                            <select value={span.rightSupport} onChange={(e) => updateSpan(i, 'rightSupport', e.target.value)}>
+                              {supportOptions
+                                .filter((o) => i === spans.length - 1 ? true : (o.value !== 'free' && o.value !== 'fixed'))
+                                .map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                             </select>
-                          ) : (
-                            <div style={{ 
-                              display: 'flex', 
-                              alignItems: 'center', 
-                              minHeight: '36px', 
-                              padding: '0.45rem 0.65rem', 
-                              color: '#64748b', 
-                              background: '#f1f5f9',
-                              borderRadius: '5px',
-                              border: '1px solid #cbd5e1',
-                              fontSize: '13px',
-                              fontWeight: 500
-                            }}>
-                              Continuous
-                            </div>
-                          )}
-                          <select value={span.rightSupport} onChange={(e) => updateSpan(i, 'rightSupport', e.target.value)}>
-                            {supportOptions
-                              .filter((o) => i === spans.length - 1 ? true : (o.value !== 'free' && o.value !== 'fixed'))
-                              .map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                          </select>
+                          </div>
                         </div>
                       ))}
                     </div>

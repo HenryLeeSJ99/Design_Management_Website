@@ -7,8 +7,10 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/favicon.svg" />
 
-    <!-- Viewport -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Viewport: maximum-scale=1 stops iOS Safari auto-zooming on input focus
+         and keeps the page at 100% zoom after rotation (pinch-zoom still works
+         on iOS 10+, which ignores the cap for user gestures) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
 
     <!-- Title -->
     <title>TempWorks | Temporary Works Design Toolkit</title>

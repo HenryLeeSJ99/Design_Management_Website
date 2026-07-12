@@ -2,6 +2,10 @@
   padding: 0;
   max-width: 1400px;
   margin: 0 auto;
+  /* As a flex item of the route wrapper, min-width:auto would let the
+     scrollable tab strip's intrinsic width blow the page out on mobile */
+  width: 100%;
+  min-width: 0;
 }
 
 .pageHeader {
@@ -205,17 +209,16 @@
 
 .configTable th {
   text-align: left;
-  padding: 0.6rem 0.75rem;
+  padding: 0.55rem 0.5rem;
   color: var(--text-muted);
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   border-bottom: 2px solid var(--border-color);
-  white-space: nowrap;
 }
 
 .configTable td {
-  padding: 0.6rem 0.75rem;
+  padding: 0.55rem 0.5rem;
   border-bottom: 1px solid var(--border-color-light);
   color: var(--text-secondary);
   white-space: nowrap;
@@ -237,10 +240,29 @@
   color: var(--text-main);
 }
 
-.descCell {
+/* Combined system/type + configuration column: wraps so the
+   table fits laptop widths without horizontal scrolling.
+   (td.configCell needed to outrank the .configTable td nowrap rule) */
+.configTable td.configCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
   white-space: normal;
-  min-width: 220px;
-  font-size: 0.8rem;
+  min-width: 130px;
+}
+
+.descSub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+}
+
+.emptyRow {
+  white-space: normal !important;
+  text-align: center;
+  color: var(--text-muted);
+  padding: 1.25rem 0.75rem !important;
+  font-size: 0.85rem;
 }
 
 .rowFail {
@@ -274,8 +296,8 @@
 .utilBarWrap {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  min-width: 130px;
+  gap: 0.4rem;
+  min-width: 88px;
 }
 
 .utilBar {
@@ -284,7 +306,86 @@
   border-radius: 999px;
   background: var(--border-color-light);
   overflow: hidden;
-  min-width: 60px;
+  min-width: 36px;
+}
+
+/* ── Table toolbar + options popup ── */
+.tableToolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.optionsWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.optionsBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: var(--transition-smooth);
+}
+
+.optionsBtn:hover {
+  border-color: var(--text-muted);
+  color: var(--text-main);
+}
+
+.optionsBtnActive {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: var(--primary-light, #dbeafe);
+}
+
+.optionsPopover {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 50;
+  min-width: 250px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md, 10px);
+  box-shadow: var(--shadow-lg, 0 10px 30px rgba(15, 23, 42, 0.15));
+  padding: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.optionsItem {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.optionsItem:hover {
+  background: var(--border-color-light);
+  color: var(--text-main);
+}
+
+.optionsItem input {
+  accent-color: var(--primary);
 }
 
 .utilFill {
@@ -461,5 +562,16 @@
 
   .selectInputAuto {
     width: 100%;
+  }
+
+  /* The toolbar wraps on mobile, putting the options button at the left
+     edge — anchor the popup to the button's left so it opens rightward
+     (on-screen) instead of overflowing off the left edge. */
+  .optionsPopover {
+    right: auto;
+    left: 0;
+    min-width: 0;
+    width: max-content;
+    max-width: min(280px, calc(100vw - 4rem));
   }
 }

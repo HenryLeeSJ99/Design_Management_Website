@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { FileText } from 'lucide-react';
+import { FileText, SlidersHorizontal } from 'lucide-react';
 import styles from './ShoringTowerCalculator.module.css';
 import StandardChart from '../components/StandardChart';
 import {
@@ -83,6 +83,30 @@ export default function ShoringTowerCalculator() {
   const tabsContainerRef = useRef(null);
   const reportRef = useRef(null);
 
+  // Table display options (popup): sortDir = null | 'asc' | 'desc'
+  const [tableOpts, setTableOpts] = useState(() => getSessionData('tempworks_shoringtower_table_opts', {
+    passOnly: false,
+    sortDir: null,
+  }));
+  const [optionsOpen, setOptionsOpen] = useState(false);
+  const optionsRef = useRef(null);
+
+  useEffect(() => {
+    saveSessionData('tempworks_shoringtower_table_opts', tableOpts);
+  }, [tableOpts]);
+
+  // Close the options popup on outside click
+  useEffect(() => {
+    if (!optionsOpen) return;
+    const onPointerDown = (e) => {
+      if (optionsRef.current && !optionsRef.current.contains(e.target)) {
+        setOptionsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    return () => document.removeEventListener('mousedown', onPointerDown);
+  }, [optionsOpen]);
+
   // Metadata Inputs
   const [projectId, setProjectId] = useState(() => getSessionData('tempworks_shoringtower_project_id', 'TW-2026-SHORING'));
   const [calculatedBy, setCalculatedBy] = useState(() => getSessionData('tempworks_shoringtower_calculated_by', 'Engineer'));
@@ -144,6 +168,21 @@ export default function ShoringTowerCalculator() {
   }), [towerHeight, legLoad.F, systemMode, jackExtension]);
 
   const passCount = configResults.filter((r) => r.pass).length;
+
+  // On-screen table rows after applying the display options
+  // (the audit report always shows the full set in manual order)
+  const displayResults = useMemo(() => {
+    let rows = configResults;
+    if (tableOpts.passOnly) rows = rows.filter((r) => r.pass);
+    if (tableOpts.sortDir) {
+      // Rows without a capacity (N/A) always sort last
+      const rank = (r) => (r.utilization === null
+        ? Infinity
+        : (tableOpts.sortDir === 'desc' ? -r.utilization : r.utilization));
+      rows = [...rows].sort((a, b) => rank(a) - rank(b));
+    }
+    return rows;
+  }, [configResults, tableOpts]);
 
   const chartInfo = useMemo(() => buildCapacityChartData(chartSystem), [chartSystem]);
 
@@ -216,13 +255,11 @@ export default function ShoringTowerCalculator() {
       : <span className={`${styles.badge} ${styles.badgeFail}`}>FAIL</span>;
   };
 
-  const configTable = (compact = false) => (
-    <table className={styles.configTable} style={compact ? { fontSize: '9px' } : undefined}>
+  const configTable = () => (
+    <table className={styles.configTable}>
       <thead>
         <tr>
-          <th>System</th>
-          <th>Type</th>
-          {!compact && <th>Configuration</th>}
+          <th>Configuration</th>
           <th className={styles.numHead}>Rated H [m]</th>
           <th className={styles.numHead}>Capacity [kN]</th>
           <th>Utilisation</th>
@@ -230,11 +267,19 @@ export default function ShoringTowerCalculator() {
         </tr>
       </thead>
       <tbody>
-        {configResults.map((row) => (
+        {displayResults.length === 0 && (
+          <tr>
+            <td colSpan={5} className={styles.emptyRow}>
+              No configuration passes at this load / height. Adjust the tower height or load area, or clear the “PASS only” filter.
+            </td>
+          </tr>
+        )}
+        {displayResults.map((row) => (
           <tr key={`${row.system}-${row.type}`} className={row.capacity !== null && !row.pass ? styles.rowFail : ''}>
-            <td className={styles.systemCell}>{row.system}</td>
-            <td>{row.type}</td>
-            {!compact && <td className={styles.descCell}>{row.description}</td>}
+            <td className={styles.configCell}>
+              <span className={styles.systemCell}>{row.system} · Type {row.type}</span>
+              <span className={styles.descSub}>{row.description}</span>
+            </td>
             <td className={styles.numCell}>{row.tableHeight !== null ? row.tableHeight.toFixed(1) : '—'}</td>
             <td className={styles.numCell}>{row.capacity !== null ? row.capacity.toFixed(1) : '—'}</td>
             <td>
@@ -272,6 +317,24 @@ export default function ShoringTowerCalculator() {
           <p>WONDERCrab Modular Shoring System · PLYTEC Product Manual (Issue 26/01) · BS EN 12812 Class B1 / BS5975:2019</p>
         </div>
       </header>
+
+      {/* Tabs – above the grid so they stay at the top of the page on mobile */}
+      <div ref={tabsContainerRef} className={styles.tabsContainer}>
+        <div className={styles.tabs}>
+          <button
+            className={`${styles.tab} ${activeTab === 'calculator' ? styles.active : ''}`}
+            onClick={() => setActiveTab('calculator')}
+          >
+            Calculator UI
+          </button>
+          <button
+            className={`${styles.tab} ${activeTab === 'report' ? styles.active : ''}`}
+            onClick={() => setActiveTab('report')}
+          >
+            Engineering Audit Report
+          </button>
+        </div>
+      </div>
 
       <div className={styles.mainGrid}>
         {/* Left Sidebar */}
@@ -366,23 +429,6 @@ export default function ShoringTowerCalculator() {
 
         {/* Right Content */}
         <div>
-          <div ref={tabsContainerRef} className={styles.tabsContainer}>
-            <div className={styles.tabs}>
-              <button
-                className={`${styles.tab} ${activeTab === 'calculator' ? styles.active : ''}`}
-                onClick={() => setActiveTab('calculator')}
-              >
-                Calculator UI
-              </button>
-              <button
-                className={`${styles.tab} ${activeTab === 'report' ? styles.active : ''}`}
-                onClick={() => setActiveTab('report')}
-              >
-                Engineering Audit Report
-              </button>
-            </div>
-          </div>
-
           {activeTab === 'calculator' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div className={styles.card}>
@@ -415,11 +461,51 @@ export default function ShoringTowerCalculator() {
               </div>
 
               <div className={styles.card}>
-                <div className={styles.cardHeader}>
-                  Tower Capacity Check — {systemMode === 'topHeld' ? 'Top Held' : `Free Standing (${jackExtension} mm ext.)`} · {passCount}/{configResults.length} configurations pass
+                <div className={styles.tableToolbar}>
+                  <div className={styles.cardHeader} style={{ margin: 0 }}>
+                    Tower Capacity Check — {systemMode === 'topHeld' ? 'Top Held' : `Free Standing (${jackExtension} mm ext.)`} · {passCount}/{configResults.length} configurations pass
+                  </div>
+                  <div className={styles.optionsWrap} ref={optionsRef}>
+                    <button
+                      className={`${styles.optionsBtn} ${(tableOpts.passOnly || tableOpts.sortDir) ? styles.optionsBtnActive : ''}`}
+                      onClick={() => setOptionsOpen((o) => !o)}
+                      aria-haspopup="true"
+                      aria-expanded={optionsOpen}
+                    >
+                      <SlidersHorizontal size={14} /> Table options
+                    </button>
+                    {optionsOpen && (
+                      <div className={styles.optionsPopover}>
+                        <label className={styles.optionsItem}>
+                          <input
+                            type="checkbox"
+                            checked={tableOpts.passOnly}
+                            onChange={(e) => setTableOpts((o) => ({ ...o, passOnly: e.target.checked }))}
+                          />
+                          Show PASS-only configurations
+                        </label>
+                        <label className={styles.optionsItem}>
+                          <input
+                            type="checkbox"
+                            checked={tableOpts.sortDir === 'asc'}
+                            onChange={() => setTableOpts((o) => ({ ...o, sortDir: o.sortDir === 'asc' ? null : 'asc' }))}
+                          />
+                          Sort by utilisation (low → high)
+                        </label>
+                        <label className={styles.optionsItem}>
+                          <input
+                            type="checkbox"
+                            checked={tableOpts.sortDir === 'desc'}
+                            onChange={() => setTableOpts((o) => ({ ...o, sortDir: o.sortDir === 'desc' ? null : 'desc' }))}
+                          />
+                          Sort by utilisation (high → low)
+                        </label>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <div className={styles.tableWrapper}>
-                  {configTable(false)}
+                  {configTable()}
                 </div>
                 <p className={styles.hintText}>
                   Capacity taken at the first tabulated height ≥ tower height (conservative step lookup).
