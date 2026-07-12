@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
-import { FileText, SlidersHorizontal } from 'lucide-react';
+import { FileText, SlidersHorizontal, Share2 } from 'lucide-react';
+import { isIOS, shareReportPdf } from '../utils/reportPdf';
 import styles from './ShoringTowerCalculator.module.css';
 import StandardChart from '../components/StandardChart';
 import {
@@ -189,6 +190,11 @@ export default function ShoringTowerCalculator() {
   const handlePrint = () => {
     const content = reportRef.current;
     if (!content) return;
+    // iOS Safari crashes on window.open + print() — share a PDF instead
+    if (isIOS()) {
+      shareReportPdf(content, 'TempWorks-Shoring-Tower-Report.pdf');
+      return;
+    }
     const printWindow = window.open('', '_blank', 'width=900,height=1200');
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -599,7 +605,7 @@ export default function ShoringTowerCalculator() {
                     onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.97)'}
                     onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
                   >
-                    <FileText size={16} /> Print Report
+                    {isIOS() ? <><Share2 size={16} /> Share PDF</> : <><FileText size={16} /> Print Report</>}
                   </button>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { Save, FileText, Play, CheckCircle, XCircle, AlertTriangle, Info, Layers, Grid, Columns, Rows, ArrowUpDown } from 'lucide-react';
+import { Save, FileText, Play, CheckCircle, XCircle, AlertTriangle, Info, Layers, Grid, Columns, Rows, ArrowUpDown, Share2 } from 'lucide-react';
+import { isIOS, shareReportPdf } from '../utils/reportPdf';
 import { calculateSlabFormwork } from '../engine/formwork/slabFormwork.js';
 import styles from './SlabFormworkCalculator.module.css';
 import slabDiagram from '../assets/slab-diagram.png';
@@ -929,6 +930,11 @@ function SlabPDFReportPreview({ results, inputs, projectId, setProjectId, calcul
   const handlePrint = () => {
     const content = reportRef.current;
     if (!content) return;
+    // iOS Safari crashes on window.open + print() — share a PDF instead
+    if (isIOS()) {
+      shareReportPdf(content, 'TempWorks-Slab-Formwork-Report.pdf');
+      return;
+    }
     const printWindow = window.open('', '_blank', 'width=900,height=1200');
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -1032,7 +1038,7 @@ function SlabPDFReportPreview({ results, inputs, projectId, setProjectId, calcul
             onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.97)'}
             onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
-            <FileText size={16} /> Print Report
+            {isIOS() ? <><Share2 size={16} /> Share PDF</> : <><FileText size={16} /> Print Report</>}
           </button>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>

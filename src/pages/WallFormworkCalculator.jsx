@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { FileText, Save } from 'lucide-react';
+import { FileText, Save, Share2 } from 'lucide-react';
+import { isIOS, shareReportPdf } from '../utils/reportPdf';
 import styles from './WallFormworkCalculator.module.css';
 import StandardChart from '../components/StandardChart';
 import { solveRateOfRise, generatePressureChartData, calculatePressureCiria108 } from '../engine/formwork/wallFormwork';
@@ -53,6 +54,11 @@ export default function WallFormworkCalculator() {
   const handlePrint = () => {
     const content = reportRef.current;
     if (!content) return;
+    // iOS Safari crashes on window.open + print() — share a PDF instead
+    if (isIOS()) {
+      shareReportPdf(content, 'TempWorks-Concrete-Pressure-Report.pdf');
+      return;
+    }
     const printWindow = window.open('', '_blank', 'width=900,height=1200');
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -398,7 +404,7 @@ export default function WallFormworkCalculator() {
                     onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.97)'}
                     onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
                   >
-                    <FileText size={16} /> Print Report
+                    {isIOS() ? <><Share2 size={16} /> Share PDF</> : <><FileText size={16} /> Print Report</>}
                   </button>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { FileText, Minus, Play, Plus, Save, Trash2, CheckCircle, XCircle, Box, Layers } from 'lucide-react';
+import { FileText, Minus, Play, Plus, Save, Trash2, CheckCircle, XCircle, Box, Layers, Share2 } from 'lucide-react';
+import { isIOS, shareReportPdf } from '../utils/reportPdf';
 import DynamicBeamDiagram from '../calculators/MultiSpanBeam/DynamicBeamDiagram';
 import styles from './MultiBeamCalculator.module.css';
 import { analyzeBeam } from '@engine/beam';
@@ -1767,6 +1768,11 @@ function PDFReportPreview({ results, spans, loads, systemCompany, projectId, set
   const handlePrint = () => {
     const content = reportRef.current;
     if (!content) return;
+    // iOS Safari crashes on window.open + print() — share a PDF instead
+    if (isIOS()) {
+      shareReportPdf(content, 'TempWorks-Multi-Beam-Report.pdf');
+      return;
+    }
     const printWindow = window.open('', '_blank', 'width=900,height=1200');
     printWindow.document.write(`
       <!DOCTYPE html>
@@ -1828,7 +1834,7 @@ function PDFReportPreview({ results, spans, loads, systemCompany, projectId, set
             onMouseDown={(e) => e.currentTarget.style.transform = 'scale(0.97)'}
             onMouseUp={(e) => e.currentTarget.style.transform = 'scale(1)'}
           >
-            <FileText size={15} /> Print Report
+            {isIOS() ? <><Share2 size={15} /> Share PDF</> : <><FileText size={15} /> Print Report</>}
           </button>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
