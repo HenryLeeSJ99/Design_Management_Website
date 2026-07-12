@@ -694,6 +694,9 @@ export default function WallFormworkCalculator() {
                     <li>Fluid pressure limit (D × H) forms an absolute upper bound to the design pressure envelope.</li>
                     <li>Ensure placing rates, vibration depths, and formwork tie configurations match calculations.</li>
                   </ul>
+                  <div style={{ marginTop: '6px', paddingTop: '5px', borderTop: '1px solid #e2e8f0', fontStyle: 'italic', fontWeight: 600, fontSize: '9px', color: '#64748b', textAlign: 'center' }}>
+                    Electronic generated report, manual verification is required.
+                  </div>
                 </div>
 
               </div>

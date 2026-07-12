@@ -1310,6 +1310,9 @@ function SlabPDFReportPreview({ results, inputs, projectId, setProjectId, calcul
               <li>Shoring grid size = <strong>{inputs.primarySpacing} m × {inputs.primarySpanLength} m</strong> with height <strong>{inputs.towerHeight} m</strong>.</li>
               <li>Verification results are computed using manufacturer specifications and structural limit state rules.</li>
             </ul>
+            <div style={{ marginTop: '6px', paddingTop: '5px', borderTop: '1px solid #e2e8f0', fontStyle: 'italic', fontWeight: 600, fontSize: '9px', color: '#64748b', textAlign: 'center' }}>
+              Electronic generated report, manual verification is required.
+            </div>
           </div>
         </div>
 
@@ -1848,8 +1851,8 @@ function SlabPDFReportPreview({ results, inputs, projectId, setProjectId, calcul
                 <div style={{ fontSize: '12px', fontWeight: 800, color: overallPass ? '#16a34a' : '#ef4444' }}>
                   {overallPass ? '✓ DESIGN PASSES ALLOWABLE CAPACITIES' : '✗ DESIGN EXCEEDS ALLOWABLE CAPACITIES'}
                 </div>
-                <div style={{ fontSize: '8px', color: '#64748b', marginTop: '2px' }}>
-                  Verification calculations executed mathematically based on manufacturer specifications.
+                <div style={{ fontSize: '8px', color: '#64748b', marginTop: '2px', fontStyle: 'italic', fontWeight: 600 }}>
+                  Electronic generated report, manual verification is required.
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>

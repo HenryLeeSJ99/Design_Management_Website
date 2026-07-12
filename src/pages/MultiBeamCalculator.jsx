@@ -380,7 +380,7 @@ export default function MultiBeamCalculator() {
       { type: 'point', spanIndex: 1, pos: 1500, magnitude: 5 },
     ],
     projectId: 'TW-2026-MULTI',
-    calculatedBy: 'Antigravity AI',
+    calculatedBy: 'Engineer',
     verificationDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
   });
 
@@ -430,7 +430,10 @@ export default function MultiBeamCalculator() {
   const [modalPos, setModalPos] = useState(1500);
   const [modalMagnitude, setModalMagnitude] = useState(10);
   const [projectId, setProjectId] = useState(initialInputs.projectId);
-  const [calculatedBy, setCalculatedBy] = useState(initialInputs.calculatedBy);
+  // Migrate the old 'Antigravity AI' prefill persisted in older sessions
+  const [calculatedBy, setCalculatedBy] = useState(
+    initialInputs.calculatedBy === 'Antigravity AI' ? 'Engineer' : initialInputs.calculatedBy
+  );
   const [verificationDate, setVerificationDate] = useState(initialInputs.verificationDate);
   const [results, setResults] = useState(() => getSessionData('tempworks_multibeam_results', null));
   const [calcError, setCalcError] = useState(null);
@@ -1943,7 +1946,7 @@ function PDFReportPreview({ results, spans, loads, systemCompany, projectId, set
           </div>
           <div>
             <span style={{ color: '#64748b', fontSize: '9px', textTransform: 'uppercase', fontWeight: 700 }}>Calculated By</span>
-            <div style={{ fontWeight: 600, fontSize: '11px', color: '#0f172a' }}>{calculatedBy || 'Antigravity AI'}</div>
+            <div style={{ fontWeight: 600, fontSize: '11px', color: '#0f172a' }}>{calculatedBy || 'Engineer'}</div>
           </div>
           <div>
             <span style={{ color: '#64748b', fontSize: '9px', textTransform: 'uppercase', fontWeight: 700 }}>Verification Date</span>
@@ -2132,11 +2135,10 @@ function PDFReportPreview({ results, spans, loads, systemCompany, projectId, set
           </table>
         </div>
 
-        {/* Footer / Sign-off Block */}
+        {/* Footer / Disclaimer */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', borderTop: '1px solid #e2e8f0', paddingTop: '8px', marginTop: '4px' }}>
-          <div>
-            <div style={{ color: '#94a3b8', fontSize: '8px', textTransform: 'uppercase' }}>Report Signature</div>
-            <div style={{ fontStyle: 'italic', fontWeight: 600, fontSize: '9px', color: '#64748b', marginTop: '1px' }}>Verified Electronically via TempWorks Web Portal</div>
+          <div style={{ fontStyle: 'italic', fontWeight: 600, fontSize: '9px', color: '#64748b' }}>
+            Electronic generated report, manual verification is required.
           </div>
           <div style={{ textTransform: 'uppercase', letterSpacing: '0.05em', color: '#94a3b8', fontSize: '8px', fontWeight: 700 }}>
             Page 1 of 1

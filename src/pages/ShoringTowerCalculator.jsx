@@ -826,6 +826,9 @@ export default function ShoringTowerCalculator() {
                       <li>Loading combinations per manual: self-weight, imposed vertical loads, horizontal loads and wind (ULS &amp; SLS cases).</li>
                       <li>This check covers the shoring tower leg capacity only. Verify U-head/beam bearing, foundation and formwork members separately.</li>
                     </ul>
+                    <div style={{ marginTop: '6px', paddingTop: '5px', borderTop: '1px solid #e2e8f0', fontStyle: 'italic', fontWeight: 600, fontSize: '9px', color: '#64748b', textAlign: 'center' }}>
+                      Electronic generated report, manual verification is required.
+                    </div>
                   </div>
                 </div>
               </div>
