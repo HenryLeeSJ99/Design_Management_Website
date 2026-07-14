@@ -3,7 +3,8 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import styles from './Layout.module.css';
 import Logo from './Logo';
 import RouteLoader from './RouteLoader';
-import { Menu, X, SquareMenu, Layers, Building, ChevronsUp, Columns, Cuboid, RefreshCw } from 'lucide-react';
+import { Menu, X, SquareMenu, Layers, Building, ChevronsUp, Columns, Cuboid, RefreshCw, LayoutDashboard } from 'lucide-react';
+import { PROJECT_STORAGE_KEY } from '../services/projectStore';
 
 // Page titles shown beside the hamburger in the mobile top header
 // (pages hide their own title blocks on small viewports)
@@ -35,8 +36,13 @@ export default function Layout() {
   const handleClearCache = async () => {
     // Clear sessionStorage (calculator state)
     sessionStorage.clear();
-    // Clear localStorage
+    // Clear localStorage — but keep saved project data (calculations,
+    // legacy projects/design cases); "clear cache" must never delete work
+    const keep = ['projects', 'designCases', PROJECT_STORAGE_KEY]
+      .map((key) => [key, localStorage.getItem(key)])
+      .filter(([, value]) => value != null);
     localStorage.clear();
+    keep.forEach(([key, value]) => localStorage.setItem(key, value));
     // Clear all service worker / browser caches
     if ('caches' in window) {
       const cacheNames = await caches.keys();
@@ -46,7 +52,9 @@ export default function Layout() {
     window.location.reload(true);
   };
 
-  const navItems = [];
+  const navItems = [
+    { name: 'Project Dashboard', path: '/dashboard', icon: LayoutDashboard },
+  ];
 
   const calculators = [
     { name: 'Multi Beam Span', path: '/calculators/multi-beam', icon: SquareMenu, active: true },
@@ -157,7 +165,7 @@ export default function Layout() {
         {/* Credit & version */}
         <div className={styles.sidebarFooter}>
           <span className={styles.devCredit}>Developed by: Henry Lee | 2026</span>
-          <span className={styles.versionTag}>Version 0.34 (Beta)</span>
+          <span className={styles.versionTag}>Version 0.35 (Beta)</span>
         </div>
       </aside>
       

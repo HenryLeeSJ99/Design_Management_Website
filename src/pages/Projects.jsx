@@ -25,9 +25,12 @@ export default function Projects() {
 
   const loadProjects = async () => {
     setLoading(true);
-    const data = await getProjects();
-    setProjects(data);
-    setLoading(false);
+    try {
+      const data = await getProjects();
+      setProjects(data);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {

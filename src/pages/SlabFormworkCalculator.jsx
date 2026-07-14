@@ -1,12 +1,23 @@
 import { useState, useEffect, useRef } from 'react';
-import { Save, FileText, Play, CheckCircle, XCircle, AlertTriangle, Info, Layers, Grid, Columns, Rows, ArrowUpDown, Share2 } from 'lucide-react';
+import { FileText, Play, CheckCircle, XCircle, AlertTriangle, Info, Layers, Grid, Columns, Rows, ArrowUpDown, Share2 } from 'lucide-react';
 import { isIOS, shareReportPdf } from '../utils/reportPdf';
 import { calculateSlabFormwork } from '../engine/formwork/slabFormwork.js';
 import { FORMWORK_BEAMS, getFormworkBeam } from '../engine/materials/formworkBeams.js';
 import styles from './SlabFormworkCalculator.module.css';
 import slabDiagram from '../assets/slab-diagram.png';
 import DynamicBeamDiagram from '../calculators/MultiSpanBeam/DynamicBeamDiagram';
+import SavedDesigns from '../components/SavedDesigns';
+import AttachReportButton from '../components/AttachReportButton';
 import plytecLogoUrl from '../assets/PLYTEC_Logo.svg';
+
+// sessionStorage keys that make up a saved design snapshot
+const DESIGN_SESSION_KEYS = [
+  'tempworks_slabformwork_inputs',
+  'tempworks_slabformwork_results',
+  'tempworks_slabformwork_project_id',
+  'tempworks_slabformwork_calculated_by',
+  'tempworks_slabformwork_verification_date',
+];
 
 
 const getSessionData = (key, defaultValue) => {
@@ -212,6 +223,11 @@ export default function SlabFormworkCalculator() {
           <p>Design and verify your slab formwork system</p>
         </div>
         <div className={styles.headerActions}>
+          <SavedDesigns
+            calculator="slab-formwork"
+            title="Slab Formwork"
+            sessionKeys={DESIGN_SESSION_KEYS}
+          />
           <button className={styles.btnCalculate} onClick={handleCalculate}>
             <Play size={16} fill="currentColor" /> Calculate
           </button>
@@ -614,8 +630,8 @@ function InteractiveDiagram({ activeMarker, setActiveMarker, slabThickness, seco
         <image href={slabDiagram} x="0" y="0" width="800" height="600" preserveAspectRatio="xMidYMid meet" />
 
         {/* Markers overlaid on the image */}
-        {/* Slab Thickness / Panel (Right edge) */}
-        <Marker x="580" y="200" active={activeMarker === 'slab'} onClick={() => setActiveMarker && setActiveMarker('slab')} text={r && r.panel && r.panel.utilization != null ? `Panel Util: ${(r.panel.utilization * 100).toFixed(2)}%` : `Slab: ${slabThickness} mm`} utilRatio={r?.panel?.utilization} />
+        {/* Slab Thickness — beside the red "1 Slab Thickness" annotation (top right) */}
+        <Marker x="712" y="88" active={activeMarker === 'slab'} onClick={() => setActiveMarker && setActiveMarker('slab')} text={r && r.panel && r.panel.utilization != null ? `Panel Util: ${(r.panel.utilization * 100).toFixed(2)}%` : `Slab: ${slabThickness} mm`} utilRatio={r?.panel?.utilization} />
         
         {/* Distance between Secondary Beams (Top center) */}
         <Marker x="415" y="220" active={activeMarker === 'secondary'} onClick={() => setActiveMarker && setActiveMarker('secondary')} text={r && r.secondary && r.secondary.maxUtilization != null ? `Sec Util: ${(r.secondary.maxUtilization * 100).toFixed(2)}%` : `Sec: ${secondarySpacing} m`} type="blue" utilRatio={r?.secondary?.maxUtilization} />
@@ -627,7 +643,8 @@ function InteractiveDiagram({ activeMarker, setActiveMarker, slabThickness, seco
         <Marker x="420" y="440" active={activeMarker === 'shoring'} onClick={() => setActiveMarker && setActiveMarker('shoring')} text={r && r.tower && r.tower.utilization != null ? `Shore Util: ${(r.tower.utilization * 100).toFixed(2)}%` : `Span: ${primarySpanLength} m`} utilRatio={r?.tower?.utilization} />
         
         {/* Component Markers (hide in results view for clarity) */}
-        {!r && <Marker x="680" y="260" active={activeMarker === 'panel'} onClick={() => setActiveMarker('panel')} text={panelType} type="blue" />}
+        {/* Formwork panel — clear area on the deck surface (top left) */}
+        {!r && <Marker x="280" y="115" active={activeMarker === 'panel'} onClick={() => setActiveMarker('panel')} text={panelType} type="blue" />}
         {!r && <Marker x="246" y="440" active={activeMarker === 'shoring'} onClick={() => setActiveMarker('shoring')} text={shoringType} type="blue" />}
       </svg>
     </div>
@@ -1026,9 +1043,16 @@ function SlabPDFReportPreview({ results, inputs, projectId, setProjectId, calcul
         gap: '16px',
         boxShadow: '0 4px 15px rgba(0, 0, 0, 0.05)'
       }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
           <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>Report Configuration</h3>
-          <button 
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <AttachReportButton
+            calculator="slab-formwork"
+            title="Slab Formwork"
+            sessionKeys={DESIGN_SESSION_KEYS}
+            reportRef={reportRef}
+          />
+          <button
             onClick={handlePrint}
             style={{
               display: 'inline-flex',
@@ -1050,6 +1074,7 @@ function SlabPDFReportPreview({ results, inputs, projectId, setProjectId, calcul
           >
             {isIOS() ? <><Share2 size={16} /> Share PDF</> : <><FileText size={16} /> Print Report</>}
           </button>
+          </div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>

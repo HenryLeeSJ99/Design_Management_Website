@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
-import { db } from '../firebase';
-import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { getLibraryProducts, saveLibraryProduct, deleteLibraryProduct } from '../services/localDb';
 import styles from './Projects.module.css'; // Reusing the same styles for consistency
 import { Plus, Edit2, Trash2, X } from 'lucide-react';
 
@@ -22,18 +21,14 @@ export default function Library() {
     supplier: ''
   });
 
-  useEffect(() => {
-    const q = query(collection(db, 'library'), orderBy('name', 'asc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const items = [];
-      snapshot.forEach((doc) => {
-        items.push({ id: doc.id, ...doc.data() });
-      });
-      setProducts(items);
-      setLoading(false);
-    });
+  const loadProducts = async () => {
+    const items = await getLibraryProducts();
+    setProducts(items);
+    setLoading(false);
+  };
 
-    return unsubscribe;
+  useEffect(() => {
+    loadProducts();
   }, []);
 
   const handleInputChange = (e) => {
@@ -50,17 +45,9 @@ export default function Library() {
       weight: Number(formData.weight)
     };
 
-    if (editingId) {
-      const docRef = doc(db, 'library', editingId);
-      await updateDoc(docRef, { ...productData, updatedAt: serverTimestamp() });
-    } else {
-      await addDoc(collection(db, 'library'), {
-        ...productData,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
-    }
+    await saveLibraryProduct(editingId ? { ...productData, id: editingId } : productData);
     closeModal();
+    loadProducts();
   };
 
   const handleEdit = (product) => {
@@ -77,7 +64,8 @@ export default function Library() {
 
   const handleDelete = async (id) => {
     if(window.confirm('Are you sure you want to delete this product? Calculations using this product might be affected.')) {
-      await deleteDoc(doc(db, 'library', id));
+      await deleteLibraryProduct(id);
+      loadProducts();
     }
   };
 

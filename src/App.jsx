@@ -1,17 +1,16 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './contexts/AuthContext';
 import Home from './pages/Home';
 import Layout from './components/Layout';
+import CalcInstance from './components/CalcInstance';
 import SplashScreen from './components/SplashScreen';
 import RouteLoader from './components/RouteLoader';
 import ErrorBoundary from './components/ErrorBoundary';
 import { useState, useEffect, lazy, Suspense } from 'react';
 
 // Route-level code splitting: each of these (and their dependencies -
-// Firebase, Chart.js, jsPDF, html2canvas) ships in its own chunk and only
+// Chart.js, jsPDF, html2canvas) ships in its own chunk and only
 // loads when the user actually navigates there.
-const Login = lazy(() => import('./pages/Login'));
-const Dashboard = lazy(() => import('./pages/Dashboard'));
+const ProjectDashboard = lazy(() => import('./pages/ProjectDashboard'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const Projects = lazy(() => import('./pages/Projects'));
 const ProjectDetails = lazy(() => import('./pages/ProjectDetails'));
@@ -21,11 +20,6 @@ const MultiBeamCalculator = lazy(() => import('./pages/MultiBeamCalculator'));
 const SlabFormworkCalculator = lazy(() => import('./pages/SlabFormworkCalculator'));
 const WallFormworkCalculator = lazy(() => import('./pages/WallFormworkCalculator'));
 const ShoringTowerCalculator = lazy(() => import('./pages/ShoringTowerCalculator'));
-
-function PrivateRoute({ children }) {
-  // Bypassing auth as requested by user
-  return children;
-}
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -42,44 +36,40 @@ function App() {
   }
 
   return (
-    <AuthProvider>
-      <Router>
-        <ErrorBoundary>
-          <Suspense fallback={<RouteLoader full />}>
-            <Routes>
-              <Route path="/login" element={<Login />} />
+    <Router>
+      <ErrorBoundary>
+        <Suspense fallback={<RouteLoader full />}>
+          <Routes>
+            {/* Main layout with nested routes */}
+            <Route path="/" element={<Layout />}>
+              {/* Default home → landing page */}
+              <Route index element={<Home />} />
 
-              {/* Main layout with nested routes */}
-              <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
-                {/* Default home → landing page */}
-                <Route index element={<Home />} />
+              {/* Project dashboard — saved calculations for the project */}
+              <Route path="dashboard" element={<ProjectDashboard />} />
 
-                {/* Dashboard (legacy, kept for any internal links) */}
-                <Route path="dashboard" element={<Dashboard />} />
+              {/* Calculator routes — CalcInstance lets "Load design" remount them */}
+              <Route path="calculators/multi-beam" element={<CalcInstance><MultiBeamCalculator /></CalcInstance>} />
+              <Route path="calculators/slab-formwork" element={<CalcInstance><SlabFormworkCalculator /></CalcInstance>} />
+              <Route path="calculators/wall-formwork" element={<CalcInstance><WallFormworkCalculator /></CalcInstance>} />
+              <Route path="calculators/shoring-tower" element={<CalcInstance><ShoringTowerCalculator /></CalcInstance>} />
 
-                {/* Calculator routes */}
-                <Route path="calculators/multi-beam" element={<MultiBeamCalculator />} />
-                <Route path="calculators/slab-formwork" element={<SlabFormworkCalculator />} />
-                <Route path="calculators/wall-formwork" element={<WallFormworkCalculator />} />
-                <Route path="calculators/shoring-tower" element={<ShoringTowerCalculator />} />
+              {/* Legacy Routes */}
+              <Route path="projects" element={<Projects />} />
+              <Route path="projects/:projectId" element={<ProjectDetails />} />
+              <Route path="projects/:projectId/case/:dcId" element={<MultiSpanBeamCalculator />} />
+              <Route path="library" element={<Library />} />
 
-                {/* Legacy Routes */}
-                <Route path="projects" element={<Projects />} />
-                <Route path="projects/:projectId" element={<ProjectDetails />} />
-                <Route path="projects/:projectId/case/:dcId" element={<MultiSpanBeamCalculator />} />
-                <Route path="library" element={<Library />} />
-
-                {/* 404 — catch-all nested under layout */}
-                <Route path="*" element={<NotFound />} />
-              </Route>
-
-              {/* 404 — catch-all for top-level unknown paths */}
+              {/* 404 — catch-all nested under layout */}
               <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </ErrorBoundary>
-      </Router>
-    </AuthProvider>
+            </Route>
+
+            {/* 404 — catch-all for top-level unknown paths */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
+      </ErrorBoundary>
+    </Router>
   );
 }
 

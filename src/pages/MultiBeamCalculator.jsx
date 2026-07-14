@@ -1,6 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
-import { FileText, Minus, Play, Plus, Save, Trash2, CheckCircle, XCircle, Box, Layers, Share2, HelpCircle } from 'lucide-react';
+import { FileText, Minus, Play, Plus, Trash2, CheckCircle, XCircle, Box, Layers, Share2, HelpCircle } from 'lucide-react';
 import { isIOS, shareReportPdf } from '../utils/reportPdf';
+import SavedDesigns from '../components/SavedDesigns';
+import AttachReportButton from '../components/AttachReportButton';
+
+// sessionStorage keys that make up a saved design snapshot
+const DESIGN_SESSION_KEYS = ['tempworks_multibeam_inputs', 'tempworks_multibeam_results'];
 import DynamicBeamDiagram from '../calculators/MultiSpanBeam/DynamicBeamDiagram';
 import styles from './MultiBeamCalculator.module.css';
 import { analyzeBeam } from '@engine/beam';
@@ -851,10 +856,12 @@ export default function MultiBeamCalculator() {
           <p>Design and verify multi-span beam systems to BS EN 1993-1-1 (EC3) and proprietary allowable properties</p>
         </div>
         <div className={styles.headerActions}>
-          <button className={styles.btnSecondary}>
-            <Save size={16} /> Save
-          </button>
-          <button 
+          <SavedDesigns
+            calculator="multi-beam"
+            title="Multi Beam Span"
+            sessionKeys={DESIGN_SESSION_KEYS}
+          />
+          <button
             className={styles.btnCalculate} 
             onClick={handleCalculate}
             disabled={!!validationError}
@@ -1886,9 +1893,16 @@ function PDFReportPreview({ results, spans, loads, systemCompany, projectId, set
           gap: '14px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
         }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
           <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>Report Metadata Customization</h3>
-          <button 
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+          <AttachReportButton
+            calculator="multi-beam"
+            title="Multi Beam Span"
+            sessionKeys={DESIGN_SESSION_KEYS}
+            reportRef={reportRef}
+          />
+          <button
             onClick={handlePrint}
             style={{
               display: 'inline-flex',
@@ -1910,6 +1924,7 @@ function PDFReportPreview({ results, spans, loads, systemCompany, projectId, set
           >
             {isIOS() ? <><Share2 size={15} /> Share PDF</> : <><FileText size={15} /> Print Report</>}
           </button>
+          </div>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>

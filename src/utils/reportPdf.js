@@ -22,15 +22,14 @@ const A4_W = 210;
 const A4_H = 297;
 
 /**
- * Renders a report node to an A4 PDF and opens the iOS share sheet.
- * Multi-page reports are split on their `.report-page` children; a node
- * without any becomes a single page. Falls back to a plain PDF download
- * when the Web Share API can't take files.
+ * Renders a report node to an A4 jsPDF document. Multi-page reports are
+ * split on their `.report-page` children; a node without any becomes a
+ * single page.
  *
- * @param {HTMLElement} node     The report container (e.g. reportRef.current)
- * @param {string}      fileName e.g. 'TempWorks-Shoring-Tower-Report.pdf'
+ * @param {HTMLElement} node The report container (e.g. reportRef.current)
+ * @returns {Promise<object>} the jsPDF instance
  */
-export async function shareReportPdf(node, fileName) {
+async function renderReportPdf(node) {
   // Loaded on demand so the PDF machinery stays out of the initial chunks
   const [{ jsPDF }, { default: html2canvas }] = await Promise.all([
     import('jspdf'),
@@ -71,6 +70,28 @@ export async function shareReportPdf(node, fileName) {
     pdf.addImage(canvas.toDataURL('image/jpeg', 0.92), 'JPEG', (A4_W - drawW) / 2, 0, drawW, drawH);
   }
 
+  return pdf;
+}
+
+/**
+ * Renders a report node to a PDF Blob — used to attach calculation reports
+ * to the project for dashboard compilation.
+ */
+export async function renderReportPdfBlob(node) {
+  const pdf = await renderReportPdf(node);
+  return pdf.output('blob');
+}
+
+/**
+ * Renders a report node to an A4 PDF and opens the iOS share sheet.
+ * Falls back to a plain PDF download when the Web Share API can't take
+ * files.
+ *
+ * @param {HTMLElement} node     The report container (e.g. reportRef.current)
+ * @param {string}      fileName e.g. 'TempWorks-Shoring-Tower-Report.pdf'
+ */
+export async function shareReportPdf(node, fileName) {
+  const pdf = await renderReportPdf(node);
   const blob = pdf.output('blob');
   const file = new File([blob], fileName, { type: 'application/pdf' });
 

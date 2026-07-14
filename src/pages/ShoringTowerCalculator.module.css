@@ -530,12 +530,15 @@
 }
 
 @media (max-width: 760px) {
+  /* Title moves to the app top bar; keep the header row for its actions
+     (My Designs) which have no other home on mobile */
   .titleBlock {
     display: none;
   }
 
   .pageHeader {
-    display: none;
+    justify-content: flex-end;
+    margin-bottom: 1rem;
   }
 
   .card {

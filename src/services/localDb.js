@@ -109,3 +109,34 @@ export const deleteDesignCase = async (id) => {
   const cases = getDb('designCases');
   setDb('designCases', cases.filter(c => c.id !== id));
 };
+
+
+// --- Product Library ---
+
+export const getLibraryProducts = async () => {
+  await new Promise(r => setTimeout(r, 100));
+  return getDb('libraryProducts').sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+};
+
+export const saveLibraryProduct = async (productData) => {
+  await new Promise(r => setTimeout(r, 100));
+  const products = getDb('libraryProducts');
+  const now = Date.now();
+
+  if (productData.id) {
+    const index = products.findIndex(p => p.id === productData.id);
+    if (index !== -1) {
+      products[index] = { ...products[index], ...productData, updatedAt: now };
+    }
+  } else {
+    products.push({ ...productData, id: generateId(), createdAt: now, updatedAt: now });
+  }
+
+  setDb('libraryProducts', products);
+};
+
+export const deleteLibraryProduct = async (id) => {
+  await new Promise(r => setTimeout(r, 100));
+  const products = getDb('libraryProducts');
+  setDb('libraryProducts', products.filter(p => p.id !== id));
+};

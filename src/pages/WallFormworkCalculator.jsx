@@ -1,6 +1,16 @@
 import { useState, useEffect, useRef } from 'react';
-import { FileText, Save, Share2 } from 'lucide-react';
+import { FileText, Share2 } from 'lucide-react';
 import { isIOS, shareReportPdf } from '../utils/reportPdf';
+import SavedDesigns from '../components/SavedDesigns';
+import AttachReportButton from '../components/AttachReportButton';
+
+// sessionStorage keys that make up a saved design snapshot
+const DESIGN_SESSION_KEYS = [
+  'tempworks_wallformwork_inputs',
+  'tempworks_wallformwork_project_id',
+  'tempworks_wallformwork_calculated_by',
+  'tempworks_wallformwork_verification_date',
+];
 import styles from './WallFormworkCalculator.module.css';
 import StandardChart from '../components/StandardChart';
 import { solveRateOfRise, generatePressureChartData, calculatePressureCiria108 } from '../engine/formwork/wallFormwork';
@@ -106,17 +116,34 @@ export default function WallFormworkCalculator() {
       printWindow.close();
     }, 400);
   };
-  const [boundary, setBoundary] = useState('wall');
-  const [concreteType, setConcreteType] = useState('normal'); // normal or retarder
-  
+  const initialInputs = getSessionData('tempworks_wallformwork_inputs', {
+    boundary: 'wall',
+    concreteType: 'normal',
+    inputMode: 'pressure',
+    density: 25.0,
+    temp: 15,
+    pourHeight: 5.0,
+    maxPressure: 60.0,
+    rateOfRise: 2.0,
+  });
+
+  const [boundary, setBoundary] = useState(initialInputs.boundary);
+  const [concreteType, setConcreteType] = useState(initialInputs.concreteType); // normal or retarder
+
   // Inputs
-  const [inputMode, setInputMode] = useState('pressure'); // 'pressure' or 'rate'
-  const [density, setDensity] = useState(25.0);
-  const [temp, setTemp] = useState(15);
-  const [pourHeight, setPourHeight] = useState(5.0);
-  
-  const [maxPressure, setMaxPressure] = useState(60.0);
-  const [rateOfRise, setRateOfRise] = useState(2.0);
+  const [inputMode, setInputMode] = useState(initialInputs.inputMode); // 'pressure' or 'rate'
+  const [density, setDensity] = useState(initialInputs.density);
+  const [temp, setTemp] = useState(initialInputs.temp);
+  const [pourHeight, setPourHeight] = useState(initialInputs.pourHeight);
+
+  const [maxPressure, setMaxPressure] = useState(initialInputs.maxPressure);
+  const [rateOfRise, setRateOfRise] = useState(initialInputs.rateOfRise);
+
+  useEffect(() => {
+    saveSessionData('tempworks_wallformwork_inputs', {
+      boundary, concreteType, inputMode, density, temp, pourHeight, maxPressure, rateOfRise,
+    });
+  }, [boundary, concreteType, inputMode, density, temp, pourHeight, maxPressure, rateOfRise]);
 
   // Metadata Inputs
   const [projectId, setProjectId] = useState(() => getSessionData('tempworks_wallformwork_project_id', 'TW-2026-WALL'));
@@ -207,9 +234,11 @@ export default function WallFormworkCalculator() {
           <p>based on CIRIA Report 108:1985</p>
         </div>
         <div className={styles.headerActions}>
-          <button className={styles.btnSecondary}>
-            <Save size={16} /> Save
-          </button>
+          <SavedDesigns
+            calculator="wall-formwork"
+            title="Concrete Pressure"
+            sessionKeys={DESIGN_SESSION_KEYS}
+          />
         </div>
       </header>
 
@@ -382,9 +411,16 @@ export default function WallFormworkCalculator() {
                 gap: '16px',
                 boxShadow: '0 4px 15px rgba(0, 0, 0, 0.05)'
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
                   <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>Report Configuration</h3>
-                  <button 
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                  <AttachReportButton
+                    calculator="wall-formwork"
+                    title="Concrete Pressure"
+                    sessionKeys={DESIGN_SESSION_KEYS}
+                    reportRef={reportRef}
+                  />
+                  <button
                     onClick={handlePrint}
                     style={{
                       display: 'inline-flex',
@@ -406,6 +442,7 @@ export default function WallFormworkCalculator() {
                   >
                     {isIOS() ? <><Share2 size={16} /> Share PDF</> : <><FileText size={16} /> Print Report</>}
                   </button>
+                  </div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>

@@ -3,6 +3,8 @@ import { FileText, SlidersHorizontal, Share2 } from 'lucide-react';
 import { isIOS, shareReportPdf } from '../utils/reportPdf';
 import styles from './ShoringTowerCalculator.module.css';
 import StandardChart from '../components/StandardChart';
+import SavedDesigns from '../components/SavedDesigns';
+import AttachReportButton from '../components/AttachReportButton';
 import {
   SHORING_SYSTEMS,
   SYSTEM_KEYS,
@@ -12,6 +14,16 @@ import {
   buildCapacityChartData,
 } from '../engine/formwork/shoringTower';
 import plytecLogoUrl from '../assets/PLYTEC_Logo.svg';
+
+// sessionStorage keys that make up a saved design snapshot
+const DESIGN_SESSION_KEYS = [
+  'tempworks_shoringtower_inputs',
+  'tempworks_shoringtower_chart_system',
+  'tempworks_shoringtower_table_opts',
+  'tempworks_shoringtower_project_id',
+  'tempworks_shoringtower_calculated_by',
+  'tempworks_shoringtower_verification_date',
+];
 
 const getSessionData = (key, defaultValue) => {
   try {
@@ -322,6 +334,11 @@ export default function ShoringTowerCalculator() {
           <h1>Shoring Tower Calculator</h1>
           <p>WONDERCrab Modular Shoring System · PLYTEC Product Manual (Issue 26/01) · BS EN 12812 Class B1 / BS5975:2019</p>
         </div>
+        <SavedDesigns
+          calculator="shoring-tower"
+          title="Shoring Tower"
+          sessionKeys={DESIGN_SESSION_KEYS}
+        />
       </header>
 
       {/* Tabs – above the grid so they stay at the top of the page on mobile */}
@@ -583,8 +600,15 @@ export default function ShoringTowerCalculator() {
                 gap: '16px',
                 boxShadow: '0 4px 15px rgba(0, 0, 0, 0.05)'
               }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
                   <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>Report Configuration</h3>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                  <AttachReportButton
+                    calculator="shoring-tower"
+                    title="Shoring Tower"
+                    sessionKeys={DESIGN_SESSION_KEYS}
+                    reportRef={reportRef}
+                  />
                   <button
                     onClick={handlePrint}
                     style={{
@@ -607,6 +631,7 @@ export default function ShoringTowerCalculator() {
                   >
                     {isIOS() ? <><Share2 size={16} /> Share PDF</> : <><FileText size={16} /> Print Report</>}
                   </button>
+                  </div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
