@@ -44,6 +44,38 @@ export const CALCULATORS = {
 const generateId = () =>
   `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
 
+// --- Cover page ---
+// Every field on the printed title page that a person types. Stored on the
+// project so it survives reloads and travels with an exported project file.
+
+export const DEFAULT_COVER = {
+  templateVersion: 'V3.2',
+  companyRef: '',       // "P26023" — printed top-right as "PLYTEC Project Ref."
+  issueDate: '',        // "June 2026"
+  title: '',            // "WCL48 Shoring Design Calculation"
+  subtitle: '',         // "for Level 2"
+  projectName: '',
+  projectReference: '',
+  reportReference: '',
+  revision: '',         // "rev01" — the revision this issue represents
+  projectTitle: '',     // free-text paragraph describing the development
+  peEndorsement: '',
+  revisions: [],        // [{ no, preparer, preparerDate, checker, checkerDate }]
+};
+
+export const newRevisionRow = (no = '00') => ({
+  no, preparer: '', preparerDate: '', checker: '', checkerDate: '',
+});
+
+/** Merge stored cover fields over the defaults so older saves stay valid. */
+function normalizeCover(cover) {
+  return {
+    ...DEFAULT_COVER,
+    ...(cover || {}),
+    revisions: Array.isArray(cover?.revisions) ? cover.revisions : [],
+  };
+}
+
 // --- Project store (localStorage) ---
 
 export function getProject() {
@@ -53,11 +85,12 @@ export function getProject() {
     return {
       name: project?.name || 'My Project',
       coverPage: !!project?.coverPage,
-      // Ordered items: type 'calculation' (default for older saves) or 'pdf'
+      cover: normalizeCover(project?.cover),
+      // Ordered items: type 'calculation' (default for older saves), 'pdf' or 'drawing'
       calculations: Array.isArray(project?.calculations) ? project.calculations : [],
     };
   } catch {
-    return { name: 'My Project', coverPage: false, calculations: [] };
+    return { name: 'My Project', coverPage: false, cover: normalizeCover(), calculations: [] };
   }
 }
 
@@ -73,6 +106,25 @@ export function setProjectName(name) {
 export function setCoverPageEnabled(enabled) {
   const project = getProject();
   setProject({ ...project, coverPage: !!enabled });
+}
+
+/** Merge a patch of cover fields into the stored cover. */
+export function setCover(patch) {
+  const project = getProject();
+  setProject({ ...project, cover: normalizeCover({ ...project.cover, ...patch }) });
+}
+
+/**
+ * Has anything actually been typed on the cover? Excluding the cover from the
+ * compiled PDF keeps the details, so the UI uses this to promise they are
+ * still there rather than looking like they were thrown away.
+ */
+export function coverHasContent(cover) {
+  const c = normalizeCover(cover);
+  const typed = Object.entries(c).some(
+    ([key, value]) => key !== 'revisions' && key !== 'templateVersion' && String(value || '').trim() !== '',
+  );
+  return typed || c.revisions.length > 0;
 }
 
 export const itemType = (item) => item.type || 'calculation';
@@ -111,6 +163,44 @@ export function addPdfItem({ name, pdfId, pdfName, pdfSize }) {
   });
   setProject(project);
   return id;
+}
+
+/** Add a plan drawing (a PDF that can carry markups). Returns its id. */
+export function addDrawingItem({ name, pdfId, pdfName, pdfSize }) {
+  const project = getProject();
+  const now = Date.now();
+  const id = generateId();
+  project.calculations.push({
+    id, type: 'drawing', name, pdfId, pdfName, pdfSize, markups: [], createdAt: now, updatedAt: now,
+  });
+  setProject(project);
+  return id;
+}
+
+export const getMarkups = (item) => (Array.isArray(item?.markups) ? item.markups : []);
+
+/**
+ * Replace a drawing's markups. Called on every markup edit, so the engineer's
+ * work on a drawing is saved as it happens rather than on an explicit save.
+ */
+export function setItemMarkups(id, markups) {
+  const project = getProject();
+  project.calculations = project.calculations.map((c) =>
+    c.id === id ? { ...c, markups, updatedAt: Date.now() } : c,
+  );
+  setProject(project);
+}
+
+/** Every markup across all drawings that links to the given calculation id. */
+export function findMarkupsForCalc(calcId) {
+  const { calculations } = getProject();
+  return calculations
+    .filter((c) => itemType(c) === 'drawing')
+    .flatMap((drawing) =>
+      getMarkups(drawing)
+        .filter((m) => m.calcId === calcId)
+        .map((m) => ({ markup: m, drawing })),
+    );
 }
 
 /** Attach (or replace) a report PDF on an existing item. */
@@ -168,7 +258,19 @@ export function renameItem(id, name) {
 
 export function deleteCalculation(id) {
   const project = getProject();
-  project.calculations = project.calculations.filter((c) => c.id !== id);
+  project.calculations = project.calculations
+    .filter((c) => c.id !== id)
+    // A markup pointing at the deleted item would dangle, so unlink it. The
+    // markup itself is the engineer's drawn work and stays on the drawing.
+    .map((c) => {
+      if (itemType(c) !== 'drawing') return c;
+      const markups = getMarkups(c);
+      if (!markups.some((m) => m.calcId === id)) return c;
+      return {
+        ...c,
+        markups: markups.map((m) => (m.calcId === id ? { ...m, calcId: null } : m)),
+      };
+    });
   setProject(project);
 }
 
@@ -188,6 +290,32 @@ export function moveCalculation(fromIndex, toIndex) {
 }
 
 // --- Loading snapshots into a calculator ---
+
+/**
+ * Copy the whole of sessionStorage.
+ *
+ * Compiling loads each saved calculation into its calculator to render the
+ * report, which overwrites whatever the engineer currently has open. Capture
+ * before, restoreSession() after, and compiling from the dashboard can never
+ * cost someone their unsaved inputs.
+ */
+export function captureSession() {
+  const saved = {};
+  for (let i = 0; i < sessionStorage.length; i += 1) {
+    const key = sessionStorage.key(i);
+    saved[key] = sessionStorage.getItem(key);
+  }
+  return saved;
+}
+
+/** Put sessionStorage back exactly as captureSession() found it. */
+export function restoreSession(saved) {
+  const present = [];
+  for (let i = 0; i < sessionStorage.length; i += 1) present.push(sessionStorage.key(i));
+  // Drop keys the compile introduced, then restore the originals
+  present.forEach((key) => { if (!(key in saved)) sessionStorage.removeItem(key); });
+  Object.entries(saved).forEach(([key, value]) => sessionStorage.setItem(key, value));
+}
 
 /** Write a snapshot into sessionStorage, replacing the calculator's state. */
 export function applySnapshot(calculator, data) {
@@ -271,7 +399,8 @@ export function exportProjectFile() {
     exportedAt: Date.now(),
     project: {
       ...project,
-      // PDF bytes live in this device's IndexedDB — only calculations travel
+      // The cover is typed data, so it travels in full. PDF bytes live in this
+      // device's IndexedDB, so PDF and drawing items cannot — only calculations do.
       calculations: project.calculations.filter((c) => itemType(c) === 'calculation'),
     },
   });
@@ -297,6 +426,11 @@ export function importProjectFile(obj) {
       createdAt: c.createdAt || Date.now(),
       updatedAt: c.updatedAt || Date.now(),
     }));
-  setProject({ name: incoming.name || 'My Project', coverPage: !!incoming.coverPage, calculations });
+  setProject({
+    name: incoming.name || 'My Project',
+    coverPage: !!incoming.coverPage,
+    cover: normalizeCover(incoming.cover),
+    calculations,
+  });
   return calculations.length;
 }

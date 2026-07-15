@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { FileText, Share2 } from 'lucide-react';
 import { isIOS, shareReportPdf } from '../utils/reportPdf';
 import SavedDesigns from '../components/SavedDesigns';
-import AttachReportButton from '../components/AttachReportButton';
 
 // sessionStorage keys that make up a saved design snapshot
 const DESIGN_SESSION_KEYS = [
@@ -42,8 +41,12 @@ const cleanNumericInput = (val) => {
   return val;
 };
 
-export default function WallFormworkCalculator() {
-  const [activeTab, setActiveTab] = useState('calculator');
+/**
+ * @param initialTab  Which tab to open on — the dashboard's report renderer
+ *   passes "report" to capture this calculator's report during a compile.
+ */
+export default function WallFormworkCalculator({ initialTab }) {
+  const [activeTab, setActiveTab] = useState(initialTab || 'calculator');
   const tabsContainerRef = useRef(null);
   const reportRef = useRef(null);
 
@@ -414,12 +417,6 @@ export default function WallFormworkCalculator() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
                   <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>Report Configuration</h3>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                  <AttachReportButton
-                    calculator="wall-formwork"
-                    title="Concrete Pressure"
-                    sessionKeys={DESIGN_SESSION_KEYS}
-                    reportRef={reportRef}
-                  />
                   <button
                     onClick={handlePrint}
                     style={{
@@ -505,6 +502,7 @@ export default function WallFormworkCalculator() {
               {/* A4 Printable Sheet - .reportSheet scales it down on narrow viewports */}
               <div
                 ref={reportRef}
+                data-report-root
                 className={styles.reportSheet}
                 style={{
                   width: '210mm',

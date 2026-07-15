@@ -11,6 +11,7 @@ import { useState, useEffect, lazy, Suspense } from 'react';
 // Chart.js, jsPDF, html2canvas) ships in its own chunk and only
 // loads when the user actually navigates there.
 const ProjectDashboard = lazy(() => import('./pages/ProjectDashboard'));
+const DrawingViewer = lazy(() => import('./pages/DrawingViewer'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const Projects = lazy(() => import('./pages/Projects'));
 const ProjectDetails = lazy(() => import('./pages/ProjectDetails'));
@@ -47,6 +48,9 @@ function App() {
 
               {/* Project dashboard — saved calculations for the project */}
               <Route path="dashboard" element={<ProjectDashboard />} />
+
+              {/* Plan drawing markup canvas — pdf.js ships in its own chunk */}
+              <Route path="drawing/:itemId" element={<DrawingViewer />} />
 
               {/* Calculator routes — CalcInstance lets "Load design" remount them */}
               <Route path="calculators/multi-beam" element={<CalcInstance><MultiBeamCalculator /></CalcInstance>} />

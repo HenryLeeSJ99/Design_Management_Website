@@ -1,0 +1,17 @@
+/*
+ * Parked off-screen rather than hidden: the report has to be genuinely laid
+ * out for the capture to work, so display:none, visibility:hidden and opacity:0
+ * are all off the table — each of them yields a blank sheet.
+ *
+ * position:fixed keeps it out of the document flow, so it cannot scroll the
+ * dashboard or affect its layout while a compile runs. The width is pinned to
+ * a desktop viewport so the report lays out at full size no matter how narrow
+ * the real window is.
+ */
+.host {
+  position: fixed;
+  top: 0;
+  left: -20000px;
+  width: 1240px;
+  pointer-events: none;
+}

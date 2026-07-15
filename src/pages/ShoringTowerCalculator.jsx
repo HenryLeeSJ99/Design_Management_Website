@@ -4,7 +4,6 @@ import { isIOS, shareReportPdf } from '../utils/reportPdf';
 import styles from './ShoringTowerCalculator.module.css';
 import StandardChart from '../components/StandardChart';
 import SavedDesigns from '../components/SavedDesigns';
-import AttachReportButton from '../components/AttachReportButton';
 import {
   SHORING_SYSTEMS,
   SYSTEM_KEYS,
@@ -66,7 +65,12 @@ const STATUS_LABELS = {
   'exceeds-max': 'Tower height exceeds the rated range for this configuration.',
 };
 
-export default function ShoringTowerCalculator() {
+/**
+ * @param initialTab  Which tab to open on. The dashboard's report renderer
+ *   mounts this calculator off-screen with initialTab="report" to capture its
+ *   report during a compile; everywhere else it opens on the calculator.
+ */
+export default function ShoringTowerCalculator({ initialTab }) {
   const initialInputs = getSessionData('tempworks_shoringtower_inputs', {
     concreteThickness: 300,
     unitWeight: 25,
@@ -92,7 +96,7 @@ export default function ShoringTowerCalculator() {
   const [jackExtension, setJackExtension] = useState(initialInputs.jackExtension);
 
   const [chartSystem, setChartSystem] = useState(() => getSessionData('tempworks_shoringtower_chart_system', 'WCL48'));
-  const [activeTab, setActiveTab] = useState('calculator');
+  const [activeTab, setActiveTab] = useState(initialTab || 'calculator');
   const tabsContainerRef = useRef(null);
   const reportRef = useRef(null);
 
@@ -603,12 +607,6 @@ export default function ShoringTowerCalculator() {
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
                   <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>Report Configuration</h3>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                  <AttachReportButton
-                    calculator="shoring-tower"
-                    title="Shoring Tower"
-                    sessionKeys={DESIGN_SESSION_KEYS}
-                    reportRef={reportRef}
-                  />
                   <button
                     onClick={handlePrint}
                     style={{
@@ -670,6 +668,7 @@ export default function ShoringTowerCalculator() {
               {/* A4 Printable Sheet */}
               <div
                 ref={reportRef}
+                data-report-root
                 className={styles.reportSheet}
                 style={{
                   width: '210mm',

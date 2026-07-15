@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from 'react';
 import { FileText, Minus, Play, Plus, Trash2, CheckCircle, XCircle, Box, Layers, Share2, HelpCircle } from 'lucide-react';
 import { isIOS, shareReportPdf } from '../utils/reportPdf';
 import SavedDesigns from '../components/SavedDesigns';
-import AttachReportButton from '../components/AttachReportButton';
 
 // sessionStorage keys that make up a saved design snapshot
 const DESIGN_SESSION_KEYS = ['tempworks_multibeam_inputs', 'tempworks_multibeam_results'];
@@ -364,7 +363,12 @@ function CheckRow({ label, ref_clause, applied, capacity, unit, ratio, pass }) {
   );
 }
 
-export default function MultiBeamCalculator() {
+/**
+ * @param initialTab  Which tab to open on. The dashboard's report renderer
+ *   passes "report" to capture this calculator's report during a compile;
+ *   otherwise the tab is remembered per session as usual.
+ */
+export default function MultiBeamCalculator({ initialTab }) {
   const initialInputs = getSessionData('tempworks_multibeam_inputs', {
     material: 'system',
     sectionType: 'System Beam',
@@ -389,7 +393,9 @@ export default function MultiBeamCalculator() {
     verificationDate: new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
   });
 
-  const [activeTab, setActiveTab] = useState(() => getSessionData('tempworks_multibeam_active_tab', 'configuration'));
+  const [activeTab, setActiveTab] = useState(
+    () => initialTab || getSessionData('tempworks_multibeam_active_tab', 'configuration'),
+  );
   const tabsWrapperRef = useRef(null);
 
   // Auto-scroll active tab into middle of scroll window on mobile/tablet viewports
@@ -1896,12 +1902,6 @@ function PDFReportPreview({ results, spans, loads, systemCompany, projectId, set
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
           <h3 style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>Report Metadata Customization</h3>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          <AttachReportButton
-            calculator="multi-beam"
-            title="Multi Beam Span"
-            sessionKeys={DESIGN_SESSION_KEYS}
-            reportRef={reportRef}
-          />
           <button
             onClick={handlePrint}
             style={{
@@ -1984,7 +1984,7 @@ function PDFReportPreview({ results, spans, loads, systemCompany, projectId, set
         </div>
       </div>
 
-      <div ref={reportRef} style={{
+      <div ref={reportRef} data-report-root style={{
         width: '210mm',
         minHeight: '297mm',
         backgroundColor: '#ffffff',

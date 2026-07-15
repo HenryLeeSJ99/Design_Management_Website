@@ -1,0 +1,121 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(2px);
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+  background: var(--bg-card, #fff);
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-app, #f8fafc);
+}
+
+.head h2 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-main, #1e293b);
+}
+
+.head p {
+  margin: 0.1rem 0 0;
+  font-size: 0.72rem;
+  color: var(--text-muted, #94a3b8);
+  font-weight: 600;
+}
+
+.headActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 32px;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  background: var(--bg-card, #fff);
+  border: 1px solid var(--border-color, #e2e8f0);
+  color: var(--text-secondary, #475569);
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.btnSecondary:hover:not(:disabled) {
+  border-color: var(--primary, #2563eb);
+  color: var(--primary, #2563eb);
+}
+
+.btnSecondary:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.iconBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary, #475569);
+  cursor: pointer;
+}
+
+.iconBtn:hover {
+  background: var(--bg-card, #fff);
+  border-color: var(--border-color, #e2e8f0);
+}
+
+.body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: #475569;
+  overflow: auto;
+}
+
+.canvas {
+  display: block;
+  border-radius: 3px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  background: #fff;
+}
+
+.msg,
+.err {
+  margin: 3rem 2rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.msg { color: #e2e8f0; }
+.err { color: #fecaca; }

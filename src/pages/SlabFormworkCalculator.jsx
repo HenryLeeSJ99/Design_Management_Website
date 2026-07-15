@@ -7,7 +7,6 @@ import styles from './SlabFormworkCalculator.module.css';
 import slabDiagram from '../assets/slab-diagram.png';
 import DynamicBeamDiagram from '../calculators/MultiSpanBeam/DynamicBeamDiagram';
 import SavedDesigns from '../components/SavedDesigns';
-import AttachReportButton from '../components/AttachReportButton';
 import plytecLogoUrl from '../assets/PLYTEC_Logo.svg';
 
 // sessionStorage keys that make up a saved design snapshot
@@ -46,7 +45,12 @@ const cleanNumericInput = (val) => {
   return val;
 };
 
-export default function SlabFormworkCalculator() {
+/**
+ * @param initialTab  Which tab to open on. The dashboard's report renderer
+ *   passes "report" to capture this calculator's report during a compile;
+ *   otherwise the tab is remembered per session as usual.
+ */
+export default function SlabFormworkCalculator({ initialTab }) {
   const initialInputs = getSessionData('tempworks_slabformwork_inputs', {
     slabThickness: 200,
     unitWeight: 25,
@@ -66,7 +70,9 @@ export default function SlabFormworkCalculator() {
     deflectionLimit: 360,
   });
 
-  const [activeTab, setActiveTab] = useState(() => getSessionData('tempworks_slabformwork_active_tab', 'configuration'));
+  const [activeTab, setActiveTab] = useState(
+    () => initialTab || getSessionData('tempworks_slabformwork_active_tab', 'configuration'),
+  );
   const tabsWrapperRef = useRef(null);
 
   // Auto-scroll active tab into middle of scroll window on mobile/tablet viewports
@@ -1046,12 +1052,6 @@ function SlabPDFReportPreview({ results, inputs, projectId, setProjectId, calcul
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
           <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>Report Configuration</h3>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-          <AttachReportButton
-            calculator="slab-formwork"
-            title="Slab Formwork"
-            sessionKeys={DESIGN_SESSION_KEYS}
-            reportRef={reportRef}
-          />
           <button
             onClick={handlePrint}
             style={{
@@ -1134,7 +1134,7 @@ function SlabPDFReportPreview({ results, inputs, projectId, setProjectId, calcul
         </div>
       </div>
 
-      <div ref={reportRef} style={{ display: 'flex', flexDirection: 'column', gap: '30px', width: '210mm' }}>
+      <div ref={reportRef} data-report-root style={{ display: 'flex', flexDirection: 'column', gap: '30px', width: '210mm' }}>
         
         {/* PAGE 1: DESIGN SUMMARY */}
         <div className="report-page" style={pageStyle}>

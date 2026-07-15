@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { lazy, Suspense, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowDown,
@@ -7,23 +7,32 @@ import {
   Calculator,
   Clock,
   Download,
+  Eye,
   FileCheck2,
   FileText,
   FileUp,
   FolderInput,
   GripVertical,
   Layers,
+  Link2,
+  Loader2,
+  Map,
   Paperclip,
+  PenLine,
   Pencil,
   Trash2,
   X,
 } from 'lucide-react';
 import {
+  addDrawingItem,
   addPdfItem,
   applySnapshot,
+  captureSession,
+  coverHasContent,
   deleteCalculation,
   exportCalculationFile,
   exportProjectFile,
+  getMarkups,
   getProject,
   importProjectFile,
   itemType,
@@ -31,14 +40,22 @@ import {
   parseCalculationFile,
   readJsonFile,
   renameItem,
+  restoreSession,
   saveCalculation,
   setCoverPageEnabled,
   setCurrentDesign,
+  setItemPdf,
   setProjectName,
   CALCULATORS,
 } from '../services/projectStore';
 import { deletePdf, generatePdfId, getPdf, putPdf } from '../services/pdfStore';
 import styles from './ProjectDashboard.module.css';
+
+// Both are dialogs, so neither they nor pdf.js load until actually opened
+const CoverPageEditor = lazy(() => import('../components/CoverPageEditor'));
+const CoverPreview = lazy(() => import('../components/CoverPreview'));
+// Pulls in a whole calculator, so it only loads when a compile starts
+const ReportAutoRenderer = lazy(() => import('../components/ReportAutoRenderer'));
 
 const formatWhen = (ts) => {
   if (!ts) return '—';
@@ -54,6 +71,12 @@ const formatSize = (bytes) => {
     : `${Math.max(1, Math.round(bytes / 1024))} KB`;
 };
 
+/** One line on the dashboard row standing in for the whole cover form. */
+const coverSummary = (cover) => {
+  const bits = [cover.projectName, cover.reportReference, cover.revision].filter(Boolean);
+  return bits.length ? bits.join(' · ') : 'Not filled in yet — open it to add your project details';
+};
+
 async function readPdfFile(file) {
   const bytes = await file.arrayBuffer();
   const head = new TextDecoder().decode(new Uint8Array(bytes.slice(0, 5)));
@@ -66,23 +89,48 @@ export default function ProjectDashboard() {
   const calcFileRef = useRef(null);
   const projectFileRef = useRef(null);
   const addPdfRef = useRef(null);
+  const addDrawingRef = useRef(null);
 
   const [project, setProject] = useState(getProject);
+  // Bumped whenever the store is re-read, so the cover dialog's local draft is
+  // rebuilt after an action that can replace it wholesale (e.g. project import)
+  const [coverEditorKey, setCoverEditorKey] = useState(0);
+  const [coverEditorOpen, setCoverEditorOpen] = useState(false);
+  const [coverPreviewOpen, setCoverPreviewOpen] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [warnings, setWarnings] = useState([]);
   const [compiling, setCompiling] = useState(false);
+  // The calculator currently mounted off-screen to have its report captured,
+  // and the promise the compile loop is waiting on for it
+  const [reportJob, setReportJob] = useState(null);
+  const [progress, setProgress] = useState(null);
+  const reportJobRef = useRef(null);
 
   // Drag state for reordering
   const [dragIndex, setDragIndex] = useState(null);
   const [overIndex, setOverIndex] = useState(null);
 
-  const refresh = () => setProject(getProject());
+  const refresh = () => {
+    setProject(getProject());
+    setCoverEditorKey((k) => k + 1);
+  };
   const clearMessages = () => { setError(''); setNotice(''); setWarnings([]); };
 
   const items = project.calculations;
   const calcs = items.filter((c) => itemType(c) === 'calculation');
   const pdfDocs = items.filter((c) => itemType(c) === 'pdf');
+  const drawings = items.filter((c) => itemType(c) === 'drawing');
+
+  // Which drawing markups point at each calculation, so a calculation row can
+  // show where on the drawings it is referenced
+  const linksByCalc = drawings.reduce((map, drawing) => {
+    getMarkups(drawing).forEach((markup) => {
+      if (!markup.calcId) return;
+      map[markup.calcId] = [...(map[markup.calcId] || []), { markup, drawing }];
+    });
+    return map;
+  }, {});
   const attachedCount = calcs.filter((c) => c.pdfId).length;
   const lastUpdated = items.reduce((max, c) => Math.max(max, c.updatedAt || 0), 0);
 
@@ -103,7 +151,7 @@ export default function ProjectDashboard() {
   };
 
   const handleDelete = async (item) => {
-    const what = itemType(item) === 'pdf' ? 'document' : 'calculation';
+    const what = { pdf: 'document', drawing: 'drawing and its markups', calculation: 'calculation' }[itemType(item)];
     if (!window.confirm(`Delete ${what} "${item.name}" from the project? This cannot be undone.`)) return;
     deleteCalculation(item.id);
     if (item.pdfId) await deletePdf(item.pdfId).catch(() => {});
@@ -185,6 +233,28 @@ export default function ProjectDashboard() {
     }
   };
 
+  const handleAddDrawing = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    clearMessages();
+    try {
+      const bytes = await readPdfFile(file);
+      const pdfId = generatePdfId();
+      await putPdf(pdfId, bytes);
+      const id = addDrawingItem({
+        name: file.name.replace(/\.pdf$/i, ''),
+        pdfId,
+        pdfName: file.name,
+        pdfSize: bytes.byteLength,
+      });
+      refresh();
+      navigate(`/drawing/${id}`);
+    } catch (e) {
+      setError(e.message || 'Failed to add the drawing.');
+    }
+  };
+
   const handleDownloadItemPdf = async (item) => {
     clearMessages();
     const bytes = item.pdfId ? await getPdf(item.pdfId) : null;
@@ -207,12 +277,79 @@ export default function ProjectDashboard() {
     clearMessages();
     setCoverPageEnabled(enabled);
     refresh();
+    if (!enabled && coverHasContent(getProject().cover)) {
+      setNotice('Cover page left out of the compiled PDF. Your cover details are kept.');
+    }
+  };
+
+  /**
+   * Render one calculation's report off-screen and return its PDF bytes.
+   * Bridges the imperative compile loop to the declarative renderer: mount the
+   * job, and resolve when the harness reports the node is ready.
+   */
+  const renderReportFor = (calc) =>
+    new Promise((resolve, reject) => {
+      reportJobRef.current = { resolve, reject };
+      setReportJob({ calculator: calc.calculator, token: `${calc.id}-${Date.now()}` });
+    });
+
+  const handleReportReady = async (node) => {
+    const job = reportJobRef.current;
+    if (!job) return;
+    try {
+      const { renderReportPdfBlob } = await import('../utils/reportPdf');
+      const blob = await renderReportPdfBlob(node);
+      job.resolve(await blob.arrayBuffer());
+    } catch (e) {
+      job.reject(e);
+    }
+  };
+
+  const handleReportError = (e) => reportJobRef.current?.reject(e);
+
+  /**
+   * Regenerate every calculation's report from its saved snapshot, so the
+   * compiled package always agrees with the stored numbers rather than with
+   * whatever was attached by hand at some earlier point.
+   */
+  const regenerateReports = async (calculations) => {
+    const notes = [];
+    const savedSession = captureSession();
+    try {
+      for (let i = 0; i < calculations.length; i += 1) {
+        const calc = calculations[i];
+        setProgress({ index: i + 1, total: calculations.length, name: calc.name });
+        try {
+          // The calculator hydrates from sessionStorage, so the snapshot has
+          // to be in place before the harness mounts it
+          applySnapshot(calc.calculator, calc.data);
+          const bytes = await renderReportFor(calc);
+          if (calc.pdfId) await deletePdf(calc.pdfId).catch(() => {});
+          const pdfId = generatePdfId();
+          await putPdf(pdfId, bytes);
+          setItemPdf(calc.id, { pdfId, pdfName: `${calc.name}.pdf`, pdfSize: bytes.byteLength });
+        } catch (e) {
+          // One bad report must not cost the whole package
+          notes.push(calc.pdfId
+            ? `"${calc.name}": could not regenerate its report (${e.message}) — the report attached earlier was used instead.`
+            : `"${calc.name}": could not generate its report (${e.message}) — placeholder page inserted.`);
+        } finally {
+          setReportJob(null);
+          reportJobRef.current = null;
+        }
+      }
+    } finally {
+      restoreSession(savedSession);
+      setProgress(null);
+    }
+    return notes;
   };
 
   const handleCompile = async () => {
     clearMessages();
     setCompiling(true);
     try {
+      const reportNotes = await regenerateReports(items.filter((c) => itemType(c) === 'calculation'));
       const { compileProjectPdf } = await import('../services/pdfCompile');
       const { bytes, warnings: compileWarnings } = await compileProjectPdf(getProject());
       const blob = new Blob([bytes], { type: 'application/pdf' });
@@ -222,12 +359,17 @@ export default function ProjectDashboard() {
       a.download = `${project.name.replace(/[^\w-]+/g, '-')}-compiled.pdf`;
       a.click();
       URL.revokeObjectURL(url);
-      setWarnings(compileWarnings);
+      // A failed report already explains itself; drop pdfCompile's follow-on
+      // "no report attached" note for the same item so it is not said twice
+      setWarnings([...reportNotes, ...compileWarnings.filter((w) => !reportNotes.some((n) => n.startsWith(w.split(':')[0])))]);
       setNotice('Compiled PDF downloaded.');
+      refresh();
     } catch (e) {
       setError(e.message || 'Failed to compile the PDF.');
     } finally {
       setCompiling(false);
+      setProgress(null);
+      setReportJob(null);
     }
   };
 
@@ -271,6 +413,9 @@ export default function ProjectDashboard() {
           </p>
         </div>
         <div className={styles.headerActions}>
+          <button type="button" className={styles.btnSecondary} onClick={() => addDrawingRef.current?.click()}>
+            <Map size={15} /> Add Drawing
+          </button>
           <button type="button" className={styles.btnSecondary} onClick={() => addPdfRef.current?.click()}>
             <FileUp size={15} /> Add Your PDF
           </button>
@@ -294,11 +439,15 @@ export default function ProjectDashboard() {
             onClick={handleCompile}
             disabled={compiling || items.length === 0}
           >
-            <FileText size={15} /> {compiling ? 'Compiling…' : 'Compile PDF'}
+            <FileText size={15} />
+            {compiling
+              ? (progress ? `Report ${progress.index} of ${progress.total}…` : 'Compiling…')
+              : 'Compile PDF'}
           </button>
           <input ref={calcFileRef} type="file" accept=".json,application/json" style={{ display: 'none' }} onChange={handleImportCalcFile} />
           <input ref={projectFileRef} type="file" accept=".json,application/json" style={{ display: 'none' }} onChange={handleImportProjectFile} />
           <input ref={addPdfRef} type="file" accept=".pdf,application/pdf" style={{ display: 'none' }} onChange={handleAddPdf} />
+          <input ref={addDrawingRef} type="file" accept=".pdf,application/pdf" style={{ display: 'none' }} onChange={handleAddDrawing} />
         </div>
       </header>
 
@@ -317,6 +466,14 @@ export default function ProjectDashboard() {
           <p className={styles.statLabel}>calculation report PDFs</p>
         </div>
         <div className={styles.statCard}>
+          <div className={styles.statHeader}><span>Drawings</span><Map size={17} /></div>
+          <p className={styles.statValue}>{drawings.length}</p>
+          <p className={styles.statLabel}>
+            {drawings.reduce((n, d) => n + getMarkups(d).length, 0)} markup
+            {drawings.reduce((n, d) => n + getMarkups(d).length, 0) === 1 ? '' : 's'} placed
+          </p>
+        </div>
+        <div className={styles.statCard}>
           <div className={styles.statHeader}><span>Documents</span><Layers size={17} /></div>
           <p className={styles.statValue}>{pdfDocs.length}</p>
           <p className={styles.statLabel}>additional PDFs added</p>
@@ -330,6 +487,14 @@ export default function ProjectDashboard() {
 
       {error && <div className={styles.error}>{error}</div>}
       {notice && <div className={styles.notice}>{notice}</div>}
+      {progress && (
+        <div className={styles.progress}>
+          <Loader2 size={14} className={styles.spin} />
+          <span>
+            Generating report {progress.index} of {progress.total} — <strong>{progress.name}</strong>
+          </span>
+        </div>
+      )}
       {warnings.length > 0 && (
         <div className={styles.warningBox}>
           <strong>Compiled with notes:</strong>
@@ -337,27 +502,64 @@ export default function ProjectDashboard() {
         </div>
       )}
 
-      {/* Cover page row */}
+      {/* Cover page — one compact row; the fields live in a dialog so the
+          dashboard stays about the running order of the document */}
       {project.coverPage ? (
         <div className={`${styles.row} ${styles.coverRow}`}>
           <BookOpen size={16} className={styles.coverIcon} />
           <div className={styles.rowInfo}>
-            <span className={styles.rowNameStatic}>Cover Page</span>
+            <button
+              type="button"
+              className={styles.rowName}
+              onClick={() => setCoverEditorOpen(true)}
+              title="Edit the cover page details"
+            >
+              Cover Page
+            </button>
             <div className={styles.rowMeta}>
-              <span className={styles.badge}>Auto-generated</span>
-              <span className={styles.rowDate}>Project title, stats & table of contents — always first</span>
+              <span className={styles.badgeCover}>Included — page 1</span>
+              <span className={styles.rowDate}>{coverSummary(project.cover)}</span>
             </div>
           </div>
           <div className={styles.rowActions}>
-            <button type="button" className={styles.iconBtn} onClick={() => handleToggleCover(false)} title="Remove cover page">
+            <button type="button" className={styles.openBtn} onClick={() => setCoverEditorOpen(true)}>
+              Edit
+            </button>
+            <button
+              type="button"
+              className={styles.iconBtn}
+              onClick={() => setCoverPreviewOpen(true)}
+              title="Preview the cover page"
+            >
+              <Eye size={14} />
+            </button>
+            <button
+              type="button"
+              className={styles.iconBtn}
+              onClick={() => handleToggleCover(false)}
+              title="Leave the cover page out of the compiled PDF (your details are kept)"
+            >
               <X size={15} />
             </button>
           </div>
         </div>
       ) : (
-        <button type="button" className={styles.addCoverBtn} onClick={() => handleToggleCover(true)}>
-          <BookOpen size={15} /> Add Cover Page
-        </button>
+        <div className={styles.noCoverCard}>
+          <div className={styles.noCoverInfo}>
+            <BookOpen size={16} />
+            <div>
+              <p className={styles.noCoverTitle}>No cover page</p>
+              <p className={styles.noCoverHint}>
+                {coverHasContent(project.cover)
+                  ? 'Your cover details are still saved — add it back and they return exactly as you left them.'
+                  : 'The compiled PDF will start straight at your first item, with no title page or contents.'}
+              </p>
+            </div>
+          </div>
+          <button type="button" className={styles.btnSecondary} onClick={() => handleToggleCover(true)}>
+            <BookOpen size={15} /> {coverHasContent(project.cover) ? 'Add cover page back' : 'Add Cover Page'}
+          </button>
+        </div>
       )}
 
       {items.length === 0 ? (
@@ -371,7 +573,12 @@ export default function ProjectDashboard() {
       ) : (
         <div className={styles.listCard}>
           {items.map((item, index) => {
-            const isPdf = itemType(item) === 'pdf';
+            const type = itemType(item);
+            const isPdf = type === 'pdf';
+            const isDrawing = type === 'drawing';
+            const isCalc = type === 'calculation';
+            const markupCount = isDrawing ? getMarkups(item).length : 0;
+            const links = isCalc ? linksByCalc[item.id] || [] : [];
             return (
               <div
                 key={item.id}
@@ -395,19 +602,42 @@ export default function ProjectDashboard() {
                   {isPdf ? (
                     <span className={styles.rowNameStatic}>{item.name}</span>
                   ) : (
-                    <button type="button" className={styles.rowName} onClick={() => handleOpen(item)} title="Open in calculator">
+                    <button
+                      type="button"
+                      className={styles.rowName}
+                      onClick={() => (isDrawing ? navigate(`/drawing/${item.id}`) : handleOpen(item))}
+                      title={isDrawing ? 'Open drawing markup' : 'Open in calculator'}
+                    >
                       {item.name}
                     </button>
                   )}
                   <div className={styles.rowMeta}>
-                    <span className={`${styles.badge} ${isPdf ? styles.badgePdf : ''}`}>
-                      {isPdf ? 'PDF document' : CALCULATORS[item.calculator]?.title || item.calculator}
+                    <span className={`${styles.badge} ${isPdf ? styles.badgePdf : ''} ${isDrawing ? styles.badgeDrawing : ''}`}>
+                      {isPdf && 'PDF document'}
+                      {isDrawing && 'Plan drawing'}
+                      {isCalc && (CALCULATORS[item.calculator]?.title || item.calculator)}
                     </span>
                     {item.pdfId && (
                       <span className={styles.pdfChip} title={item.pdfName}>
-                        <Paperclip size={11} /> {isPdf ? formatSize(item.pdfSize) : `Report · ${formatSize(item.pdfSize)}`}
+                        <Paperclip size={11} /> {isCalc ? `Report · ${formatSize(item.pdfSize)}` : formatSize(item.pdfSize)}
                       </span>
                     )}
+                    {isDrawing && (
+                      <span className={styles.markupChip}>
+                        <PenLine size={11} /> {markupCount} markup{markupCount === 1 ? '' : 's'}
+                      </span>
+                    )}
+                    {links.map(({ markup, drawing }) => (
+                      <button
+                        type="button"
+                        key={markup.id}
+                        className={styles.linkChip}
+                        onClick={() => navigate(`/drawing/${drawing.id}`)}
+                        title={`${markup.label || 'Markup'} on "${drawing.name}" — open the drawing`}
+                      >
+                        <Link2 size={11} /> {drawing.name} · p.{markup.page} · {markup.tag}
+                      </button>
+                    ))}
                     <span className={styles.rowDate}>Updated {formatWhen(item.updatedAt)}</span>
                   </div>
                 </div>
@@ -422,9 +652,14 @@ export default function ProjectDashboard() {
                     </button>
                   </span>
 
-                  {!isPdf && (
+                  {isCalc && (
                     <button type="button" className={styles.openBtn} onClick={() => handleOpen(item)}>
                       Open
+                    </button>
+                  )}
+                  {isDrawing && (
+                    <button type="button" className={styles.openBtn} onClick={() => navigate(`/drawing/${item.id}`)}>
+                      Markup
                     </button>
                   )}
 
@@ -433,7 +668,7 @@ export default function ProjectDashboard() {
                       <Download size={14} />
                     </button>
                   ) : (
-                    !isPdf && (
+                    isCalc && (
                       <button
                         type="button"
                         className={styles.iconBtn}
@@ -456,6 +691,29 @@ export default function ProjectDashboard() {
             );
           })}
         </div>
+      )}
+
+      {coverEditorOpen && (
+        <Suspense fallback={null}>
+          <CoverPageEditor
+            key={coverEditorKey}
+            cover={project.cover}
+            onClose={() => { setCoverEditorOpen(false); refresh(); }}
+          />
+        </Suspense>
+      )}
+
+      {coverPreviewOpen && (
+        <Suspense fallback={null}>
+          <CoverPreview onClose={() => setCoverPreviewOpen(false)} />
+        </Suspense>
+      )}
+
+      {/* Parked off-screen: renders each calculation's report during a compile */}
+      {reportJob && (
+        <Suspense fallback={null}>
+          <ReportAutoRenderer job={reportJob} onReady={handleReportReady} onError={handleReportError} />
+        </Suspense>
       )}
     </div>
   );
