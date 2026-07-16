@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  FolderOpen, FolderPlus, Map, Plus, RefreshCw, Trash2, Undo2, LayoutTemplate, Calculator, Image as ImageIcon, X
+  FolderOpen, History, Map, Plus, RefreshCw, Trash2, Undo2, LayoutTemplate, Calculator, Image as ImageIcon, X
 } from 'lucide-react';
 import {
-  deleteProjectFile, listProjects, trashProject, restoreFromTrash, deleteFromTrash, TRASH_DAYS
+  deleteFromTrash, listProjects, listVersions, purgeExpiredTrash,
+  restoreFromTrash, restoreVersion, trashProject, TRASH_DAYS,
 } from '../services/projectFiles';
 import { closeProject, createProject, getOpenFilename, openProject } from '../services/projectSession';
 import { confirmDialog } from '../services/dialog';
@@ -100,6 +101,70 @@ function CreateProjectModal({ onClose, onSubmit, busy }) {
   );
 }
 
+/**
+ * Version history for one project, in a dialog. Each row is a snapshot taken
+ * before a later save overwrote it; restoring one snapshots the current
+ * cloud contents first, so it is itself reversible.
+ */
+function VersionHistoryModal({ project, onClose, onRestored }) {
+  const [versions, setVersions] = useState(null);
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    listVersions(project.filename)
+      .then((v) => { if (!cancelled) setVersions(v); })
+      .catch((e) => { if (!cancelled) { setError(e?.message || 'Version history could not be read.'); setVersions([]); } });
+    return () => { cancelled = true; };
+  }, [project.filename]);
+
+  const handleRestore = async (version) => {
+    setBusy(version.filename);
+    setError('');
+    try {
+      await restoreVersion(project.filename, version.filename);
+      await onRestored();
+    } catch (e) {
+      setError(e?.message || 'The version could not be restored.');
+      setBusy('');
+    }
+  };
+
+  return (
+    <div className={styles.modalBackdrop} onClick={onClose}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h2><History size={18} style={{ verticalAlign: 'text-bottom', marginRight: '6px' }} />{project.name}</h2>
+          <button type="button" className={styles.btnIconGhost} onClick={onClose}>
+            <X size={20} />
+          </button>
+        </div>
+        <div className={styles.modalBody}>
+          {error && <div className={styles.errorBanner}><p>{error}</p></div>}
+          {versions === null && <p className={styles.muted}>Reading history…</p>}
+          {versions?.length === 0 && !error && (
+            <p className={styles.muted}>
+              No earlier versions yet — one is kept each time the project is saved after a change.
+            </p>
+          )}
+          {versions?.map((v, i) => (
+            <div key={v.filename} className={styles.cardMeta} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.5rem 0', borderBottom: '1px solid var(--border-color, #e2e8f0)' }}>
+              <span>
+                {formatWhen(v.savedAt)} · {formatSize(v.size)}
+                {i === 0 && <strong style={{ marginLeft: '0.5rem' }}>most recent</strong>}
+              </span>
+              <button type="button" className={styles.btnSecondary} onClick={() => handleRestore(v)} disabled={!!busy}>
+                <Undo2 size={14} /> {busy === v.filename ? 'Restoring…' : 'Restore'}
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Projects() {
   const navigate = useNavigate();
   const { role } = useAuth();
@@ -121,10 +186,21 @@ export default function Projects() {
   const isManagerLevel = role === 'admin' || role === 'manager' || role === 'team_leader';
   const isSales = role === 'sales';
 
+  const [historyFor, setHistoryFor] = useState(null); // the project whose versions are shown
+
+  const daysLeft = (project) => Math.max(
+    0,
+    Math.ceil(TRASH_DAYS - (Date.now() - new Date(project.last_modified_at).getTime()) / 86400000),
+  );
+
   const refresh = useCallback(async () => {
     setError('');
     setLoading(true);
     try {
+      // Sweeping expired trash here (rather than a background job) means it
+      // happens exactly when someone is looking at the list — the only time
+      // it's ever visible either way.
+      await purgeExpiredTrash().catch(() => {});
       const allProjects = await listProjects();
       const live = allProjects.filter(p => p.status !== 'trashed');
       const binned = allProjects.filter(p => p.status === 'trashed');
@@ -225,10 +301,18 @@ export default function Projects() {
   return (
     <div className={styles.pageContainer}>
       {showCreateModal && (
-        <CreateProjectModal 
+        <CreateProjectModal
           onClose={() => setShowCreateModal(false)}
           onSubmit={handleCreateSubmit}
           busy={!!busy}
+        />
+      )}
+
+      {historyFor && (
+        <VersionHistoryModal
+          project={historyFor}
+          onClose={() => setHistoryFor(null)}
+          onRestored={async () => { setHistoryFor(null); await refresh(); }}
         />
       )}
 
@@ -296,6 +380,11 @@ export default function Projects() {
                     By {project.updater_email}
                   </p>
                 )}
+                {showTrash && (
+                  <p className={styles.cardMeta} style={{ marginTop: '-4px' }}>
+                    {daysLeft(project)} day{daysLeft(project) === 1 ? '' : 's'} left before permanent deletion
+                  </p>
+                )}
                 {isSales && <span className={styles.badge}>Status: {project.status}</span>}
                 <div className={styles.cardStats}>
                   {project.calculation_count > 0 && <span title="Calculations"><Calculator size={14} />{project.calculation_count}</span>}
@@ -310,6 +399,9 @@ export default function Projects() {
                       {openFilename === project.filename ? 'Resume' : 'Open'}
                     </button>
                   )}
+                  <button type="button" className={styles.btnIconGhost} onClick={() => setHistoryFor(project)} title="Version history" disabled={!!busy}>
+                    <History size={18} />
+                  </button>
                   {isManagerLevel && (
                     <button type="button" className={styles.btnIconGhost} onClick={() => handleDelete(project)} title="Move to trash" disabled={!!busy}>
                       <Trash2 size={18} />

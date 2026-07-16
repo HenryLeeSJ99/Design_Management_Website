@@ -1,5 +1,10 @@
-import { deleteStorageFile, downloadProjectFile, uploadProjectFile } from './supabaseStorage';
-import { fetchProjects, createProjectRecord, updateProjectRecord, deleteProjectRecord } from './supabaseDb';
+import {
+  deleteStorageFile, downloadProjectFile, downloadVersionObject, listVersionObjects,
+  removeVersionObjects, uploadProjectFile, uploadVersionObject,
+} from './supabaseStorage';
+import {
+  deleteProjectRecord, fetchProjects, fetchTrashedProjects, updateProjectRecord,
+} from './supabaseDb';
 import { TwFileError } from './twFile';
 
 export const TRASH_DAYS = 30;
@@ -35,7 +40,7 @@ export async function listProjects() {
 export async function readProjectFile(projectId) {
   try {
     return await downloadProjectFile(projectId);
-  } catch (e) {
+  } catch {
     throw new TwFileError(`Project "${projectId}" could not be downloaded.`);
   }
 }
@@ -81,36 +86,125 @@ export async function trashProject(projectId) {
   try {
     await updateProjectRecord(projectId, { status: 'trashed' });
     return projectId;
-  } catch (e) {
+  } catch {
     throw new TwFileError('Could not trash project.');
   }
 }
 
 export async function listTrash() {
-  // In a robust implementation, we would query `status = 'trashed'`
-  // For now, return an empty array to satisfy the signature.
-  return [];
+  const records = await fetchTrashedProjects();
+  const now = Date.now();
+  return records.map((r) => ({
+    ...r,
+    filename: r.id,
+    name: r.name,
+    size: r.file_size,
+    // last_modified_at doubles as "trashed at" — see fetchTrashedProjects()
+    deletedAt: new Date(r.last_modified_at).getTime(),
+    daysLeft: Math.max(0, Math.ceil(TRASH_DAYS - (now - new Date(r.last_modified_at).getTime()) / 86400000)),
+  }));
 }
 
 export async function restoreFromTrash(projectId) {
   try {
     await updateProjectRecord(projectId, { status: 'draft' });
-  } catch (e) {
+  } catch {
     throw new TwFileError('Could not restore project.');
   }
 }
 
 export async function deleteFromTrash(projectId) {
   await deleteProjectFile(projectId);
+  await removeVersionObjects(projectId).catch(() => {}); // no orphaned history left behind
 }
 
-// --- Obsolete local file functions (mocked to prevent crashing components) ---
+/**
+ * Permanently delete anything that has sat in the trash for TRASH_DAYS.
+ * Best-effort per project: one failure must not stop the rest from being
+ * swept. Meant to be called opportunistically whenever the trash is listed —
+ * there is no background job here, just a check on the way in.
+ */
+export async function purgeExpiredTrash() {
+  let purged = 0;
+  let trashed;
+  try {
+    trashed = await fetchTrashedProjects();
+  } catch {
+    return 0; // a failed read must not block whoever called this to list projects
+  }
+  const now = Date.now();
+  for (const record of trashed) {
+    const ageDays = (now - new Date(record.last_modified_at).getTime()) / 86400000;
+    if (ageDays < TRASH_DAYS) continue;
+    try {
+      await deleteFromTrash(record.id);
+      purged += 1;
+    } catch { /* leave it for the next sweep to retry */ }
+  }
+  return purged;
+}
+
+// --- Version history ---
+// Kept as objects in Storage under versions/{projectId}/{timestamp}.tw rather
+// than a database table — no schema change needed, and it mirrors exactly how
+// the project's own .tw blob is stored.
+
+const SNAPSHOT_EVERY_MS = 5 * 60 * 1000;
+const KEEP_VERSIONS = 12;
+
+/**
+ * Keep the project's current cloud contents as a version, then prune older
+ * ones. Throttled: a save fires seconds after every keystroke, and a version
+ * per keystroke would bury the useful ones. Best-effort — must never block a
+ * save.
+ */
+export async function snapshotVersion(projectId) {
+  try {
+    const existing = await listVersions(projectId);
+    if (existing.length && Date.now() - existing[0].savedAt < SNAPSHOT_EVERY_MS) return null;
+
+    const bytes = await downloadProjectFile(projectId).catch(() => null);
+    if (!bytes) return null; // nothing live yet to snapshot (e.g. a brand-new project)
+    await uploadVersionObject(projectId, bytes);
+
+    const after = await listVersions(projectId);
+    const stale = after.slice(KEEP_VERSIONS).map((v) => v.filename);
+    if (stale.length) await removeVersionObjects(projectId, stale).catch(() => {});
+    return true;
+  } catch {
+    return null; // history is a safety net, not a precondition for saving
+  }
+}
+
+/** Versions of a project, newest first. */
+export async function listVersions(projectId) {
+  const objects = await listVersionObjects(projectId);
+  return objects
+    .map((o) => ({ filename: o.name, size: o.metadata?.size || 0, savedAt: new Date(o.created_at || o.updated_at).getTime() }))
+    .sort((a, b) => b.savedAt - a.savedAt);
+}
+
+/**
+ * Put a version back as the project's live contents. The current live file is
+ * snapshotted first, so restoring is itself reversible.
+ */
+export async function restoreVersion(projectId, versionFilename) {
+  // Read the target version into memory BEFORE snapshotting the current file:
+  // the snapshot writes into the same versions/ prefix, so if the two ever
+  // landed on the same name a read-after-write would risk losing the very
+  // version being restored.
+  const bytes = await downloadVersionObject(projectId, versionFilename);
+  await snapshotVersion(projectId);
+  await writeProjectFile(projectId, new Uint8Array(bytes));
+  return projectId;
+}
+
+// --- Obsolete local-folder functions (mocked so any leftover caller does not
+// crash; the File System Access flow is retired in favour of the cloud) ---
 
 export const isFolderSupported = () => true;
 export const needsPermission = async () => false;
 export const getFolder = async () => true;
 export const ensurePermission = async () => {};
 export const pickFolder = async () => true;
-export const purgeExpiredTrash = async () => {};
 export const uniqueFilename = async (name) => name; // DB handles IDs uniquely
-export const snapshotVersion = async () => {}; // Replaced by cloud logic if needed

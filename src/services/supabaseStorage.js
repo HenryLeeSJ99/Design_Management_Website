@@ -54,6 +54,68 @@ export async function deleteStorageFile(projectId) {
   }
 }
 
+// --- Version history ---
+// Snapshots live in the same bucket as the project's own .tw blob, under
+// versions/{projectId}/, so no second bucket or DB table is needed.
+
+const versionsPrefix = (projectId) => `versions/${projectId}`;
+// Sortable, path-safe, and readable: 2026-07-16T01-23-45-678.tw
+const versionStamp = () => `${new Date().toISOString().replace(/[:.]/g, '-').replace(/Z$/, '')}.tw`;
+
+/** Copy the current bytes of a project into its version history. */
+export async function uploadVersionObject(projectId, bytes) {
+  const path = `${versionsPrefix(projectId)}/${versionStamp()}`;
+  const { error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .upload(path, bytes, { upsert: false, contentType: 'application/zip' });
+
+  if (error) {
+    throw new Error(`Failed to save a version: ${error.message}`);
+  }
+  return path;
+}
+
+/** Every version object stored for a project — raw Storage list entries. */
+export async function listVersionObjects(projectId) {
+  const { data, error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .list(versionsPrefix(projectId), { sortBy: { column: 'created_at', order: 'desc' } });
+
+  if (error) {
+    throw new Error(`Failed to list versions: ${error.message}`);
+  }
+  return data || [];
+}
+
+/** Download one version's bytes by its object name (as returned by list). */
+export async function downloadVersionObject(projectId, versionFilename) {
+  const { data, error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .download(`${versionsPrefix(projectId)}/${versionFilename}`);
+
+  if (error) {
+    throw new Error(`Failed to download that version: ${error.message}`);
+  }
+  return data.arrayBuffer();
+}
+
+/**
+ * Remove version objects for a project. With no filenames, removes every
+ * version — used when a project is permanently deleted, so its history does
+ * not linger as an orphan nothing will ever list again.
+ */
+export async function removeVersionObjects(projectId, filenames) {
+  const names = filenames || (await listVersionObjects(projectId)).map((o) => o.name);
+  if (!names.length) return;
+  const { error } = await supabase.storage
+    .from(BUCKET_NAME)
+    .remove(names.map((n) => `${versionsPrefix(projectId)}/${n}`));
+
+  if (error) {
+    throw new Error(`Failed to remove old versions: ${error.message}`);
+  }
+}
+
 /**
  * Upload a cover image for a project to Supabase Storage.
  * @param {string} projectId - The UUID of the project.

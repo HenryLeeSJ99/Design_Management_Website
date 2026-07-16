@@ -83,9 +83,10 @@ export async function saveNow() {
 
   emit('saving');
   try {
-    // Keep what is on disk before overwriting it. Throttled inside, so this is
-    // a trail of sessions rather than one version per keystroke, and it never
-    // throws — history must not be able to block a save.
+    // Keep what is on the cloud before overwriting it. Throttled inside, so
+    // this is a trail of sessions rather than one version per keystroke, and
+    // it never throws — history must not be able to block a save.
+    await snapshotVersion(filename);
     await writeProjectFile(filename, encodeTw(project, pdfs), {
       name: project.name,
       calculation_count: project.calculations?.length || 0

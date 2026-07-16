@@ -83,3 +83,23 @@ export async function deleteProjectRecord(projectId) {
     throw new Error(`Failed to delete project record: ${error.message}`);
   }
 }
+
+/**
+ * Every project currently in the trash.
+ *
+ * There is no dedicated trashed_at column, so last_modified_at doubles as the
+ * trash timestamp — nothing else touches a record while status='trashed', so
+ * it only ever moves when the project was trashed. Good enough without a
+ * migration; a dedicated column would be more explicit if one is ever added.
+ */
+export async function fetchTrashedProjects() {
+  const { data, error } = await supabase
+    .from('projects')
+    .select('*')
+    .eq('status', 'trashed');
+
+  if (error) {
+    throw new Error(`Failed to fetch trashed projects: ${error.message}`);
+  }
+  return data || [];
+}
