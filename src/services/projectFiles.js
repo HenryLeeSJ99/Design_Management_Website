@@ -226,3 +226,204 @@ export async function uniqueFilename(name, handle) {
   }
   return candidate;
 }
+
+// --- Trash --------------------------------------------------------------
+// Deleting a project is the most destructive thing the app can do, and a
+// confirm() is thin protection for a file holding every drawing on a job. A
+// delete moves the .tw into a trash folder instead; it is only really gone
+// after TRASH_DAYS, or when the engineer says so.
+
+const TRASH_DIR = '.tw-trash';
+export const TRASH_DAYS = 30;
+
+const subdir = async (name, handle, { create = false } = {}) => {
+  const dir = handle || (await getFolder());
+  if (!dir) throw new TwFileError('No projects folder is open.');
+  try {
+    return await dir.getDirectoryHandle(name, { create });
+  } catch (e) {
+    if (e?.name === 'NotFoundError') return null;
+    throw e;
+  }
+};
+
+const daysSince = (ts) => (Date.now() - ts) / 86400000;
+
+/** Move a project into the trash. Returns the name it took there. */
+export async function trashProject(filename, handle) {
+  const dir = handle || (await getFolder());
+  if (!dir) throw new TwFileError('No projects folder is open.');
+
+  const bytes = await readProjectFile(filename, dir);
+  const trash = await dir.getDirectoryHandle(TRASH_DIR, { create: true });
+
+  // The write time in the trash is the deletion time — that is what the
+  // 30-day sweep measures, so no separate index can drift out of sync.
+  const target = await uniqueFilename(filename.replace(/\.tw$/i, ''), trash);
+  await writeProjectFile(target, new Uint8Array(bytes), trash);
+  await dir.removeEntry(filename);
+  return target;
+}
+
+/** Everything in the trash, newest first, with how long each has left. */
+export async function listTrash(handle) {
+  const trash = await subdir(TRASH_DIR, handle);
+  if (!trash) return [];
+
+  const items = [];
+  for await (const entry of trash.values()) {
+    if (entry.kind !== 'file' || !entry.name.toLowerCase().endsWith(TW_EXTENSION)) continue;
+    const file = await entry.getFile();
+    let name = entry.name.replace(/\.tw$/i, '');
+    try {
+      name = peekTw(await file.arrayBuffer()).project?.name || name;
+    } catch { /* unreadable — the filename is still worth showing */ }
+    items.push({
+      filename: entry.name,
+      name,
+      size: file.size,
+      deletedAt: file.lastModified,
+      daysLeft: Math.max(0, Math.ceil(TRASH_DAYS - daysSince(file.lastModified))),
+    });
+  }
+  return items.sort((a, b) => b.deletedAt - a.deletedAt);
+}
+
+/** Put a trashed project back in the projects folder. */
+export async function restoreFromTrash(filename, handle) {
+  const dir = handle || (await getFolder());
+  if (!dir) throw new TwFileError('No projects folder is open.');
+  const trash = await subdir(TRASH_DIR, dir);
+  if (!trash) throw new TwFileError('There is no trash folder.');
+
+  const bytes = await readProjectFile(filename, trash);
+  // Never clobber a live project that has taken the name back since
+  const target = await uniqueFilename(filename.replace(/\.tw$/i, ''), dir);
+  await writeProjectFile(target, new Uint8Array(bytes), dir);
+  await trash.removeEntry(filename);
+  return target;
+}
+
+export async function deleteFromTrash(filename, handle) {
+  const trash = await subdir(TRASH_DIR, handle);
+  if (!trash) return;
+  await trash.removeEntry(filename);
+}
+
+/**
+ * Delete trashed projects past their retention. Returns how many went.
+ *
+ * Called when the Projects page lists the folder, so the sweep happens as a
+ * side effect of looking rather than needing a scheduler.
+ */
+export async function purgeExpiredTrash(handle) {
+  const trash = await subdir(TRASH_DIR, handle);
+  if (!trash) return 0;
+
+  const expired = [];
+  for await (const entry of trash.values()) {
+    if (entry.kind !== 'file' || !entry.name.toLowerCase().endsWith(TW_EXTENSION)) continue;
+    const file = await entry.getFile();
+    if (daysSince(file.lastModified) >= TRASH_DAYS) expired.push(entry.name);
+  }
+  for (const name of expired) {
+    await trash.removeEntry(name).catch(() => {});
+  }
+  return expired.length;
+}
+
+// --- Version history ----------------------------------------------------
+// Undo only reaches back as far as the tab has been open. History is the part
+// that survives closing the app: each version is the file exactly as it stood
+// before a later save overwrote it.
+
+const HISTORY_DIR = '.tw-history';
+const SNAPSHOT_EVERY_MS = 5 * 60 * 1000;
+const KEEP_VERSIONS = 12;
+
+/** ".tw-history/<project base>/" — one folder per project. */
+const historyFolderFor = async (filename, handle, { create = false } = {}) => {
+  const root = await subdir(HISTORY_DIR, handle, { create });
+  if (!root) return null;
+  const base = filename.replace(/\.tw$/i, '');
+  try {
+    return await root.getDirectoryHandle(base, { create });
+  } catch (e) {
+    if (e?.name === 'NotFoundError') return null;
+    throw e;
+  }
+};
+
+// Sortable, filename-safe, readable, and unique to the millisecond:
+// 2026-07-16T01-23-45-678.tw. Second precision was not enough — two snapshots
+// in the same second collided, and one silently overwrote the other.
+const stampName = (ts) => `${new Date(ts).toISOString().replace(/[:.]/g, '-').replace(/Z$/, '')}${TW_EXTENSION}`;
+
+/**
+ * Keep the current contents of a project file as a version, then prune.
+ *
+ * Throttled: autosave fires seconds after every keystroke, and a version per
+ * keystroke would bury the useful ones and fill the disk with 5 MB files. A
+ * snapshot is taken only if the newest one is older than SNAPSHOT_EVERY_MS,
+ * which makes history a trail of sessions rather than of characters typed.
+ *
+ * Best-effort by design — a failure here must never block the save itself.
+ */
+export async function snapshotVersion(filename, handle, { force = false } = {}) {
+  try {
+    const dir = handle || (await getFolder());
+    if (!dir || !(await fileExists(filename, dir))) return null;
+
+    const existing = await listVersions(filename, dir);
+    if (!force && existing.length && Date.now() - existing[0].savedAt < SNAPSHOT_EVERY_MS) {
+      return null;
+    }
+
+    const bytes = await readProjectFile(filename, dir);
+    const folder = await historyFolderFor(filename, dir, { create: true });
+    await writeProjectFile(stampName(Date.now()), new Uint8Array(bytes), folder);
+
+    // Prune oldest beyond the cap
+    const after = await listVersions(filename, dir);
+    for (const old of after.slice(KEEP_VERSIONS)) {
+      await folder.removeEntry(old.filename).catch(() => {});
+    }
+    return true;
+  } catch {
+    return null; // history is a safety net, not a precondition for saving
+  }
+}
+
+/** Versions of a project, newest first. */
+export async function listVersions(filename, handle) {
+  const folder = await historyFolderFor(filename, handle).catch(() => null);
+  if (!folder) return [];
+  const versions = [];
+  for await (const entry of folder.values()) {
+    if (entry.kind !== 'file' || !entry.name.toLowerCase().endsWith(TW_EXTENSION)) continue;
+    const file = await entry.getFile();
+    versions.push({ filename: entry.name, size: file.size, savedAt: file.lastModified });
+  }
+  return versions.sort((a, b) => b.savedAt - a.savedAt);
+}
+
+/**
+ * Put a version back as the live project.
+ *
+ * The current file is snapshotted first, so restoring is itself reversible —
+ * picking the wrong version must not be the thing that loses the work.
+ */
+export async function restoreVersion(filename, versionFilename, handle) {
+  const dir = handle || (await getFolder());
+  if (!dir) throw new TwFileError('No projects folder is open.');
+  const folder = await historyFolderFor(filename, dir);
+  if (!folder) throw new TwFileError('This project has no version history.');
+
+  // Read the target version into memory BEFORE snapshotting the current file.
+  // The snapshot writes into the same history folder, so reading first means a
+  // name clash can never cost us the version we are about to restore.
+  const bytes = await readProjectFile(versionFilename, folder);
+  await snapshotVersion(filename, dir, { force: true });
+  await writeProjectFile(filename, new Uint8Array(bytes), dir);
+  return filename;
+}

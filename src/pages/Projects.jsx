@@ -10,12 +10,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  AlertTriangle, Calculator, Copy, FolderOpen, FolderPlus, HardDrive, Layers,
-  Map, Pencil, Plus, RefreshCw, Trash2,
+  AlertTriangle, Calculator, Copy, FolderOpen, FolderPlus, HardDrive, History,
+  Layers, Map, Pencil, Plus, RefreshCw, RotateCcw, Trash2, Undo2,
 } from 'lucide-react';
 import {
   deleteProjectFile, ensurePermission, getFolder, isFolderSupported, listProjects,
-  needsPermission, pickFolder, readProjectFile, uniqueFilename, writeProjectFile,
+  listTrash, needsPermission, pickFolder, purgeExpiredTrash, readProjectFile,
+  restoreFromTrash, trashProject, uniqueFilename, writeProjectFile, TRASH_DAYS,
 } from '../services/projectFiles';
 import { closeProject, createProject, getOpenFilename, openProject } from '../services/projectSession';
 import { TwFileError } from '../services/twFile';
@@ -34,10 +35,13 @@ const formatWhen = (ts) => (ts
 export default function Projects() {
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
+  const [trash, setTrash] = useState([]);
+  const [showTrash, setShowTrash] = useState(false);
   const [folderName, setFolderName] = useState(null);
   const [state, setState] = useState('loading'); // loading | ready | no-folder | needs-permission | unsupported
   const [error, setError] = useState('');
   const [busy, setBusy] = useState('');
+  const [historyFor, setHistoryFor] = useState(null); // a project whose versions are shown
 
   const openFilename = getOpenFilename();
 
@@ -49,7 +53,12 @@ export default function Projects() {
     if (!dir) { setState('no-folder'); return; }
     setFolderName(dir.name);
     try {
-      setProjects(await listProjects(dir));
+      // Looking at the folder is also when expired trash gets swept, so no
+      // scheduler is needed
+      await purgeExpiredTrash(dir).catch(() => {});
+      const [live, binned] = await Promise.all([listProjects(dir), listTrash(dir)]);
+      setProjects(live);
+      setTrash(binned);
       setState('ready');
     } catch (e) {
       setError(e?.message || 'The projects folder could not be read.');
@@ -122,10 +131,24 @@ export default function Projects() {
 
   const handleDelete = (project) => guard(project.filename, async () => {
     if (!window.confirm(
-      `Delete "${project.name}"?\n\nThis deletes ${project.filename} from your projects folder, including every PDF inside it. This cannot be undone.`,
+      `Move "${project.name}" to the trash?\n\nIt stays recoverable for ${TRASH_DAYS} days, then is deleted for good.`,
     )) return;
     if (openFilename === project.filename) await closeProject();
-    await deleteProjectFile(project.filename);
+    await trashProject(project.filename);
+    await refresh();
+  });
+
+  const handleRestore = (item) => guard(`trash:${item.filename}`, async () => {
+    await restoreFromTrash(item.filename);
+    await refresh();
+  });
+
+  const handleDeleteForever = (item) => guard(`trash:${item.filename}`, async () => {
+    if (!window.confirm(
+      `Delete "${item.name}" permanently?\n\nThis removes the file and every PDF inside it. This cannot be undone.`,
+    )) return;
+    const { deleteFromTrash } = await import('../services/projectFiles');
+    await deleteFromTrash(item.filename);
     await refresh();
   });
 
@@ -283,7 +306,10 @@ export default function Projects() {
                       <button type="button" className={styles.iconBtn} onClick={() => handleDuplicate(project)} title="Duplicate" disabled={working}>
                         <Copy size={14} />
                       </button>
-                      <button type="button" className={`${styles.iconBtn} ${styles.danger}`} onClick={() => handleDelete(project)} title="Delete" disabled={working}>
+                      <button type="button" className={styles.iconBtn} onClick={() => setHistoryFor(project)} title="Version history" disabled={working}>
+                        <History size={14} />
+                      </button>
+                      <button type="button" className={`${styles.iconBtn} ${styles.danger}`} onClick={() => handleDelete(project)} title="Move to trash" disabled={working}>
                         <Trash2 size={14} />
                       </button>
                     </div>
@@ -294,6 +320,130 @@ export default function Projects() {
           })}
         </div>
       )}
+
+      {/* Trash — collapsed by default so it never competes with live projects */}
+      {trash.length > 0 && (
+        <div className={styles.trashSection}>
+          <button type="button" className={styles.trashToggle} onClick={() => setShowTrash((v) => !v)}>
+            <Trash2 size={14} />
+            Trash ({trash.length}) — kept {TRASH_DAYS} days
+            <span className={styles.trashChevron}>{showTrash ? '▾' : '▸'}</span>
+          </button>
+          {showTrash && (
+            <div className={styles.trashList}>
+              {trash.map((item) => {
+                const working = busy === `trash:${item.filename}`;
+                return (
+                  <div className={styles.trashRow} key={item.filename}>
+                    <div className={styles.trashInfo}>
+                      <span className={styles.trashName}>{item.name}</span>
+                      <span className={styles.trashMeta}>
+                        {formatSize(item.size)} · deleted {formatWhen(item.deletedAt)} ·{' '}
+                        <strong>{item.daysLeft} day{item.daysLeft === 1 ? '' : 's'} left</strong>
+                      </span>
+                    </div>
+                    <div className={styles.trashActions}>
+                      <button type="button" className={styles.restoreBtn} onClick={() => handleRestore(item)} disabled={working}>
+                        <RotateCcw size={13} /> Restore
+                      </button>
+                      <button type="button" className={`${styles.iconBtn} ${styles.danger}`} onClick={() => handleDeleteForever(item)} title="Delete permanently" disabled={working}>
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
+      {historyFor && (
+        <VersionHistory
+          project={historyFor}
+          onClose={() => setHistoryFor(null)}
+          onRestored={async () => { setHistoryFor(null); await refresh(); }}
+        />
+      )}
+    </div>
+  );
+}
+
+/**
+ * Version history for one project, in a dialog. Each row is a snapshot taken
+ * before a later save overwrote it; restoring one snapshots the current file
+ * first, so it is itself undoable.
+ */
+function VersionHistory({ project, onClose, onRestored }) {
+  const [versions, setVersions] = useState(null);
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    import('../services/projectFiles')
+      .then(({ listVersions }) => listVersions(project.filename))
+      .then((v) => { if (!cancelled) setVersions(v); })
+      .catch((e) => { if (!cancelled) { setError(e?.message || 'Version history could not be read.'); setVersions([]); } });
+    return () => { cancelled = true; };
+  }, [project.filename]);
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  const handleRestore = async (version) => {
+    if (project.filename === getOpenFilename()
+      && !window.confirm('Restore this version? The current version is kept in history first, so you can undo this.')) return;
+    setBusy(version.filename);
+    setError('');
+    try {
+      const { restoreVersion } = await import('../services/projectFiles');
+      await restoreVersion(project.filename, version.filename);
+      // If the restored project is the one open, reload it into the working copy
+      if (project.filename === getOpenFilename()) await openProject(project.filename);
+      await onRestored();
+    } catch (e) {
+      setError(e instanceof TwFileError ? e.message : (e?.message || 'The version could not be restored.'));
+      setBusy('');
+    }
+  };
+
+  return (
+    <div className={styles.backdrop} onClick={onClose} role="presentation">
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Version history">
+        <header className={styles.modalHead}>
+          <div>
+            <h2><History size={16} /> Version history</h2>
+            <p>{project.name}</p>
+          </div>
+          <button type="button" className={styles.iconBtn} onClick={onClose} title="Close">✕</button>
+        </header>
+
+        <div className={styles.modalBody}>
+          {error && <p className={styles.error}>{error}</p>}
+          {versions === null && <p className={styles.muted}>Reading history…</p>}
+          {versions?.length === 0 && !error && (
+            <p className={styles.muted}>
+              No earlier versions yet. One is kept each time the project is saved after a change.
+            </p>
+          )}
+          {versions?.map((v, i) => (
+            <div className={styles.versionRow} key={v.filename}>
+              <div>
+                <span className={styles.versionWhen}>{formatWhen(v.savedAt)}</span>
+                {i === 0 && <span className={styles.versionTag}>most recent</span>}
+                <span className={styles.versionSize}>{formatSize(v.size)}</span>
+              </div>
+              <button type="button" className={styles.restoreBtn} onClick={() => handleRestore(v)} disabled={!!busy}>
+                <Undo2 size={13} /> {busy === v.filename ? 'Restoring…' : 'Restore'}
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { lazy, Suspense, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowDown,
@@ -21,6 +21,7 @@ import {
   PenLine,
   Pencil,
   Trash2,
+  Undo2,
   X,
 } from 'lucide-react';
 import {
@@ -49,6 +50,7 @@ import {
   CALCULATORS,
 } from '../services/projectStore';
 import { deletePdf, generatePdfId, getPdf, putPdf } from '../services/pdfStore';
+import { canUndo, onUndoChange, recordUndo, undo } from '../services/undo';
 import styles from './ProjectDashboard.module.css';
 
 // Both are dialogs, so neither they nor pdf.js load until actually opened
@@ -101,6 +103,7 @@ export default function ProjectDashboard() {
   const [notice, setNotice] = useState('');
   const [warnings, setWarnings] = useState([]);
   const [compiling, setCompiling] = useState(false);
+  const [undoState, setUndoState] = useState({ label: null, depth: 0 });
   // The calculator currently mounted off-screen to have its report captured,
   // and the promise the compile loop is waiting on for it
   const [reportJob, setReportJob] = useState(null);
@@ -116,6 +119,26 @@ export default function ProjectDashboard() {
     setCoverEditorKey((k) => k + 1);
   };
   const clearMessages = () => { setError(''); setNotice(''); setWarnings([]); };
+
+  // Track the undo stack so the toolbar button can name what it will undo
+  useEffect(() => onUndoChange((label, depth) => setUndoState({ label, depth })), []);
+
+  // Ctrl/Cmd+Z, unless focus is in a field where the browser's own undo belongs
+  useEffect(() => {
+    const onKey = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
+        const tag = document.activeElement?.tagName;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || document.activeElement?.isContentEditable) return;
+        if (!canUndo()) return;
+        e.preventDefault();
+        handleUndo();
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+    // handleUndo closes over only stable setters
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const items = project.calculations;
   const calcs = items.filter((c) => itemType(c) === 'calculation');
@@ -150,25 +173,38 @@ export default function ProjectDashboard() {
     navigate(CALCULATORS[calc.calculator].route);
   };
 
-  const handleDelete = async (item) => {
+  const handleDelete = (item) => {
     const what = { pdf: 'document', drawing: 'drawing and its markups', calculation: 'calculation' }[itemType(item)];
-    if (!window.confirm(`Delete ${what} "${item.name}" from the project? This cannot be undone.`)) return;
+    if (!window.confirm(`Remove ${what} "${item.name}" from the project?\n\nYou can undo this.`)) return;
+    // Record before the change so undo restores it. The PDF's bytes are left in
+    // the cache on purpose: undo can bring the item back, and the next save
+    // sweeps the blob only if nothing ends up referencing it.
+    recordUndo(`delete "${item.name}"`);
     deleteCalculation(item.id);
-    if (item.pdfId) await deletePdf(item.pdfId).catch(() => {});
     refresh();
   };
 
   const handleRename = (item) => {
     const name = window.prompt('Name:', item.name);
-    if (name != null && name.trim()) {
+    if (name != null && name.trim() && name.trim() !== item.name) {
+      recordUndo(`rename "${item.name}"`);
       renameItem(item.id, name.trim());
       refresh();
     }
   };
 
   const handleMove = (from, to) => {
+    recordUndo('reorder items');
     moveCalculation(from, to);
     refresh();
+  };
+
+  const handleUndo = () => {
+    const label = undo();
+    if (label) {
+      refresh();
+      setNotice(`Undone: ${label}.`);
+    }
   };
 
   // --- File imports ---
@@ -275,6 +311,7 @@ export default function ProjectDashboard() {
 
   const handleToggleCover = (enabled) => {
     clearMessages();
+    if (!enabled) recordUndo('remove cover page');
     setCoverPageEnabled(enabled);
     refresh();
     if (!enabled && coverHasContent(getProject().cover)) {
@@ -413,6 +450,16 @@ export default function ProjectDashboard() {
           </p>
         </div>
         <div className={styles.headerActions}>
+          {undoState.depth > 0 && (
+            <button
+              type="button"
+              className={styles.btnSecondary}
+              onClick={handleUndo}
+              title={undoState.label ? `Undo ${undoState.label}` : 'Undo'}
+            >
+              <Undo2 size={15} /> Undo
+            </button>
+          )}
           <button type="button" className={styles.btnSecondary} onClick={() => addDrawingRef.current?.click()}>
             <Map size={15} /> Add Drawing
           </button>

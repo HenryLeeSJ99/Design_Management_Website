@@ -15,9 +15,10 @@
  */
 
 import { PROJECT_STORAGE_KEY, getProject, onProjectChange } from './projectStore';
-import { clearAllPdfs, getPdf, putPdf } from './pdfStore';
-import { readProjectFile, writeProjectFile } from './projectFiles';
+import { clearAllPdfs, deletePdf, getPdf, listPdfIds, putPdf } from './pdfStore';
+import { readProjectFile, snapshotVersion, writeProjectFile } from './projectFiles';
 import { decodeTw, encodeTw } from './twFile';
+import { clearUndo } from './undo';
 
 // Which file the working copy came from. Kept out of the project itself so the
 // same project copied to another name doesn't drag its old filename along.
@@ -82,13 +83,34 @@ export async function saveNow() {
 
   emit('saving');
   try {
+    // Keep what is on disk before overwriting it. Throttled inside, so this is
+    // a trail of sessions rather than one version per keystroke, and it never
+    // throws — history must not be able to block a save.
+    await snapshotVersion(filename);
     await writeProjectFile(filename, encodeTw(project, pdfs));
     emit('saved', { at: Date.now() });
+
+    // Sweep PDF blobs no live item references. Deleting an item no longer
+    // deletes its bytes (so undo can bring it back), which leaves orphans in
+    // the cache; they were just excluded from the file above, so dropping them
+    // here loses nothing. Best-effort — a failed sweep never fails the save.
+    sweepOrphanPdfs(project).catch(() => {});
     return filename;
   } catch (e) {
     emit('error', { message: e?.message || 'The project could not be saved.' });
     throw e;
   }
+}
+
+/** Drop cached PDF blobs that no item in the project points at. */
+async function sweepOrphanPdfs(project) {
+  const referenced = referencedPdfIds(project);
+  const cached = await listPdfIds();
+  await Promise.all(
+    cached
+      .filter((id) => !referenced.has(id))
+      .map((id) => deletePdf(id).catch(() => {})),
+  );
 }
 
 /**
@@ -144,7 +166,8 @@ export async function openProject(filename) {
   }
   localStorage.setItem(PROJECT_STORAGE_KEY, JSON.stringify(project));
   setOpenFilename(filename);
-  emit('saved', { at: Date.now() });
+  clearUndo(); // the previous project's undo history is meaningless here
+  emit("saved", { at: Date.now() });
   return project;
 }
 
@@ -155,7 +178,8 @@ export async function createProject(filename, name) {
   await clearAllPdfs();
   localStorage.setItem(PROJECT_STORAGE_KEY, JSON.stringify(project));
   setOpenFilename(filename);
-  emit('saved', { at: Date.now() });
+  clearUndo(); // the previous project's undo history is meaningless here
+  emit("saved", { at: Date.now() });
   return project;
 }
 
@@ -163,6 +187,7 @@ export async function createProject(filename, name) {
 export async function closeProject() {
   await flush();
   setOpenFilename(null);
+  clearUndo();
 }
 
 /** Point the session at a different file (after a rename) without reloading. */

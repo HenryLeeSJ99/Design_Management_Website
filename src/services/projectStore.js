@@ -119,6 +119,19 @@ function setProject(project) {
   });
 }
 
+/**
+ * Replace the whole project at once — used by undo to write a snapshot back.
+ * Goes through setProject so the change reaches the session and is saved.
+ */
+export function replaceProject(project) {
+  setProject({
+    name: project?.name || 'My Project',
+    coverPage: !!project?.coverPage,
+    cover: normalizeCover(project?.cover),
+    calculations: Array.isArray(project?.calculations) ? project.calculations : [],
+  });
+}
+
 export function setProjectName(name) {
   const project = getProject();
   setProject({ ...project, name });
