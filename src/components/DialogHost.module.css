@@ -1,0 +1,149 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80; /* above every other modal in the app */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(2px);
+  animation: fade 0.12s ease;
+}
+
+.dialog {
+  width: min(440px, 100%);
+  background: var(--bg-card, #fff);
+  border-radius: 14px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+  overflow: hidden;
+  animation: pop 0.14s cubic-bezier(0.2, 0.9, 0.3, 1.3);
+}
+
+.body {
+  display: flex;
+  gap: 0.85rem;
+  padding: 1.25rem 1.25rem 0.5rem;
+}
+
+.dangerIcon {
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.content { min-width: 0; flex: 1; }
+
+.title {
+  margin: 0 0 0.35rem;
+  font-size: 1.02rem;
+  font-weight: 800;
+  color: var(--text-main, #1e293b);
+}
+
+.message {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--text-secondary, #475569);
+  white-space: pre-line;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  margin-top: 0.9rem;
+}
+
+.field span {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--text-secondary, #475569);
+}
+
+.field input {
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid var(--border-color, #e2e8f0);
+  border-radius: 9px;
+  background: var(--bg-card, #fff);
+  color: var(--text-main, #1e293b);
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--primary, #2563eb);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem 1.25rem;
+}
+
+.btnCancel,
+.btnConfirm,
+.btnDanger {
+  min-height: 38px;
+  padding: 0.5rem 1.1rem;
+  border-radius: 999px;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.btnCancel {
+  background: var(--bg-card, #fff);
+  border-color: var(--border-color, #e2e8f0);
+  color: var(--text-secondary, #475569);
+}
+
+.btnCancel:hover {
+  background: var(--bg-app, #f8fafc);
+  border-color: var(--text-muted, #94a3b8);
+}
+
+.btnConfirm {
+  background: var(--primary, #2563eb);
+  border-color: var(--primary, #2563eb);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.2);
+}
+
+.btnConfirm:hover { filter: brightness(1.07); }
+
+.btnDanger {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.22);
+}
+
+.btnDanger:hover { filter: brightness(1.07); }
+
+@keyframes fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pop {
+  from { opacity: 0; transform: scale(0.96) translateY(6px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .backdrop, .dialog { animation: none; }
+}

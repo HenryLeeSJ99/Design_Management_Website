@@ -13,6 +13,7 @@ import {
   CALCULATORS,
 } from '../services/projectStore';
 import { deletePdf } from '../services/pdfStore';
+import { confirmDialog } from '../services/dialog';
 import { useCalcReset } from './CalcInstance';
 import styles from './SavedDesigns.module.css';
 
@@ -127,7 +128,13 @@ export default function SavedDesigns({ calculator, title, sessionKeys }) {
   };
 
   const handleDelete = async (design) => {
-    if (!window.confirm(`Delete "${design.name}" from the project? This cannot be undone.`)) return;
+    const ok = await confirmDialog({
+      title: 'Delete design',
+      message: `Delete "${design.name}" from the project? This cannot be undone.`,
+      confirmLabel: 'Delete',
+      danger: true,
+    });
+    if (!ok) return;
     deleteCalculation(design.id);
     if (design.pdfId) await deletePdf(design.pdfId).catch(() => {});
     refresh();

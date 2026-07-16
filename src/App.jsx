@@ -5,6 +5,7 @@ import CalcInstance from './components/CalcInstance';
 import SplashScreen from './components/SplashScreen';
 import RouteLoader from './components/RouteLoader';
 import ErrorBoundary from './components/ErrorBoundary';
+import DialogHost from './components/DialogHost';
 import { useState, useEffect, lazy, Suspense } from 'react';
 
 // Route-level code splitting: each of these (and their dependencies -
@@ -66,6 +67,8 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
+        {/* App-wide confirm/prompt dialogs, above every route and modal */}
+        <DialogHost />
       </ErrorBoundary>
     </Router>
   );

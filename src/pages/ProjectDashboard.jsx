@@ -51,6 +51,7 @@ import {
 } from '../services/projectStore';
 import { deletePdf, generatePdfId, getPdf, putPdf } from '../services/pdfStore';
 import { canUndo, onUndoChange, recordUndo, undo } from '../services/undo';
+import { confirmDialog, promptDialog } from '../services/dialog';
 import styles from './ProjectDashboard.module.css';
 
 // Both are dialogs, so neither they nor pdf.js load until actually opened
@@ -157,10 +158,15 @@ export default function ProjectDashboard() {
   const attachedCount = calcs.filter((c) => c.pdfId).length;
   const lastUpdated = items.reduce((max, c) => Math.max(max, c.updatedAt || 0), 0);
 
-  const handleRenameProject = () => {
-    const name = window.prompt('Project name:', project.name);
-    if (name != null && name.trim()) {
-      setProjectName(name.trim());
+  const handleRenameProject = async () => {
+    const name = await promptDialog({
+      title: 'Rename project',
+      label: 'Project name',
+      defaultValue: project.name,
+      confirmLabel: 'Rename',
+    });
+    if (name) {
+      setProjectName(name);
       refresh();
     }
   };
@@ -173,9 +179,15 @@ export default function ProjectDashboard() {
     navigate(CALCULATORS[calc.calculator].route);
   };
 
-  const handleDelete = (item) => {
+  const handleDelete = async (item) => {
     const what = { pdf: 'document', drawing: 'drawing and its markups', calculation: 'calculation' }[itemType(item)];
-    if (!window.confirm(`Remove ${what} "${item.name}" from the project?\n\nYou can undo this.`)) return;
+    const ok = await confirmDialog({
+      title: `Remove ${what}`,
+      message: `Remove "${item.name}" from the project? You can undo this.`,
+      confirmLabel: 'Remove',
+      danger: true,
+    });
+    if (!ok) return;
     // Record before the change so undo restores it. The PDF's bytes are left in
     // the cache on purpose: undo can bring the item back, and the next save
     // sweeps the blob only if nothing ends up referencing it.
@@ -184,11 +196,16 @@ export default function ProjectDashboard() {
     refresh();
   };
 
-  const handleRename = (item) => {
-    const name = window.prompt('Name:', item.name);
-    if (name != null && name.trim() && name.trim() !== item.name) {
+  const handleRename = async (item) => {
+    const name = await promptDialog({
+      title: 'Rename',
+      label: 'Name',
+      defaultValue: item.name,
+      confirmLabel: 'Rename',
+    });
+    if (name && name !== item.name) {
       recordUndo(`rename "${item.name}"`);
-      renameItem(item.id, name.trim());
+      renameItem(item.id, name);
       refresh();
     }
   };
@@ -231,10 +248,15 @@ export default function ProjectDashboard() {
     clearMessages();
     try {
       const obj = await readJsonFile(file);
-      if (
-        items.length > 0 &&
-        !window.confirm('Importing a project replaces the current project and all its calculations. Continue?')
-      ) return;
+      if (items.length > 0) {
+        const ok = await confirmDialog({
+          title: 'Replace this project?',
+          message: 'Importing a project replaces the current project and all its calculations.',
+          confirmLabel: 'Replace',
+          danger: true,
+        });
+        if (!ok) return;
+      }
       // Free stored PDF bytes belonging to the project being replaced
       await Promise.all(items.filter((c) => c.pdfId).map((c) => deletePdf(c.pdfId).catch(() => {})));
       const count = importProjectFile(obj);

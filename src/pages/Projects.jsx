@@ -20,6 +20,7 @@ import {
 } from '../services/projectFiles';
 import { closeProject, createProject, getOpenFilename, openProject } from '../services/projectSession';
 import { TwFileError } from '../services/twFile';
+import { confirmDialog, promptDialog } from '../services/dialog';
 import styles from './Projects.module.css';
 
 const formatSize = (bytes) => {
@@ -90,10 +91,15 @@ export default function Projects() {
   });
 
   const handleNew = () => guard('new', async () => {
-    const name = window.prompt('Project name:', 'New Project');
-    if (!name || !name.trim()) return;
-    const filename = await uniqueFilename(name.trim());
-    await createProject(filename, name.trim());
+    const name = await promptDialog({
+      title: 'New project',
+      label: 'Project name',
+      defaultValue: 'New Project',
+      confirmLabel: 'Create',
+    });
+    if (!name) return;
+    const filename = await uniqueFilename(name);
+    await createProject(filename, name);
     navigate('/dashboard');
   });
 
@@ -104,20 +110,25 @@ export default function Projects() {
   });
 
   const handleRename = (project) => guard(project.filename, async () => {
-    const name = window.prompt('Project name:', project.name);
-    if (!name || !name.trim() || name === project.name) return;
+    const name = await promptDialog({
+      title: 'Rename project',
+      label: 'Project name',
+      defaultValue: project.name,
+      confirmLabel: 'Rename',
+    });
+    if (!name || name === project.name) return;
 
     // No rename in the File System Access API: copy to the new name, then drop
     // the old file. Read first so a failure leaves the original untouched.
     const bytes = await readProjectFile(project.filename);
-    const target = await uniqueFilename(name.trim());
+    const target = await uniqueFilename(name);
     await writeProjectFile(target, new Uint8Array(bytes));
     await deleteProjectFile(project.filename);
 
     // Renaming the file does not rename the project inside it
     await openProject(target);
     const { setProjectName } = await import('../services/projectStore');
-    setProjectName(name.trim());
+    setProjectName(name);
     if (openFilename !== project.filename) await closeProject();
     await refresh();
   });
@@ -130,9 +141,13 @@ export default function Projects() {
   });
 
   const handleDelete = (project) => guard(project.filename, async () => {
-    if (!window.confirm(
-      `Move "${project.name}" to the trash?\n\nIt stays recoverable for ${TRASH_DAYS} days, then is deleted for good.`,
-    )) return;
+    const ok = await confirmDialog({
+      title: 'Move to trash',
+      message: `"${project.name}" stays recoverable for ${TRASH_DAYS} days, then is deleted for good.`,
+      confirmLabel: 'Move to trash',
+      danger: true,
+    });
+    if (!ok) return;
     if (openFilename === project.filename) await closeProject();
     await trashProject(project.filename);
     await refresh();
@@ -144,9 +159,13 @@ export default function Projects() {
   });
 
   const handleDeleteForever = (item) => guard(`trash:${item.filename}`, async () => {
-    if (!window.confirm(
-      `Delete "${item.name}" permanently?\n\nThis removes the file and every PDF inside it. This cannot be undone.`,
-    )) return;
+    const ok = await confirmDialog({
+      title: 'Delete permanently',
+      message: `This removes "${item.name}" and every PDF inside it. This cannot be undone.`,
+      confirmLabel: 'Delete forever',
+      danger: true,
+    });
+    if (!ok) return;
     const { deleteFromTrash } = await import('../services/projectFiles');
     await deleteFromTrash(item.filename);
     await refresh();
@@ -395,8 +414,14 @@ function VersionHistory({ project, onClose, onRestored }) {
   }, [onClose]);
 
   const handleRestore = async (version) => {
-    if (project.filename === getOpenFilename()
-      && !window.confirm('Restore this version? The current version is kept in history first, so you can undo this.')) return;
+    if (project.filename === getOpenFilename()) {
+      const ok = await confirmDialog({
+        title: 'Restore this version',
+        message: 'The current version is kept in history first, so you can undo this.',
+        confirmLabel: 'Restore',
+      });
+      if (!ok) return;
+    }
     setBusy(version.filename);
     setError('');
     try {
