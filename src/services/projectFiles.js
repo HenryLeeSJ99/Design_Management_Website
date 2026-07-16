@@ -6,6 +6,7 @@ import {
   deleteProjectRecord, fetchProjects, fetchTrashedProjects, updateProjectRecord,
 } from './supabaseDb';
 import { TwFileError } from './twFile';
+import { PROJECT_STATUSES } from './projectStatus';
 
 export const TRASH_DAYS = 30;
 
@@ -75,6 +76,28 @@ export async function deleteProjectFile(projectId) {
     await deleteProjectRecord(projectId);
   } catch (e) {
     throw new TwFileError(`Failed to delete project: ${e.message}`);
+  }
+}
+
+/**
+ * Move a project along its lifecycle (draft → active → completed).
+ *
+ * Rejects 'trashed' outright: binning a project has to go through
+ * trashProject() so the 30-day purge clock and the trash view stay the only
+ * path in and out of the bin.
+ *
+ * The role check lives in the UI. This is not the security boundary — the
+ * RLS policy on the projects table is.
+ */
+export async function setProjectStatus(projectId, status) {
+  if (!PROJECT_STATUSES.includes(status)) {
+    throw new TwFileError(`"${status}" is not a project status that can be set here.`);
+  }
+  try {
+    await updateProjectRecord(projectId, { status });
+    return projectId;
+  } catch (e) {
+    throw new TwFileError(`Could not change the project status: ${e.message}`);
   }
 }
 

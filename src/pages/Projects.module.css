@@ -152,10 +152,277 @@
   font-size: 0.9rem;
 }
 
+/* ── Toolbar: search, status filter, view toggle ── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-top: -1rem;
+}
+
+.searchWrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 200px;
+  max-width: 360px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  height: 42px;
+  padding: 0 1rem 0 36px;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 0.9rem;
+  transition: var(--transition-fast);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.filterSelect {
+  height: 42px;
+  padding: 0 0.85rem;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--bg-card);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.filterSelect:focus-visible {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.resultCount {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.viewToggle {
+  display: inline-flex;
+  gap: 0.2rem;
+  margin-left: auto;
+  padding: 0.25rem;
+  border-radius: 999px;
+  background: var(--border-color-light);
+}
+
+.viewBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.viewBtn:hover {
+  color: var(--text-main);
+}
+
+.viewBtnActive {
+  background: var(--bg-card);
+  color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.viewBtn:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+/* ── Status ── */
+.statusSelect {
+  align-self: flex-start;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.statusSelect:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.statusSelect:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.status_draft {
+  background: var(--border-color-light);
+  border-color: var(--border-color);
+  color: var(--text-muted);
+}
+
+.status_active {
+  background: var(--primary-light);
+  border-color: rgba(37, 99, 235, 0.25);
+  color: var(--primary);
+}
+
+.status_completed {
+  background: var(--success-light);
+  border-color: rgba(16, 185, 129, 0.25);
+  color: #047857;
+}
+
+.cardStatusRow {
+  display: flex;
+  margin-top: 0.25rem;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.5rem;
+}
+
+/* ── List view ── */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.listHeader,
+.listRow {
+  display: grid;
+  grid-template-columns: minmax(160px, 2.2fr) 120px 170px minmax(120px, 1.2fr) 80px auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+}
+
+.listHeader {
+  background: var(--bg-app);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.listActionsHead {
+  text-align: right;
+}
+
+.listRow {
+  border-bottom: 1px solid var(--border-color-light);
+  transition: background-color 0.15s var(--ease-out);
+}
+
+.listRow:last-child {
+  border-bottom: none;
+}
+
+.listRow:hover {
+  background: var(--bg-app);
+}
+
+.listName {
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.listCell {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.listActions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.4rem;
+}
+
+.listActions .btnSecondary {
+  height: 34px;
+  padding: 0 0.9rem;
+  font-size: 0.82rem;
+}
+
+.listActions .btnIconGhost {
+  width: 34px;
+  height: 34px;
+}
+
+/* The list is a table in spirit — below this it stops being readable as
+   columns, so each row folds into a stacked block instead. */
+@media (max-width: 900px) {
+  .listHeader {
+    display: none;
+  }
+
+  .listRow {
+    grid-template-columns: 1fr auto;
+    gap: 0.4rem 1rem;
+    padding: 1rem 1.25rem;
+  }
+
+  .listName {
+    grid-column: 1 / -1;
+    white-space: normal;
+  }
+
+  .listActions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+    margin-top: 0.5rem;
+  }
 }
 
 .card {

@@ -1,12 +1,14 @@
-import { useCallback, useEffect, useState, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  FolderOpen, History, Map, Plus, RefreshCw, Trash2, Undo2, LayoutTemplate, Calculator, Image as ImageIcon, X
+  FolderOpen, History, Map, Plus, RefreshCw, Trash2, Undo2, LayoutTemplate, Calculator,
+  Image as ImageIcon, X, LayoutGrid, List as ListIcon, Search,
 } from 'lucide-react';
 import {
   deleteFromTrash, listProjects, listVersions, purgeExpiredTrash,
-  restoreFromTrash, restoreVersion, trashProject, TRASH_DAYS,
+  restoreFromTrash, restoreVersion, setProjectStatus, trashProject, TRASH_DAYS,
 } from '../services/projectFiles';
+import { canChangeProjectStatus, PROJECT_STATUSES, statusLabel } from '../services/projectStatus';
 import {
   closeProject, createProject, exportLocalDraftAsTw, getOpenFilename,
   openProject, promoteLocalDraftToCloud, UnsavedDraftError,
@@ -211,6 +213,34 @@ function DraftGuardModal({ draft, onSave, onExport, onDiscard, onClose, busy }) 
   );
 }
 
+/**
+ * The status of one project. A <select> for whoever is allowed to change it,
+ * a plain badge for everyone else — so the status is always visible, and only
+ * the ability to move it is privileged.
+ */
+function StatusControl({ project, canEdit, busy, onChange }) {
+  const status = project.status || 'draft';
+  if (!canEdit) {
+    return <span className={`${styles.badge} ${styles[`status_${status}`] || ''}`}>{statusLabel(status)}</span>;
+  }
+  return (
+    <select
+      className={`${styles.statusSelect} ${styles[`status_${status}`] || ''}`}
+      value={status}
+      disabled={busy}
+      onChange={(e) => onChange(project, e.target.value)}
+      onClick={(e) => e.stopPropagation()}
+      aria-label={`Status of ${project.name}`}
+    >
+      {PROJECT_STATUSES.map((s) => (
+        <option key={s} value={s}>{statusLabel(s)}</option>
+      ))}
+    </select>
+  );
+}
+
+const VIEW_KEY = 'tempworks_projects_view';
+
 export default function Projects() {
   const navigate = useNavigate();
   const { role } = useAuth();
@@ -231,6 +261,15 @@ export default function Projects() {
   // Updated to include team_leader
   const isManagerLevel = role === 'admin' || role === 'manager' || role === 'team_leader';
   const isSales = role === 'sales';
+  const canSetStatus = canChangeProjectStatus(role);
+
+  // Card vs list is a per-person habit, so it outlives the page but not the
+  // browser profile — localStorage rather than a Supabase preference.
+  const [view, setView] = useState(() => localStorage.getItem(VIEW_KEY) || 'cards');
+  const [query, setQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState('all');
+
+  useEffect(() => { localStorage.setItem(VIEW_KEY, view); }, [view]);
 
   const [historyFor, setHistoryFor] = useState(null); // the project whose versions are shown
   const [draftGuard, setDraftGuard] = useState(null); // { calculations, resume } while the guard dialog is up
@@ -262,6 +301,23 @@ export default function Projects() {
   }, []);
 
   useEffect(() => { refresh(); }, [refresh]);
+
+  /**
+   * What the list actually shows: the trash ignores the search/filter bar
+   * (it has its own, much shorter, life), everything else is narrowed by the
+   * name search and the status filter together.
+   */
+  const visible = useMemo(() => {
+    if (showTrash) return trash;
+    const q = query.trim().toLowerCase();
+    return projects.filter((p) => {
+      if (statusFilter !== 'all' && (p.status || 'draft') !== statusFilter) return false;
+      if (!q) return true;
+      return p.name?.toLowerCase().includes(q) || p.updater_email?.toLowerCase().includes(q);
+    });
+  }, [showTrash, trash, projects, query, statusFilter]);
+
+  const filtersApplied = !showTrash && (query.trim() !== '' || statusFilter !== 'all');
 
   const guard = async (label, fn) => {
     setBusy(label);
@@ -392,6 +448,11 @@ export default function Projects() {
     }
   };
 
+  const handleStatusChange = (project, status) => guard(`status:${project.filename}`, async () => {
+    await setProjectStatus(project.filename, status);
+    await refresh();
+  });
+
   const handleDelete = (project) => guard(project.filename, async () => {
     const ok = await confirmDialog({
       title: 'Move to trash',
@@ -476,17 +537,132 @@ export default function Projects() {
       </header>
 
       {error && <div className={styles.errorBanner}><p>{error}</p></div>}
-      
-      <input 
-        type="file" 
-        accept="image/*" 
-        style={{ display: 'none' }} 
-        ref={coverInputRef} 
-        onChange={handleCoverSelect} 
+
+      {!showTrash && (
+        <div className={styles.toolbar}>
+          <div className={styles.searchWrap}>
+            <Search size={16} className={styles.searchIcon} />
+            <input
+              type="search"
+              className={styles.searchInput}
+              placeholder="Search projects…"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              aria-label="Search projects by name"
+            />
+          </div>
+
+          <select
+            className={styles.filterSelect}
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            aria-label="Filter by status"
+          >
+            <option value="all">All statuses</option>
+            {PROJECT_STATUSES.map((s) => (
+              <option key={s} value={s}>{statusLabel(s)}</option>
+            ))}
+          </select>
+
+          <span className={styles.resultCount}>
+            {visible.length} of {projects.length}
+          </span>
+
+          <div className={styles.viewToggle} role="group" aria-label="View mode">
+            <button
+              type="button"
+              className={`${styles.viewBtn} ${view === 'cards' ? styles.viewBtnActive : ''}`}
+              onClick={() => setView('cards')}
+              aria-pressed={view === 'cards'}
+              title="Card view"
+            >
+              <LayoutGrid size={16} />
+            </button>
+            <button
+              type="button"
+              className={`${styles.viewBtn} ${view === 'list' ? styles.viewBtnActive : ''}`}
+              onClick={() => setView('list')}
+              aria-pressed={view === 'list'}
+              title="List view"
+            >
+              <ListIcon size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      <input
+        type="file"
+        accept="image/*"
+        style={{ display: 'none' }}
+        ref={coverInputRef}
+        onChange={handleCoverSelect}
       />
 
-      <div className={styles.grid}>
-        {(!showTrash ? projects : trash).map((project) => (
+      <div className={view === 'list' ? styles.list : styles.grid}>
+        {view === 'list' && visible.length > 0 && (
+          <div className={styles.listHeader}>
+            <span>Name</span>
+            <span>Status</span>
+            <span>Modified</span>
+            <span>{showTrash ? 'Expires' : 'By'}</span>
+            <span>Size</span>
+            <span className={styles.listActionsHead}>Actions</span>
+          </div>
+        )}
+
+        {visible.map((project) => (view === 'list' ? (
+          <div key={project.filename} className={styles.listRow}>
+            <span className={styles.listName} title={project.name}>{project.name}</span>
+
+            <span className={styles.listCell}>
+              {showTrash
+                ? <span className={styles.badge}>{statusLabel('trashed')}</span>
+                : <StatusControl project={project} canEdit={canSetStatus} busy={!!busy} onChange={handleStatusChange} />}
+            </span>
+
+            <span className={styles.listCell}>{formatWhen(project.last_modified_at)}</span>
+
+            <span className={styles.listCell} title={project.updater_email || ''}>
+              {showTrash
+                ? `${daysLeft(project)} day${daysLeft(project) === 1 ? '' : 's'}`
+                : (isManagerLevel && project.updater_email) || '—'}
+            </span>
+
+            <span className={styles.listCell}>{formatSize(project.file_size)}</span>
+
+            <span className={styles.listActions}>
+              {!showTrash ? (
+                <>
+                  {!isSales && (
+                    <button type="button" className={styles.btnSecondary} onClick={() => handleOpen(project)} disabled={!!busy || !!project.error}>
+                      {openFilename === project.filename ? 'Resume' : 'Open'}
+                    </button>
+                  )}
+                  <button type="button" className={styles.btnIconGhost} onClick={() => setHistoryFor(project)} title="Version history" disabled={!!busy}>
+                    <History size={18} />
+                  </button>
+                  {isManagerLevel && (
+                    <button type="button" className={styles.btnIconGhost} onClick={() => handleDelete(project)} title="Move to trash" disabled={!!busy}>
+                      <Trash2 size={18} />
+                    </button>
+                  )}
+                </>
+              ) : (
+                <>
+                  <button type="button" className={styles.btnSecondary} onClick={() => handleRestore(project)} disabled={!!busy}>
+                    <Undo2 size={16} /> Restore
+                  </button>
+                  {isManagerLevel && (
+                    <button type="button" className={styles.btnIconGhost} onClick={() => handleDeleteForever(project)} title="Delete forever" disabled={!!busy}>
+                      <Trash2 size={18} />
+                    </button>
+                  )}
+                </>
+              )}
+            </span>
+          </div>
+        ) : (
           <div key={project.filename} className={styles.card}>
             <div className={styles.cardCover}>
               {project.cover_image ? (
@@ -496,10 +672,10 @@ export default function Projects() {
                   <ImageIcon size={48} />
                 </div>
               )}
-              
+
               {!showTrash && (role === 'admin' || role === 'manager') && (
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className={styles.editCoverBtn}
                   onClick={() => handleEditCoverClick(project.id)}
                   disabled={!!busy}
@@ -524,7 +700,11 @@ export default function Projects() {
                     {daysLeft(project)} day{daysLeft(project) === 1 ? '' : 's'} left before permanent deletion
                   </p>
                 )}
-                {isSales && <span className={styles.badge}>Status: {project.status}</span>}
+                {!showTrash && (
+                  <div className={styles.cardStatusRow}>
+                    <StatusControl project={project} canEdit={canSetStatus} busy={!!busy} onChange={handleStatusChange} />
+                  </div>
+                )}
                 <div className={styles.cardStats}>
                   {project.calculation_count > 0 && <span title="Calculations"><Calculator size={14} />{project.calculation_count}</span>}
                   {project.drawing_count > 0 && <span title="Drawings"><Map size={14} />{project.drawing_count}</span>}
@@ -561,15 +741,30 @@ export default function Projects() {
               )}
             </div>
           </div>
-        ))}
+        )))}
+
+        {visible.length === 0 && filtersApplied && !error && (
+          <div className={styles.emptyState}>
+            <Search size={48} className={styles.emptyIcon} />
+            <h2>No matching projects</h2>
+            <p>Nothing matches that search and filter. Try a different name, or widen the status filter.</p>
+            <button
+              type="button"
+              className={styles.btnSecondary}
+              onClick={() => { setQuery(''); setStatusFilter('all'); }}
+            >
+              Clear search and filter
+            </button>
+          </div>
+        )}
 
         {projects.length === 0 && !showTrash && !error && (
           <div className={styles.emptyState}>
             <LayoutTemplate size={48} className={styles.emptyIcon} />
             <h2>No projects yet</h2>
             <p>
-              {isManagerLevel 
-                ? 'Create a new project to get started.' 
+              {isManagerLevel
+                ? 'Create a new project to get started.'
                 : 'You have no assigned projects yet.'}
             </p>
             {isManagerLevel && (

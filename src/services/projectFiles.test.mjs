@@ -212,3 +212,54 @@ test('delete from trash also removes its version history (no orphans)', async ()
   await pf.deleteFromTrash('v');
   assert.equal((await pf.listVersions('v')).length, 0, 'no orphaned version objects remain after permanent deletion');
 });
+
+// --- Project status ---
+
+test('status: moves a project through the lifecycle', async () => {
+  db.clear(); blobs.clear();
+  await seedProject('s1', 'content');
+  assert.equal(db.get('s1').status, 'draft', 'starts as a draft');
+
+  await pf.setProjectStatus('s1', 'active');
+  assert.equal(db.get('s1').status, 'active');
+
+  await pf.setProjectStatus('s1', 'completed');
+  assert.equal(db.get('s1').status, 'completed');
+});
+
+test('status: refuses to bin a project through the status setter', async () => {
+  db.clear(); blobs.clear();
+  await seedProject('s2', 'content');
+
+  await assert.rejects(
+    () => pf.setProjectStatus('s2', 'trashed'),
+    /not a project status that can be set here/,
+    'trashing has to go through trashProject(), which starts the 30-day purge clock',
+  );
+  assert.equal(db.get('s2').status, 'draft', 'the project was left exactly as it was');
+});
+
+test('status: refuses a value that is not a status at all', async () => {
+  db.clear(); blobs.clear();
+  await seedProject('s3', 'content');
+
+  await assert.rejects(() => pf.setProjectStatus('s3', 'banana'), /not a project status/);
+  assert.equal(db.get('s3').status, 'draft');
+});
+
+test('status: only manager-level roles may change it', async () => {
+  const { canChangeProjectStatus } = await import('./projectStatus.js');
+
+  for (const role of ['admin', 'manager', 'team_leader']) {
+    assert.equal(canChangeProjectStatus(role), true, `${role} may change status`);
+  }
+  for (const role of ['designer', 'sales', null, undefined, '', 'Admin']) {
+    assert.equal(canChangeProjectStatus(role), false, `${JSON.stringify(role)} may not change status`);
+  }
+});
+
+test('status: trashed is not offered as a pickable status', async () => {
+  const { PROJECT_STATUSES } = await import('./projectStatus.js');
+  assert.deepEqual(PROJECT_STATUSES, ['draft', 'active', 'completed']);
+  assert.equal(PROJECT_STATUSES.includes('trashed'), false);
+});
