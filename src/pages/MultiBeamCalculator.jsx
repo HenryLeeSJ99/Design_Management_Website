@@ -5,7 +5,7 @@ import SavedDesigns from '../components/SavedDesigns';
 
 // sessionStorage keys that make up a saved design snapshot
 const DESIGN_SESSION_KEYS = ['tempworks_multibeam_inputs', 'tempworks_multibeam_results'];
-import DynamicBeamDiagram from '../calculators/MultiSpanBeam/DynamicBeamDiagram';
+import DynamicBeamDiagram from '../components/DynamicBeamDiagram';
 import styles from './MultiBeamCalculator.module.css';
 import { analyzeBeam } from '@engine/beam';
 import { getSectionByName, SECTIONS, STEEL_GRADES, SECTION_TYPES } from '@engine/materials';

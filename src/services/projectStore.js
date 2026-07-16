@@ -94,8 +94,29 @@ export function getProject() {
   }
 }
 
+/**
+ * Anyone who needs to know the project changed — in practice projectSession,
+ * which saves it back to the open .tw file.
+ *
+ * A listener rather than a direct call so this module stays the leaf: having
+ * the store import the session, which already imports the store, would be a
+ * cycle.
+ */
+const changeListeners = new Set();
+
+export function onProjectChange(listener) {
+  changeListeners.add(listener);
+  return () => changeListeners.delete(listener);
+}
+
 function setProject(project) {
   localStorage.setItem(PROJECT_STORAGE_KEY, JSON.stringify(project));
+  // A listener must never be able to break a save that already succeeded
+  changeListeners.forEach((listener) => {
+    try {
+      listener(project);
+    } catch { /* a broken listener is not the store's problem */ }
+  });
 }
 
 export function setProjectName(name) {

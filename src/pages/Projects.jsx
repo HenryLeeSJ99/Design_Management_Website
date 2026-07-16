@@ -1,226 +1,297 @@
-import { useState, useEffect } from 'react';
+/**
+ * Projects.jsx
+ * Every project in the engineer's projects folder, as cards.
+ *
+ * Each card is one .tw file on disk. This page is a view of a folder, not of
+ * browser storage — so what is listed here is what is backed up, copied and
+ * shared, and nothing is hiding in a database only this browser can see.
+ */
+
+import { useCallback, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getProjects, saveProject, deleteProject } from '../services/localDb';
+import {
+  AlertTriangle, Calculator, Copy, FolderOpen, FolderPlus, HardDrive, Layers,
+  Map, Pencil, Plus, RefreshCw, Trash2,
+} from 'lucide-react';
+import {
+  deleteProjectFile, ensurePermission, getFolder, isFolderSupported, listProjects,
+  needsPermission, pickFolder, readProjectFile, uniqueFilename, writeProjectFile,
+} from '../services/projectFiles';
+import { closeProject, createProject, getOpenFilename, openProject } from '../services/projectSession';
+import { TwFileError } from '../services/twFile';
 import styles from './Projects.module.css';
-import { Plus, Search, Edit2, Trash2, X } from 'lucide-react';
+
+const formatSize = (bytes) => {
+  if (!bytes) return '—';
+  if (bytes >= 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  return `${Math.max(1, Math.round(bytes / 1024))} KB`;
+};
+
+const formatWhen = (ts) => (ts
+  ? new Date(ts).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+  : '—');
 
 export default function Projects() {
   const navigate = useNavigate();
   const [projects, setProjects] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingId, setEditingId] = useState(null);
+  const [folderName, setFolderName] = useState(null);
+  const [state, setState] = useState('loading'); // loading | ready | no-folder | needs-permission | unsupported
+  const [error, setError] = useState('');
+  const [busy, setBusy] = useState('');
 
-  // Form State
-  const [formData, setFormData] = useState({
-    projectName: '',
-    client: '',
-    contractor: '',
-    location: '',
-    designStandard: 'BS EN 1993',
-    engineer: '',
-    status: 'Active',
-    remarks: ''
-  });
+  const openFilename = getOpenFilename();
 
-  const loadProjects = async () => {
-    setLoading(true);
+  const refresh = useCallback(async () => {
+    setError('');
+    if (!isFolderSupported()) { setState('unsupported'); return; }
+    if (await needsPermission()) { setState('needs-permission'); return; }
+    const dir = await getFolder();
+    if (!dir) { setState('no-folder'); return; }
+    setFolderName(dir.name);
     try {
-      const data = await getProjects();
-      setProjects(data);
-    } finally {
-      setLoading(false);
+      setProjects(await listProjects(dir));
+      setState('ready');
+    } catch (e) {
+      setError(e?.message || 'The projects folder could not be read.');
+      setState('ready');
     }
-  };
-
-  useEffect(() => {
-    loadProjects();
   }, []);
 
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  useEffect(() => { refresh(); }, [refresh]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (editingId) {
-      await saveProject({ id: editingId, ...formData });
-    } else {
-      await saveProject(formData);
-    }
-    closeModal();
-    loadProjects();
-  };
-
-  const handleEdit = (project, e) => {
-    e.stopPropagation();
-    setFormData(project);
-    setEditingId(project.id);
-    setIsModalOpen(true);
-  };
-
-  const handleDelete = async (id, e) => {
-    e.stopPropagation();
-    if(window.confirm('Are you sure you want to delete this project? All associated design cases will be orphaned.')) {
-      await deleteProject(id);
-      loadProjects();
+  const guard = async (label, fn) => {
+    setBusy(label);
+    setError('');
+    try {
+      await fn();
+    } catch (e) {
+      setError(e instanceof TwFileError ? e.message : (e?.message || 'Something went wrong.'));
+    } finally {
+      setBusy('');
     }
   };
 
-  const openModal = () => {
-    setFormData({
-      projectName: '', client: '', contractor: '', location: '',
-      designStandard: 'BS EN 1993', engineer: '', status: 'Active', remarks: ''
-    });
-    setEditingId(null);
-    setIsModalOpen(true);
-  };
+  const handlePickFolder = () => guard('folder', async () => {
+    if (await pickFolder()) await refresh();
+  });
 
-  const closeModal = () => setIsModalOpen(false);
+  const handleGrant = () => guard('folder', async () => {
+    await ensurePermission();
+    await refresh();
+  });
+
+  const handleNew = () => guard('new', async () => {
+    const name = window.prompt('Project name:', 'New Project');
+    if (!name || !name.trim()) return;
+    const filename = await uniqueFilename(name.trim());
+    await createProject(filename, name.trim());
+    navigate('/dashboard');
+  });
+
+  const handleOpen = (project) => guard(project.filename, async () => {
+    if (project.error) return;
+    await openProject(project.filename);
+    navigate('/dashboard');
+  });
+
+  const handleRename = (project) => guard(project.filename, async () => {
+    const name = window.prompt('Project name:', project.name);
+    if (!name || !name.trim() || name === project.name) return;
+
+    // No rename in the File System Access API: copy to the new name, then drop
+    // the old file. Read first so a failure leaves the original untouched.
+    const bytes = await readProjectFile(project.filename);
+    const target = await uniqueFilename(name.trim());
+    await writeProjectFile(target, new Uint8Array(bytes));
+    await deleteProjectFile(project.filename);
+
+    // Renaming the file does not rename the project inside it
+    await openProject(target);
+    const { setProjectName } = await import('../services/projectStore');
+    setProjectName(name.trim());
+    if (openFilename !== project.filename) await closeProject();
+    await refresh();
+  });
+
+  const handleDuplicate = (project) => guard(project.filename, async () => {
+    const bytes = await readProjectFile(project.filename);
+    const target = await uniqueFilename(`${project.name} copy`);
+    await writeProjectFile(target, new Uint8Array(bytes));
+    await refresh();
+  });
+
+  const handleDelete = (project) => guard(project.filename, async () => {
+    if (!window.confirm(
+      `Delete "${project.name}"?\n\nThis deletes ${project.filename} from your projects folder, including every PDF inside it. This cannot be undone.`,
+    )) return;
+    if (openFilename === project.filename) await closeProject();
+    await deleteProjectFile(project.filename);
+    await refresh();
+  });
+
+  // --- Empty / gate states ---
+
+  if (state === 'loading') {
+    return <div className={styles.pageContainer}><p className={styles.muted}>Reading your projects folder…</p></div>;
+  }
+
+  if (state === 'unsupported') {
+    return (
+      <div className={styles.pageContainer}>
+        <header className={styles.pageHeader}><div className={styles.titleBlock}><h1>Projects</h1></div></header>
+        <div className={styles.gate}>
+          <AlertTriangle size={22} className={styles.gateIcon} />
+          <div>
+            <p className={styles.gateTitle}>This browser can’t open a projects folder</p>
+            <p className={styles.gateHint}>
+              Opening a folder needs Chrome or Edge. In this browser you can still work on one project at a
+              time and move it with <strong>Import</strong> and <strong>Export</strong> on the dashboard —
+              same .tw file, just more steps.
+            </p>
+            <button type="button" className={styles.btnSecondary} onClick={() => navigate('/dashboard')}>
+              Go to the dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (state === 'needs-permission' || state === 'no-folder') {
+    const returning = state === 'needs-permission';
+    return (
+      <div className={styles.pageContainer}>
+        <header className={styles.pageHeader}><div className={styles.titleBlock}><h1>Projects</h1></div></header>
+        <div className={styles.gate}>
+          <FolderOpen size={22} className={styles.gateIcon} />
+          <div>
+            <p className={styles.gateTitle}>
+              {returning ? 'Reconnect your projects folder' : 'Choose where your projects live'}
+            </p>
+            <p className={styles.gateHint}>
+              {returning
+                ? 'Your browser needs permission again to read that folder. Nothing has been lost — your .tw files are still on disk.'
+                : 'Pick a folder and every project becomes a .tw file inside it — PDFs and drawings included. Back it up, sync it, copy it to another machine: it is yours.'}
+            </p>
+            {error && <p className={styles.error}>{error}</p>}
+            <button
+              type="button"
+              className={styles.btnPrimary}
+              onClick={returning ? handleGrant : handlePickFolder}
+              disabled={busy === 'folder'}
+            >
+              <FolderOpen size={15} /> {returning ? 'Reconnect folder' : 'Choose folder'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // --- The folder ---
 
   return (
-    <div className={styles.projectsContainer}>
-      <header className={styles.header}>
-        <div>
+    <div className={styles.pageContainer}>
+      <header className={styles.pageHeader}>
+        <div className={styles.titleBlock}>
           <h1>Projects</h1>
-          <p>Manage all your projects</p>
+          <p>
+            <HardDrive size={13} /> {folderName} · {projects.length} project{projects.length === 1 ? '' : 's'}
+          </p>
         </div>
-        <button className={styles.newProjectBtn} onClick={openModal}>
-          <Plus size={18} /> New Project
-        </button>
+        <div className={styles.headerActions}>
+          <button type="button" className={styles.btnSecondary} onClick={refresh} title="Re-read the folder">
+            <RefreshCw size={15} /> Refresh
+          </button>
+          <button type="button" className={styles.btnSecondary} onClick={handlePickFolder} disabled={busy === 'folder'}>
+            <FolderOpen size={15} /> Change folder
+          </button>
+          <button type="button" className={styles.btnPrimary} onClick={handleNew} disabled={busy === 'new'}>
+            <Plus size={15} /> New project
+          </button>
+        </div>
       </header>
 
-      <div className={styles.controlsRow}>
-        <div className={styles.searchBar}>
-          <Search size={18} className={styles.searchIcon} />
-          <input type="text" placeholder="Search projects..." />
+      {error && <div className={styles.errorBox}>{error}</div>}
+
+      {projects.length === 0 ? (
+        <div className={styles.emptyCard}>
+          <FolderPlus size={20} />
+          <p className={styles.emptyTitle}>No projects in this folder yet</p>
+          <p className={styles.emptyHint}>
+            Create one and it is saved as a .tw file in <strong>{folderName}</strong> as you work.
+          </p>
+          <button type="button" className={styles.btnPrimary} onClick={handleNew}>
+            <Plus size={15} /> New project
+          </button>
         </div>
-        <select className={styles.filterSelect}>
-          <option>All Status</option>
-          <option>Active</option>
-          <option>Completed</option>
-          <option>Draft</option>
-        </select>
-      </div>
+      ) : (
+        <div className={styles.grid}>
+          {projects.map((project) => {
+            const isOpen = openFilename === project.filename;
+            const working = busy === project.filename;
+            return (
+              <article
+                key={project.filename}
+                className={[styles.card, project.error ? styles.cardBroken : '', isOpen ? styles.cardOpen : ''].join(' ')}
+              >
+                {project.error ? (
+                  <>
+                    <div className={styles.cardHead}>
+                      <AlertTriangle size={16} className={styles.brokenIcon} />
+                      <h2 className={styles.cardName}>{project.name}</h2>
+                    </div>
+                    <p className={styles.brokenMsg}>{project.error}</p>
+                    <p className={styles.filename}>{project.filename}</p>
+                    <div className={styles.cardActions}>
+                      <button type="button" className={`${styles.iconBtn} ${styles.danger}`} onClick={() => handleDelete(project)} title="Delete this file">
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className={styles.cardHead}>
+                      <button type="button" className={styles.cardName} onClick={() => handleOpen(project)}>
+                        {project.name}
+                      </button>
+                      {isOpen && <span className={styles.openBadge}>Open</span>}
+                    </div>
 
-      <div className={styles.tableWrapper}>
-        <table className={styles.projectsTable}>
-          <thead>
-            <tr>
-              <th>Project Name</th>
-              <th>Client</th>
-              <th>Location</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              [...Array(3)].map((_, i) => (
-                <tr key={i}>
-                  <td><span className={styles.skeleton} /></td>
-                  <td><span className={styles.skeleton} /></td>
-                  <td><span className={`${styles.skeleton} ${styles.short}`} /></td>
-                  <td><span className={`${styles.skeleton} ${styles.short}`} /></td>
-                  <td><span className={`${styles.skeleton} ${styles.short}`} /></td>
-                </tr>
-              ))
-            ) : projects.length === 0 ? (
-              <tr><td colSpan="5" className={styles.emptyState}>No projects yet. Select New Project to create your first one.</td></tr>
-            ) : (
-              projects.map((p) => (
-                <tr key={p.id} onClick={() => navigate(`/projects/${p.id}`)} style={{cursor: 'pointer'}}>
-                  <td className={styles.primaryCell}>{p.projectName}</td>
-                  <td>{p.client}</td>
-                  <td>{p.location}</td>
-                  <td>
-                    <span className={`${styles.statusBadge} ${styles[p.status.toLowerCase().replace(' ', '')] || ''}`}>
-                      {p.status}
-                    </span>
-                  </td>
-                  <td className={styles.actionsCell}>
-                    <button className={styles.iconBtn} onClick={(e) => handleEdit(p, e)} title="Edit">
-                      <Edit2 size={16} />
-                    </button>
-                    <button className={`${styles.iconBtn} ${styles.danger}`} onClick={(e) => handleDelete(p.id, e)} title="Delete">
-                      <Trash2 size={16} />
-                    </button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+                    {project.cover?.reportReference && (
+                      <p className={styles.cardRef}>{project.cover.reportReference}</p>
+                    )}
 
-      {isModalOpen && (
-        <div className={styles.modalOverlay}>
-          <div className={styles.modal}>
-            <div className={styles.modalHeader}>
-              <h2>{editingId ? 'Edit Project' : 'New Project'}</h2>
-              <button className={styles.closeBtn} onClick={closeModal}><X size={20} /></button>
-            </div>
-            <form className={styles.modalForm} onSubmit={handleSubmit}>
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label>Project Name *</label>
-                  <input type="text" name="projectName" required value={formData.projectName} onChange={handleInputChange} />
-                </div>
-                <div className={styles.formGroup}>
-                  <label>Location</label>
-                  <input type="text" name="location" value={formData.location} onChange={handleInputChange} />
-                </div>
-              </div>
-              
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label>Client</label>
-                  <input type="text" name="client" value={formData.client} onChange={handleInputChange} />
-                </div>
-                <div className={styles.formGroup}>
-                  <label>Contractor</label>
-                  <input type="text" name="contractor" value={formData.contractor} onChange={handleInputChange} />
-                </div>
-              </div>
+                    <div className={styles.stats}>
+                      <span title="Calculations"><Calculator size={12} /> {project.calculationCount}</span>
+                      <span title="Drawings"><Map size={12} /> {project.drawingCount}</span>
+                      <span title="Documents"><Layers size={12} /> {project.documentCount}</span>
+                    </div>
 
-              <div className={styles.formRow}>
-                <div className={styles.formGroup}>
-                  <label>Engineer</label>
-                  <input type="text" name="engineer" value={formData.engineer} onChange={handleInputChange} />
-                </div>
-                <div className={styles.formGroup}>
-                  <label>Status</label>
-                  <select name="status" value={formData.status} onChange={handleInputChange}>
-                    <option value="Active">Active</option>
-                    <option value="On Hold">On Hold</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Archived">Archived</option>
-                  </select>
-                </div>
-              </div>
+                    <p className={styles.meta}>
+                      {formatSize(project.size)} · saved {formatWhen(project.modifiedAt)}
+                    </p>
+                    <p className={styles.filename} title={project.filename}>{project.filename}</p>
 
-              <div className={styles.formGroup}>
-                <label>Design Standard</label>
-                <select name="designStandard" value={formData.designStandard} onChange={handleInputChange}>
-                  <option value="BS EN 1993">BS EN 1993 (Steel)</option>
-                  <option value="BS EN 1995">BS EN 1995 (Timber)</option>
-                  <option value="BS 5975">BS 5975 (Temporary Works)</option>
-                </select>
-              </div>
-              
-              <div className={styles.formGroup}>
-                <label>Remarks</label>
-                <textarea name="remarks" rows="3" value={formData.remarks} onChange={handleInputChange}></textarea>
-              </div>
-
-              <div className={styles.modalActions}>
-                <button type="button" onClick={closeModal} className={styles.cancelBtn}>Cancel</button>
-                <button type="submit" className={styles.submitBtn}>
-                  {editingId ? 'Save Changes' : 'Create Project'}
-                </button>
-              </div>
-            </form>
-          </div>
+                    <div className={styles.cardActions}>
+                      <button type="button" className={styles.openBtn} onClick={() => handleOpen(project)} disabled={working}>
+                        {working ? 'Opening…' : 'Open'}
+                      </button>
+                      <button type="button" className={styles.iconBtn} onClick={() => handleRename(project)} title="Rename" disabled={working}>
+                        <Pencil size={14} />
+                      </button>
+                      <button type="button" className={styles.iconBtn} onClick={() => handleDuplicate(project)} title="Duplicate" disabled={working}>
+                        <Copy size={14} />
+                      </button>
+                      <button type="button" className={`${styles.iconBtn} ${styles.danger}`} onClick={() => handleDelete(project)} title="Delete" disabled={working}>
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </>
+                )}
+              </article>
+            );
+          })}
         </div>
       )}
     </div>

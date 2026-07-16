@@ -5,7 +5,7 @@ import { calculateSlabFormwork } from '../engine/formwork/slabFormwork.js';
 import { FORMWORK_BEAMS, getFormworkBeam } from '../engine/materials/formworkBeams.js';
 import styles from './SlabFormworkCalculator.module.css';
 import slabDiagram from '../assets/slab-diagram.png';
-import DynamicBeamDiagram from '../calculators/MultiSpanBeam/DynamicBeamDiagram';
+import DynamicBeamDiagram from '../components/DynamicBeamDiagram';
 import SavedDesigns from '../components/SavedDesigns';
 import plytecLogoUrl from '../assets/PLYTEC_Logo.svg';
 

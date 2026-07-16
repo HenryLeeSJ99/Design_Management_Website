@@ -42,3 +42,15 @@ export const putPdf = (id, bytes) => run('readwrite', (store) => store.put(bytes
 export const getPdf = (id) => run('readonly', (store) => store.get(id));
 
 export const deletePdf = (id) => run('readwrite', (store) => store.delete(id));
+
+/**
+ * Drop every cached PDF.
+ *
+ * The cache holds the open project's bytes. Opening a different project must
+ * empty it first — otherwise a leftover blob could resolve against an id in
+ * the new project and quietly show the wrong drawing.
+ */
+export const clearAllPdfs = () => run('readwrite', (store) => store.clear());
+
+/** Every pdfId currently cached — used to find blobs no project references. */
+export const listPdfIds = () => run('readonly', (store) => store.getAllKeys());

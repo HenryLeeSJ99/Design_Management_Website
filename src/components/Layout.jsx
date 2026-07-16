@@ -3,8 +3,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import styles from './Layout.module.css';
 import Logo from './Logo';
 import RouteLoader from './RouteLoader';
-import { Menu, X, SquareMenu, Layers, Building, ChevronsUp, Columns, Cuboid, RefreshCw, LayoutDashboard } from 'lucide-react';
-import { PROJECT_STORAGE_KEY } from '../services/projectStore';
+import { Menu, X, SquareMenu, Layers, Building, ChevronsUp, Columns, Cuboid, RefreshCw, LayoutDashboard, FolderOpen } from 'lucide-react';
 
 // Page titles shown beside the hamburger in the mobile top header
 // (pages hide their own title blocks on small viewports)
@@ -15,7 +14,6 @@ const PAGE_TITLES = [
   { path: '/calculators/shoring-tower', title: 'Shoring Tower' },
   { path: '/dashboard', title: 'Dashboard' },
   { path: '/projects', title: 'Projects' },
-  { path: '/library', title: 'Library' },
 ];
 
 function getPageTitle(pathname) {
@@ -34,25 +32,27 @@ export default function Layout() {
   }, [location.pathname]);
 
   const handleClearCache = async () => {
-    // Clear sessionStorage (calculator state)
+    // Calculator working state and the stale-bundle reload guards all live in
+    // sessionStorage, so this is the whole of the app's throwaway state
     sessionStorage.clear();
-    // Clear localStorage — but keep saved project data (calculations,
-    // legacy projects/design cases); "clear cache" must never delete work
-    const keep = ['projects', 'designCases', PROJECT_STORAGE_KEY]
-      .map((key) => [key, localStorage.getItem(key)])
-      .filter(([, value]) => value != null);
-    localStorage.clear();
-    keep.forEach(([key, value]) => localStorage.setItem(key, value));
-    // Clear all service worker / browser caches
+
+    // localStorage is deliberately left alone. It holds only the open project
+    // and which .tw file it came from — work, not cache. This used to wipe
+    // localStorage and restore an allowlist of keys worth keeping, which meant
+    // any key the allowlist had not been told about was silently destroyed;
+    // adding a new key elsewhere in the app was enough to lose data here.
+
+    // Service worker / browser caches — the actual cache
     if ('caches' in window) {
       const cacheNames = await caches.keys();
-      await Promise.all(cacheNames.map(name => caches.delete(name)));
+      await Promise.all(cacheNames.map((name) => caches.delete(name)));
     }
     // Hard reload bypassing cache
     window.location.reload(true);
   };
 
   const navItems = [
+    { name: 'Projects', path: '/projects', icon: FolderOpen },
     { name: 'Project Dashboard', path: '/dashboard', icon: LayoutDashboard },
   ];
 

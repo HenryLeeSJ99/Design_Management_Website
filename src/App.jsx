@@ -10,13 +10,10 @@ import { useState, useEffect, lazy, Suspense } from 'react';
 // Route-level code splitting: each of these (and their dependencies -
 // Chart.js, jsPDF, html2canvas) ships in its own chunk and only
 // loads when the user actually navigates there.
+const Projects = lazy(() => import('./pages/Projects'));
 const ProjectDashboard = lazy(() => import('./pages/ProjectDashboard'));
 const DrawingViewer = lazy(() => import('./pages/DrawingViewer'));
 const NotFound = lazy(() => import('./pages/NotFound'));
-const Projects = lazy(() => import('./pages/Projects'));
-const ProjectDetails = lazy(() => import('./pages/ProjectDetails'));
-const Library = lazy(() => import('./pages/Library'));
-const MultiSpanBeamCalculator = lazy(() => import('./calculators/MultiSpanBeam/MultiSpanBeamCalculator'));
 const MultiBeamCalculator = lazy(() => import('./pages/MultiBeamCalculator'));
 const SlabFormworkCalculator = lazy(() => import('./pages/SlabFormworkCalculator'));
 const WallFormworkCalculator = lazy(() => import('./pages/WallFormworkCalculator'));
@@ -46,7 +43,10 @@ function App() {
               {/* Default home → landing page */}
               <Route index element={<Home />} />
 
-              {/* Project dashboard — saved calculations for the project */}
+              {/* Every project in the engineer's folder, one .tw file each */}
+              <Route path="projects" element={<Projects />} />
+
+              {/* Project dashboard — saved calculations for the open project */}
               <Route path="dashboard" element={<ProjectDashboard />} />
 
               {/* Plan drawing markup canvas — pdf.js ships in its own chunk */}
@@ -57,12 +57,6 @@ function App() {
               <Route path="calculators/slab-formwork" element={<CalcInstance><SlabFormworkCalculator /></CalcInstance>} />
               <Route path="calculators/wall-formwork" element={<CalcInstance><WallFormworkCalculator /></CalcInstance>} />
               <Route path="calculators/shoring-tower" element={<CalcInstance><ShoringTowerCalculator /></CalcInstance>} />
-
-              {/* Legacy Routes */}
-              <Route path="projects" element={<Projects />} />
-              <Route path="projects/:projectId" element={<ProjectDetails />} />
-              <Route path="projects/:projectId/case/:dcId" element={<MultiSpanBeamCalculator />} />
-              <Route path="library" element={<Library />} />
 
               {/* 404 — catch-all nested under layout */}
               <Route path="*" element={<NotFound />} />
