@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 import { SquareMenu, Layers, Building, ChevronsUp, Columns, Cuboid, ArrowRight } from 'lucide-react';
 import styles from './Home.module.css';
 
@@ -34,20 +35,27 @@ const upcoming = [
   { name: 'Beam Formwork', icon: Cuboid },
 ];
 
-function getGreeting() {
+function getGreeting(user) {
+  let name = 'User';
+  if (user) {
+    name = user.user_metadata?.display_name || user.email?.split('@')[0] || 'User';
+  }
+
   const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 18) return 'Good afternoon';
-  return 'Good evening';
+  if (hour < 12) return `Good morning, ${name}`;
+  if (hour < 18) return `Good afternoon, ${name}`;
+  return `Good evening, ${name}`;
 }
 
 const HEADLINE_WORDS = ['What', 'would', 'you', 'do', 'today?'];
 
 export default function Home() {
+  const { user } = useAuth();
+
   return (
     <div className={styles.home}>
       <div className={styles.inner}>
-        <p className={styles.greeting}>{getGreeting()}</p>
+        <p className={styles.greeting}>{getGreeting(user)}</p>
 
         <h1 className={styles.headline} aria-label="What would you do today?">
           {HEADLINE_WORDS.map((word, i) => (

@@ -17,6 +17,7 @@ const Projects = lazy(() => import('./pages/Projects'));
 const ProjectDashboard = lazy(() => import('./pages/ProjectDashboard'));
 const DrawingViewer = lazy(() => import('./pages/DrawingViewer'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const Settings = lazy(() => import('./pages/Settings'));
 const MultiBeamCalculator = lazy(() => import('./pages/MultiBeamCalculator'));
 const SlabFormworkCalculator = lazy(() => import('./pages/SlabFormworkCalculator'));
 const WallFormworkCalculator = lazy(() => import('./pages/WallFormworkCalculator'));
@@ -62,6 +63,9 @@ function App() {
 
                 {/* Project dashboard — saved calculations for the open project */}
                 <Route path="dashboard" element={<AuthGuard><ProjectDashboard /></AuthGuard>} />
+                
+                {/* User Settings */}
+                <Route path="settings" element={<AuthGuard><Settings /></AuthGuard>} />
 
                 {/* Plan drawing markup canvas — pdf.js ships in its own chunk */}
                 <Route path="drawing/:itemId" element={<AuthGuard><DrawingViewer /></AuthGuard>} />

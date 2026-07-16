@@ -134,30 +134,49 @@ export default function DynamicBeamDiagram({ spans = [], loads = [], reactions =
           </text>
         </g>
       );
-    } else if (load.type === 'udl') {
+    } else if (load.type === 'udl' || load.type === 'varying') {
       const spanLength = spans[load.spanIndex] ? Number(spans[load.spanIndex].length || 0) : 0;
       const clampedStart = Math.max(0, Math.min(Number(load.posStart || 0), spanLength));
       const clampedEnd = Math.max(clampedStart, Math.min(Number(load.posEnd || 0), spanLength));
       const startX = margin.left + (spanStartX + clampedStart) * scale;
       const endX = margin.left + (spanStartX + clampedEnd) * scale;
-      const mag = Number(load.magnitude || 0);
-      const height = 20;
-      const isUp = mag < 0;
-      const yPos = isUp ? beamY + 10 : beamY - 10 - height;
       
-      // Draw a box for UDL
+      const mag = Number(load.magnitude || 0);
+      const magEnd = load.type === 'varying' && load.magnitudeEnd !== undefined ? Number(load.magnitudeEnd) : mag;
+      const maxMag = Math.max(Math.abs(mag), Math.abs(magEnd)) || 1;
+      const hStart = (Math.abs(mag) / maxMag) * 20;
+      const hEnd = (Math.abs(magEnd) / maxMag) * 20;
+      
+      const isUp = (mag + magEnd) / 2 < 0;
+      const yBase = isUp ? beamY + 10 : beamY - 10;
+      const yTopStart = isUp ? yBase + hStart : yBase - hStart;
+      const yTopEnd = isUp ? yBase + hEnd : yBase - hEnd;
+
+      const pts = `${startX},${yBase} ${startX},${yTopStart} ${endX},${yTopEnd} ${endX},${yBase}`;
+      
       return (
         <g key={`load-${index}`}>
-          <rect x={startX} y={yPos} width={Math.max(1, endX - startX)} height={height} fill="rgba(220, 38, 38, 0.2)" stroke="#dc2626" strokeWidth="1" />
-          {/* UDL arrows */}
+          <polygon points={pts} fill="rgba(220, 38, 38, 0.2)" stroke="#dc2626" strokeWidth="1" />
+          {/* UDL/Varying arrows */}
           {Array.from({length: Math.max(2, Math.floor((endX - startX) / 20))}).map((_, i, arr) => {
             const px = startX + (endX - startX) * (i / (arr.length - 1));
+            const pyTop = yTopStart + (yTopEnd - yTopStart) * (i / (arr.length - 1));
+            // if isUp is true, arrow points UP from pyTop to yBase. Wait, markerEnd is on y2.
+            // If load is DOWN (isUp=false), arrow points DOWN to yBase. y1 = pyTop, y2 = yBase.
+            // If load is UP (isUp=true), arrow points UP to yBase. y1 = pyTop, y2 = yBase.
             return (
-              <line key={i} x1={px} y1={isUp ? yPos + height : yPos} x2={px} y2={isUp ? yPos : yPos + height} stroke="#dc2626" strokeWidth="1" markerEnd="url(#arrow)" />
+              <line key={i} x1={px} y1={pyTop} x2={px} y2={yBase} stroke="#dc2626" strokeWidth="1" markerEnd="url(#arrow)" />
             )
           })}
-          <text x={(startX + endX)/2} y={isUp ? yPos + height + 15 * textScale : yPos - 5 * textScale} fill="#dc2626" fontSize={Math.round(12 * textScale)} textAnchor="middle" fontWeight="bold">
-            {mag} kN/m
+          <text 
+            x={(startX + endX)/2} 
+            y={isUp ? Math.max(yTopStart, yTopEnd) + 15 * textScale : Math.min(yTopStart, yTopEnd) - 5 * textScale} 
+            fill="#dc2626" 
+            fontSize={Math.round(12 * textScale)} 
+            textAnchor="middle" 
+            fontWeight="bold"
+          >
+            {load.type === 'varying' ? `${mag} to ${magEnd} kN/m` : `${mag} kN/m`}
           </text>
         </g>
       );

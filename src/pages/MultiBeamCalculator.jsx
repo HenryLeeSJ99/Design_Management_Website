@@ -440,6 +440,7 @@ export default function MultiBeamCalculator({ initialTab }) {
   const [modalPosEnd, setModalPosEnd] = useState(1500);
   const [modalPos, setModalPos] = useState(750);
   const [modalMagnitude, setModalMagnitude] = useState(10);
+  const [modalMagnitudeEnd, setModalMagnitudeEnd] = useState(10);
   const [projectId, setProjectId] = useState(initialInputs.projectId);
   // Migrate the old 'Antigravity AI' prefill persisted in older sessions
   const [calculatedBy, setCalculatedBy] = useState(
@@ -576,6 +577,7 @@ export default function MultiBeamCalculator({ initialTab }) {
     setModalPosEnd(String(spans[0]?.length || 1500));
     setModalPos(String(Math.round(Number(spans[0]?.length || 1500) / 2)));
     setModalMagnitude('10');
+    setModalMagnitudeEnd('10');
     setLoadModalOpen(true);
   };
 
@@ -589,6 +591,7 @@ export default function MultiBeamCalculator({ initialTab }) {
     setModalPosEnd(String(load.posEnd !== undefined ? load.posEnd : Number(spans[load.spanIndex]?.length || 1500)));
     setModalPos(String(load.pos !== undefined ? load.pos : Math.round(Number(spans[load.spanIndex]?.length || 1500) / 2)));
     setModalMagnitude(String(load.magnitude));
+    setModalMagnitudeEnd(String(load.magnitudeEnd !== undefined ? load.magnitudeEnd : load.magnitude));
     setLoadModalOpen(true);
   };
 
@@ -598,11 +601,14 @@ export default function MultiBeamCalculator({ initialTab }) {
       spanIndex: Number(modalSpanIndex),
       magnitude: Number(modalMagnitude),
     };
-    if (modalLoadType === 'udl') {
+    if (modalLoadType === 'udl' || modalLoadType === 'varying') {
       newLoad.posStart = Number(modalPosStart);
       newLoad.posEnd = Number(modalPosEnd);
       const currentSpanLength = Number(spans[modalSpanIndex]?.length || 0);
       newLoad.isFullSpan = (newLoad.posStart === 0 && newLoad.posEnd === currentSpanLength);
+      if (modalLoadType === 'varying') {
+        newLoad.magnitudeEnd = Number(modalMagnitudeEnd);
+      }
     } else {
       newLoad.pos = Number(modalPos);
     }
@@ -668,6 +674,11 @@ export default function MultiBeamCalculator({ initialTab }) {
       if (load.magnitude == null || isNaN(load.magnitude) || load.magnitude === '') {
         return `Load ${i + 1} magnitude must be a valid number.`;
       }
+      if (load.type === 'varying') {
+        if (load.magnitudeEnd == null || isNaN(load.magnitudeEnd) || load.magnitudeEnd === '') {
+          return `Load ${i + 1} end magnitude must be a valid number.`;
+        }
+      }
       if (load.type === 'point') {
         const pos = Number(load.pos);
         if (isNaN(pos) || pos < 0 || pos > span.length) {
@@ -676,14 +687,15 @@ export default function MultiBeamCalculator({ initialTab }) {
       } else {
         const start = Number(load.posStart);
         const end = Number(load.posEnd);
+        const typeName = load.type === 'udl' ? 'UDL' : 'Trapezoidal Load';
         if (isNaN(start) || start < 0 || start > span.length) {
-          return `Load ${i + 1} (UDL) start position must be between 0 and Span ${load.spanIndex + 1} length.`;
+          return `Load ${i + 1} (${typeName}) start position must be between 0 and Span ${load.spanIndex + 1} length.`;
         }
         if (isNaN(end) || end < 0 || end > span.length) {
-          return `Load ${i + 1} (UDL) end position must be between 0 and Span ${load.spanIndex + 1} length.`;
+          return `Load ${i + 1} (${typeName}) end position must be between 0 and Span ${load.spanIndex + 1} length.`;
         }
         if (start > end) {
-          return `Load ${i + 1} (UDL) start position cannot be greater than end position.`;
+          return `Load ${i + 1} (${typeName}) start position cannot be greater than end position.`;
         }
       }
     }
@@ -768,10 +780,16 @@ export default function MultiBeamCalculator({ initialTab }) {
         }
 
         // Construct ULS loads (factored by lf; lf = 1.0 for system beams)
-        const loads_ULS = loads_SLS.map((l) => ({
-          ...l,
-          magnitude: l.magnitude * lf
-        }));
+        const loads_ULS = loads_SLS.map((l) => {
+          const newLoad = {
+            ...l,
+            magnitude: l.magnitude * lf
+          };
+          if (l.type === 'varying' && l.magnitudeEnd !== undefined) {
+            newLoad.magnitudeEnd = l.magnitudeEnd * lf;
+          }
+          return newLoad;
+        });
 
         // Solver runs
         const E_val = section.E || 210000;
@@ -1216,8 +1234,8 @@ export default function MultiBeamCalculator({ initialTab }) {
                                   textTransform: 'uppercase', 
                                   padding: '2px 6px', 
                                   borderRadius: '4px', 
-                                  background: load.type === 'udl' ? '#fee2e2' : '#dbeafe', 
-                                  color: load.type === 'udl' ? '#991b1b' : '#1e40af',
+                                  background: load.type === 'udl' || load.type === 'varying' ? '#fee2e2' : '#dbeafe', 
+                                  color: load.type === 'udl' || load.type === 'varying' ? '#991b1b' : '#1e40af',
                                   display: 'inline-flex',
                                   alignItems: 'center',
                                   gap: '4px'
@@ -1230,24 +1248,33 @@ export default function MultiBeamCalculator({ initialTab }) {
                                         <path key={x} d={`M${x} 4 L${x} 10`} stroke="#ef4444" strokeWidth="1.5" />
                                       ))}
                                     </svg>
+                                  ) : load.type === 'varying' ? (
+                                    <svg width="14" height="8" viewBox="0 0 24 12" style={{ pointerEvents: 'none' }}>
+                                      <line x1="2" y1="10" x2="22" y2="10" stroke="#991b1b" strokeWidth="3" strokeLinecap="round" />
+                                      <line x1="4" y1="4" x2="20" y2="1" stroke="#ef4444" strokeWidth="1.5" strokeDasharray="2 2" />
+                                      {[4, 8, 12, 16, 20].map((x, i) => {
+                                        const y = 4 - (i * 3 / 4);
+                                        return <path key={x} d={`M${x} ${y} L${x} 10`} stroke="#ef4444" strokeWidth="1.5" />;
+                                      })}
+                                    </svg>
                                   ) : (
                                     <svg width="14" height="8" viewBox="0 0 24 12" style={{ pointerEvents: 'none' }}>
                                       <line x1="2" y1="10" x2="22" y2="10" stroke="#1e40af" strokeWidth="3" strokeLinecap="round" />
                                       <path d="M12 2 L12 10 M12 10 L9 7 M12 10 L15 7" stroke="#ef4444" strokeWidth="2.5" strokeLinecap="round" />
                                     </svg>
                                   )}
-                                  {load.type.toUpperCase()}
+                                  {load.type === 'varying' ? 'TRAPEZOIDAL' : load.type.toUpperCase()}
                                 </span>
                                 <span style={{ fontSize: '13px', color: '#334155', fontWeight: 600 }}>
                                   Span {load.spanIndex + 1}
                                 </span>
                                 <span style={{ fontSize: '13px', color: '#64748b' }}>
-                                  {load.type === 'udl' 
+                                  {load.type === 'udl' || load.type === 'varying'
                                     ? `from ${load.posStart} to ${load.posEnd} mm` 
                                     : `at ${load.pos} mm`}
                                 </span>
                                 <span style={{ fontSize: '13px', color: '#0f172a', fontWeight: 700, marginLeft: 'auto' }}>
-                                  {load.magnitude} {load.type === 'udl' ? 'kN/m' : 'kN'}
+                                  {load.type === 'varying' ? `${load.magnitude} to ${load.magnitudeEnd} kN/m` : `${load.magnitude} ${load.type === 'udl' ? 'kN/m' : 'kN'}`}
                                 </span>
                               </div>
                               <div style={{ display: 'flex', gap: '6px' }}>
@@ -1401,6 +1428,34 @@ export default function MultiBeamCalculator({ initialTab }) {
                     </svg>
                     <span style={{ fontSize: '12px', fontWeight: 700, marginTop: '6px', color: modalLoadType === 'point' ? '#1e40af' : '#475569' }}>Point Load</span>
                   </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setModalLoadType('varying')}
+                    style={{
+                      flex: 1,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      padding: '12px 8px',
+                      borderRadius: '10px',
+                      border: modalLoadType === 'varying' ? '2px solid #3b82f6' : '1px solid #e2e8f0',
+                      background: modalLoadType === 'varying' ? '#eff6ff' : '#ffffff',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s ease'
+                    }}
+                  >
+                    {/* Trapezoidal Diagram */}
+                    <svg width="100" height="40" viewBox="0 0 120 60" style={{ pointerEvents: 'none' }}>
+                      <line x1="10" y1="45" x2="110" y2="45" stroke={modalLoadType === 'varying' ? '#3b82f6' : '#64748b'} strokeWidth="3" strokeLinecap="round" />
+                      <line x1="20" y1="20" x2="100" y2="5" stroke="#ef4444" strokeWidth="2" strokeDasharray="3 3" />
+                      {[20, 40, 60, 80, 100].map((x, i) => {
+                        const y = 20 - (i * 15 / 4);
+                        return <path key={x} d={`M${x} ${y} L${x} 40 M${x} 40 L${x-3} 37 M${x} 40 L${x+3} 37`} stroke="#ef4444" strokeWidth="1.5" />
+                      })}
+                    </svg>
+                    <span style={{ fontSize: '12px', fontWeight: 700, marginTop: '6px', color: modalLoadType === 'varying' ? '#1e40af' : '#475569' }}>Trapezoidal Load</span>
+                  </button>
                 </div>
               </div>
 
@@ -1417,7 +1472,7 @@ export default function MultiBeamCalculator({ initialTab }) {
               </div>
 
               {/* Position parameters */}
-              {modalLoadType === 'udl' ? (
+              {modalLoadType === 'udl' || modalLoadType === 'varying' ? (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <div>
                     <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px' }}>Start (mm)</label>
@@ -1460,17 +1515,44 @@ export default function MultiBeamCalculator({ initialTab }) {
               )}
 
               {/* Load Magnitude */}
-              <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px' }}>
-                  Magnitude ({modalLoadType === 'udl' ? 'kN/m' : 'kN'})
-                </label>
-                <input
-                  type="number"
-                  value={modalMagnitude}
-                  onChange={(e) => setModalMagnitude(cleanNumericInput(e.target.value))}
-                  style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', fontWeight: 700 }}
-                />
-              </div>
+              {modalLoadType === 'varying' ? (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px' }}>
+                      Start Mag (kN/m)
+                    </label>
+                    <input
+                      type="number"
+                      value={modalMagnitude}
+                      onChange={(e) => setModalMagnitude(cleanNumericInput(e.target.value))}
+                      style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', fontWeight: 700 }}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px' }}>
+                      End Mag (kN/m)
+                    </label>
+                    <input
+                      type="number"
+                      value={modalMagnitudeEnd}
+                      onChange={(e) => setModalMagnitudeEnd(cleanNumericInput(e.target.value))}
+                      style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', fontWeight: 700 }}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px' }}>
+                    Magnitude ({modalLoadType === 'udl' ? 'kN/m' : 'kN'})
+                  </label>
+                  <input
+                    type="number"
+                    value={modalMagnitude}
+                    onChange={(e) => setModalMagnitude(cleanNumericInput(e.target.value))}
+                    style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', fontWeight: 700 }}
+                  />
+                </div>
+              )}
             </div>
 
             {/* Modal Footer */}

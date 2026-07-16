@@ -28,11 +28,12 @@
 
 /**
  * @typedef {Object} PhysicalLoad
- * @property {'point'|'udl'} type
+ * @property {'point'|'udl'|'varying'} type
  * @property {number} spanIndex - 0-based index of the physical span
  * @property {number} posStart - Position from left node of span (mm)
- * @property {number} [posEnd] - End position for partial UDLs (mm)
- * @property {number} magnitude - kN (point) or kN/m (udl); downward positive
+ * @property {number} [posEnd] - End position for partial UDLs and varying loads (mm)
+ * @property {number} magnitude - kN (point) or kN/m (udl/varying start); downward positive
+ * @property {number} [magnitudeEnd] - kN/m (varying end); downward positive
  */
 
 /**
@@ -42,7 +43,7 @@
  * @property {number[]} internalSpans - Element lengths (mm)
  * @property {Array<{type: SupportType}>} internalSupports
  * @property {number[]} nodalLoads - Point loads at each internal node (kN)
- * @property {number[]} elementLoads - UDL on each internal element (kN/m)
+ * @property {Array<{w1: number, w2: number}>} elementLoads - Start and end UDL on each internal element (kN/m)
  * @property {number[]} physicalNodeIndices - Maps physical nodes → internal node indices
  */
 

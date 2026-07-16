@@ -21,7 +21,7 @@
  * @param {number[]} params.spans - Array of span lengths in mm
  * @param {Array<{type: 'pin'|'roller'|'fixed'|'free'}>} params.supports - Support conditions
  * @param {number[]} params.nodalLoads - Downward point loads at each node (kN)
- * @param {number[]} params.elementLoads - Downward full-span UDL on each element (kN/m)
+ * @param {Array<{w1: number, w2: number}>} params.elementLoads - Start and end UDL on each element (kN/m)
  * @param {number} params.E - Modulus of elasticity in MPa (N/mm²)
  * @param {number} params.I - Moment of inertia in cm⁴
  * @returns {BeamResults} Analysis results
@@ -47,9 +47,9 @@ export function solveBeam({ spans, supports, nodalLoads, elementLoads, E, I }) {
 
   for (let e = 0; e < numSpans; e++) {
     const L = spans[e];
-    const w = elementLoads[e]; // N/mm (since 1 kN/m = 1 N/mm)
+    const { w1, w2 } = elementLoads[e]; // N/mm (since 1 kN/m = 1 N/mm)
     const ke = elementStiffnessMatrix(EI, L);
-    const fe = fixedEndForces(w, L);
+    const fe = fixedEndForces(w1, w2, L);
 
     // DOF mapping: node e → [2e, 2e+1], node e+1 → [2e+2, 2e+3]
     const dofMap = [2 * e, 2 * e + 1, 2 * e + 2, 2 * e + 3];
@@ -123,17 +123,27 @@ function elementStiffnessMatrix(EI, L) {
   ];
 }
 
-function fixedEndForces(w, L) {
+function fixedEndForces(w1, w2, L) {
   // For a downward load w (positive magnitude), actual load is -w.
-  // Fixed-end reactions (to hold nodes at 0 displacement) in Y-up system:
-  // R1(up) = +wL/2, M1(ccw) = +wL^2/12, R2(up) = +wL/2, M2(cw) = -wL^2/12
-  const wL = w * L;
-  const wL2 = w * L * L;
+  // Fixed-end reactions (to hold nodes at 0 displacement) in Y-up system.
+  // Uniform part (w1)
+  const V1_u = w1 * L / 2;
+  const M1_u = w1 * L * L / 12;
+  const V2_u = w1 * L / 2;
+  const M2_u = -w1 * L * L / 12;
+  
+  // Triangular part (dw = w2 - w1)
+  const dw = w2 - w1;
+  const V1_t = 3 * dw * L / 20;
+  const M1_t = dw * L * L / 30;
+  const V2_t = 7 * dw * L / 20;
+  const M2_t = -dw * L * L / 20;
+  
   return [
-     wL / 2,
-     wL2 / 12,
-     wL / 2,
-    -wL2 / 12,
+    V1_u + V1_t,
+    M1_u + M1_t,
+    V2_u + V2_t,
+    M2_u + M2_t,
   ];
 }
 
@@ -235,7 +245,7 @@ function buildResults(u, F_fixed, K, nodeX, spans, supports, EI, elementLoads, r
     const L = spans[e];
     const startX = nodeX[e];
     const endX = nodeX[e + 1];
-    const w = elementLoads[e]; // N/mm (positive = downward)
+    const { w1, w2 } = elementLoads[e]; // N/mm (positive = downward)
 
     const v1 = u[2 * e];
     const theta1 = u[2 * e + 1];
@@ -243,7 +253,7 @@ function buildResults(u, F_fixed, K, nodeX, spans, supports, EI, elementLoads, r
     const theta2 = u[2 * e + 3];
 
     const ke = elementStiffnessMatrix(EI, L);
-    const fe = fixedEndForces(w, L);
+    const fe = fixedEndForces(w1, w2, L);
     const ue = [v1, theta1, v2, theta2];
 
     const f_elem = new Array(4).fill(0);
@@ -268,10 +278,13 @@ function buildResults(u, F_fixed, K, nodeX, spans, supports, EI, elementLoads, r
       const x_local = xi * L;
       const x_global = startX + x_local;
 
-      const V_N = P_left - w * x_local;
+      const w_x = w1 + (w2 - w1) * x_local / L;
+      const load_area = w1 * x_local + (w2 - w1) * x_local * x_local / (2 * L);
+      const V_N = P_left - load_area;
       const V_kN = V_N / 1000;
 
-      const M_Nmm = M_left + P_left * x_local - w * x_local * x_local / 2;
+      const load_moment = w1 * x_local * x_local / 2 + (w2 - w1) * x_local * x_local * x_local / (6 * L);
+      const M_Nmm = M_left + P_left * x_local - load_moment;
       const M_kNm = M_Nmm / 1e6;
 
       const xi2 = xi * xi;
@@ -283,8 +296,11 @@ function buildResults(u, F_fixed, K, nodeX, spans, supports, EI, elementLoads, r
       const N4 = L * (-xi2 + xi3);
 
       const v_shape = N1 * v1 + N2 * theta1 + N3 * v2 + N4 * theta2;
-      // Downward load (w) produces downward (-) particular deflection
-      const v_particular = -(w * L * L * L * L) / (24 * EI) * xi2 * (1 - xi) * (1 - xi);
+      
+      // Downward load produces downward (-) particular deflection
+      const v_part_u = -(w1 * L * L * L * L) / (24 * EI) * xi2 * (1 - xi) * (1 - xi);
+      const v_part_t = -( (w2 - w1) * L * L * L * L ) / (120 * EI) * (xi3 * xi2 - 3 * xi3 + 2 * xi2);
+      const v_particular = v_part_u + v_part_t;
 
       const deflection = v_shape + v_particular;
 

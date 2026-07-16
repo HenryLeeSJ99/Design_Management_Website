@@ -26,7 +26,7 @@
  * @property {number[]} internalSpans - Lengths of internal elements (mm)
  * @property {Array<{type: string}>} internalSupports - Support conditions at every internal node
  * @property {number[]} nodalLoads - Downward point loads at each internal node (kN)
- * @property {number[]} elementLoads - Downward full-span UDL on each internal element (kN/m)
+ * @property {Array<{w1: number, w2: number}>} elementLoads - Start and end UDL on each internal element (kN/m)
  * @property {number[]} physicalNodeIndices - Which internal nodes correspond to the original physical nodes
  */
 
@@ -52,7 +52,7 @@ export function buildMesh(spans, loads) {
     if (load.type === 'point') {
       const pos = load.pos ?? load.posStart;
       if (pos != null) spanSlicePoints[load.spanIndex].add(Number(pos));
-    } else if (load.type === 'udl') {
+    } else if (load.type === 'udl' || load.type === 'varying') {
       spanSlicePoints[load.spanIndex].add(Number(load.posStart));
       if (load.posEnd !== undefined && load.posEnd !== null) {
         spanSlicePoints[load.spanIndex].add(Number(load.posEnd));
@@ -113,19 +113,31 @@ export function buildMesh(spans, loads) {
       }
       nodalLoads.push(0); // Initialize load array
       
-      // Determine element load (UDL)
-      let w = 0;
+      // Determine element load (UDL or varying)
+      let w1 = 0;
+      let w2 = 0;
       loads.forEach(load => {
-        if (load.type === 'udl' && load.spanIndex === s) {
+        if ((load.type === 'udl' || load.type === 'varying') && load.spanIndex === s) {
           const lStart = Number(load.posStart);
           const lEnd = Number(load.posEnd !== undefined && load.posEnd !== null ? load.posEnd : physicalSpan.length);
-          // If the element is strictly inside the UDL range
+          
+          // If the element is strictly inside the load range
           if (xStart >= lStart - 1e-5 && xEnd <= lEnd + 1e-5) {
-            w += load.magnitude;
+            if (load.type === 'udl') {
+              w1 += load.magnitude;
+              w2 += load.magnitude;
+            } else if (load.type === 'varying') {
+              const mStart = load.magnitude;
+              const mEnd = load.magnitudeEnd !== undefined ? load.magnitudeEnd : load.magnitude;
+              const getW = (x) => lEnd === lStart ? mStart : mStart + (mEnd - mStart) * (x - lStart) / (lEnd - lStart);
+              
+              w1 += getW(xStart);
+              w2 += getW(xEnd);
+            }
           }
         }
       });
-      elementLoads.push(w);
+      elementLoads.push({ w1, w2 });
     }
   }
 

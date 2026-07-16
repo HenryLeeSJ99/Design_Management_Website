@@ -24,5 +24,9 @@
   "22": "SplashScreen.jsx",
   "23": "RouteLoader.jsx",
   "24": "CalcInstance.jsx",
-  "25": "Layout.jsx"
+  "25": "Layout.jsx",
+  "26": "projectSession.js",
+  "27": "pdfStore.js",
+  "28": "markupGeometry.test.mjs",
+  "29": "projectFiles.test.mjs"
 }

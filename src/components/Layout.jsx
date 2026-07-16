@@ -3,7 +3,7 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import styles from './Layout.module.css';
 import Logo from './Logo';
 import RouteLoader from './RouteLoader';
-import { Menu, X, SquareMenu, Layers, Building, ChevronsUp, Columns, Cuboid, RefreshCw, LayoutDashboard, FolderOpen } from 'lucide-react';
+import { Menu, X, SquareMenu, Layers, Building, ChevronsUp, Columns, Cuboid, RefreshCw, LayoutDashboard, FolderOpen, Settings as SettingsIcon } from 'lucide-react';
 
 // Page titles shown beside the hamburger in the mobile top header
 // (pages hide their own title blocks on small viewports)
@@ -54,6 +54,7 @@ export default function Layout() {
   const navItems = [
     { name: 'Projects', path: '/projects', icon: FolderOpen },
     { name: 'Project Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { name: 'Settings', path: '/settings', icon: SettingsIcon },
   ];
 
   const calculators = [
