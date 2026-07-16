@@ -76,6 +76,20 @@ function normalizeCover(cover) {
   };
 }
 
+// --- Zones ---
+// A project (a building) is organised into zones — a level, a range of levels,
+// or a poured section: "Level 2", "Levels 3-20 (Typical)", "Roof". Zones are
+// first-class and ordered so one can exist empty, be renamed and reordered;
+// each item carries a zoneId (null = unassigned), which keeps the flat item
+// array intact so the rest of the app changes little.
+
+const normalizeZones = (zones) =>
+  (Array.isArray(zones) ? zones : [])
+    .filter((z) => z && z.id)
+    .map((z, i) => ({ id: z.id, name: z.name || 'Untitled zone', order: Number.isFinite(z.order) ? z.order : i }))
+    .sort((a, b) => a.order - b.order)
+    .map((z, i) => ({ ...z, order: i })); // re-index so order is always 0..n-1
+
 // --- Project store (localStorage) ---
 
 export function getProject() {
@@ -86,11 +100,12 @@ export function getProject() {
       name: project?.name || 'My Project',
       coverPage: !!project?.coverPage,
       cover: normalizeCover(project?.cover),
+      zones: normalizeZones(project?.zones),
       // Ordered items: type 'calculation' (default for older saves), 'pdf' or 'drawing'
       calculations: Array.isArray(project?.calculations) ? project.calculations : [],
     };
   } catch {
-    return { name: 'My Project', coverPage: false, cover: normalizeCover(), calculations: [] };
+    return { name: 'My Project', coverPage: false, cover: normalizeCover(), zones: [], calculations: [] };
   }
 }
 
@@ -128,6 +143,7 @@ export function replaceProject(project) {
     name: project?.name || 'My Project',
     coverPage: !!project?.coverPage,
     cover: normalizeCover(project?.cover),
+    zones: normalizeZones(project?.zones),
     calculations: Array.isArray(project?.calculations) ? project.calculations : [],
   });
 }
@@ -146,6 +162,74 @@ export function setCoverPageEnabled(enabled) {
 export function setCover(patch) {
   const project = getProject();
   setProject({ ...project, cover: normalizeCover({ ...project.cover, ...patch }) });
+}
+
+// --- Zone CRUD ---
+
+/** Add a zone at the end. Returns its id. */
+export function addZone(name) {
+  const project = getProject();
+  const id = generateId();
+  const zones = [...project.zones, { id, name: name || 'New zone', order: project.zones.length }];
+  setProject({ ...project, zones: normalizeZones(zones) });
+  return id;
+}
+
+export function renameZone(id, name) {
+  const project = getProject();
+  const zones = project.zones.map((z) => (z.id === id ? { ...z, name } : z));
+  setProject({ ...project, zones: normalizeZones(zones) });
+}
+
+/** Delete a zone; its items fall back to unassigned rather than vanishing. */
+export function deleteZone(id) {
+  const project = getProject();
+  setProject({
+    ...project,
+    zones: normalizeZones(project.zones.filter((z) => z.id !== id)),
+    calculations: project.calculations.map((c) => (c.zoneId === id ? { ...c, zoneId: null } : c)),
+  });
+}
+
+/** Move a zone from one position to another (reorders the divider sequence). */
+export function moveZone(fromIndex, toIndex) {
+  const project = getProject();
+  const zones = [...project.zones];
+  if (fromIndex < 0 || fromIndex >= zones.length || toIndex < 0 || toIndex >= zones.length) return;
+  const [moved] = zones.splice(fromIndex, 1);
+  zones.splice(toIndex, 0, moved);
+  setProject({ ...project, zones: normalizeZones(zones.map((z, i) => ({ ...z, order: i }))) });
+}
+
+/** Assign an item to a zone (or null for unassigned). */
+export function setItemZone(itemId, zoneId) {
+  const project = getProject();
+  setProject({
+    ...project,
+    calculations: project.calculations.map((c) => (c.id === itemId ? { ...c, zoneId: zoneId || null } : c)),
+  });
+}
+
+/**
+ * Items grouped for display and compilation: each zone in order with the items
+ * assigned to it, then an unassigned group last. Within a group, items keep
+ * their order in the flat calculations array — the single source of ordering.
+ *
+ * Returns [{ zone: {id,name} | null, items: [...] }]. A zone with no items is
+ * still returned (so an empty zone shows on the dashboard); the unassigned
+ * group is only returned when it actually has items.
+ */
+export function groupItemsByZone(project) {
+  const p = project || getProject();
+  const byZone = new Map(p.zones.map((z) => [z.id, []]));
+  const unassigned = [];
+  for (const item of p.calculations) {
+    const bucket = item.zoneId && byZone.has(item.zoneId) ? byZone.get(item.zoneId) : unassigned;
+    bucket.push(item);
+  }
+  const groups = p.zones.map((zone) => ({ zone, items: byZone.get(zone.id) }));
+  if (unassigned.length) groups.push({ zone: null, items: unassigned });
+  return groups;
 }
 
 /**
@@ -433,8 +517,9 @@ export function exportProjectFile() {
     exportedAt: Date.now(),
     project: {
       ...project,
-      // The cover is typed data, so it travels in full. PDF bytes live in this
-      // device's IndexedDB, so PDF and drawing items cannot — only calculations do.
+      // The cover and zones are typed data, so they travel in full. PDF bytes
+      // live in this device's IndexedDB, so PDF and drawing items cannot — only
+      // calculations do (keeping their zoneId so the grouping survives).
       calculations: project.calculations.filter((c) => itemType(c) === 'calculation'),
     },
   });
@@ -457,13 +542,18 @@ export function importProjectFile(obj) {
       name: c.name || 'Untitled',
       calculator: c.calculator,
       data: c.data,
+      zoneId: c.zoneId || null,
       createdAt: c.createdAt || Date.now(),
       updatedAt: c.updatedAt || Date.now(),
     }));
+  // Keep only zones that still have at least one surviving item, since drawings
+  // and PDFs did not travel in the JSON export
+  const liveZoneIds = new Set(calculations.map((c) => c.zoneId).filter(Boolean));
   setProject({
     name: incoming.name || 'My Project',
     coverPage: !!incoming.coverPage,
     cover: normalizeCover(incoming.cover),
+    zones: normalizeZones(incoming.zones).filter((z) => liveZoneIds.has(z.id)),
     calculations,
   });
   return calculations.length;

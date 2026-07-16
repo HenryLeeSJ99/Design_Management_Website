@@ -12,7 +12,7 @@
 import { PDFDocument, StandardFonts, rgb } from 'pdf-lib';
 import { getPdf } from './pdfStore';
 import { rectToUserSpace } from './markupGeometry';
-import { getMarkups, itemType, CALCULATORS } from './projectStore';
+import { getMarkups, groupItemsByZone, itemType, CALCULATORS } from './projectStore';
 
 // A4 portrait, points
 const PAGE_W = 595.28;
@@ -185,14 +185,33 @@ export async function compileProjectPdf(project) {
     boldItalic: await out.embedFont(StandardFonts.HelveticaBoldOblique),
   };
 
-  const withCover = !!project.coverPage;
-  const coverPages = withCover ? 1 + contentsPageCount(items.length) : 0;
+  // Arrange the loaded items into a printable sequence: each zone's items
+  // preceded by a divider page, unassigned items last. A project with no zones
+  // produces one group and no dividers, exactly as before.
+  const loadedById = new Map(loaded.map((entry) => [entry.item.id, entry]));
+  const showDividers = project.zones.length > 0;
+  const sequence = [];
+  for (const { zone, items: groupItems } of groupItemsByZone(project)) {
+    if (showDividers) sequence.push({ kind: 'divider', label: zone ? zone.name : 'Unassigned' });
+    for (const item of groupItems) {
+      sequence.push({ kind: 'item', ...loadedById.get(item.id) });
+    }
+  }
 
-  // Assign start pages for the contents
+  const withCover = !!project.coverPage;
+  // The contents lists both dividers and items, so its length drives its pages
+  const coverPages = withCover ? 1 + contentsPageCount(sequence.length) : 0;
+
+  // Assign start pages: a divider is one page, an item is its PDF's page count
   let nextPage = coverPages + 1;
-  const toc = loaded.map(({ item, doc }) => {
-    const pageCount = doc ? doc.getPageCount() : 1;
-    const entry = { item, startPage: nextPage };
+  const toc = sequence.map((node) => {
+    if (node.kind === 'divider') {
+      const entry = { divider: true, label: node.label, startPage: nextPage };
+      nextPage += 1;
+      return entry;
+    }
+    const pageCount = node.doc ? node.doc.getPageCount() : 1;
+    const entry = { item: node.item, startPage: nextPage };
     nextPage += pageCount;
     return entry;
   });
@@ -203,10 +222,17 @@ export async function compileProjectPdf(project) {
   }
 
   // Where each item ends up, so a markup can cite its calculation's page
-  const startPageById = new Map(toc.map((entry) => [entry.item.id, entry.startPage]));
+  const startPageById = new Map(
+    toc.filter((e) => e.item).map((entry) => [entry.item.id, entry.startPage]),
+  );
 
-  // Body: copy each item's pages (or draw a placeholder page)
-  for (const { item, doc } of loaded) {
+  // Body: divider pages, then each item's pages (or a placeholder)
+  for (const node of sequence) {
+    if (node.kind === 'divider') {
+      drawZoneDivider(out, { ...fonts, label: node.label });
+      continue;
+    }
+    const { item, doc } = node;
     if (doc) {
       const pages = await out.copyPages(doc, doc.getPageIndices());
       const markups = itemType(item) === 'drawing' ? getMarkups(item) : [];
@@ -225,6 +251,24 @@ export async function compileProjectPdf(project) {
 
   const bytes = await out.save();
   return { bytes, warnings };
+}
+
+/** A full-page section divider announcing a zone. */
+function drawZoneDivider(out, { bold, label }) {
+  const page = out.addPage([PAGE_W, PAGE_H]);
+  const centerY = PAGE_H / 2;
+  page.drawText('ZONE', { x: MARGIN, y: centerY + 26, size: 11, font: bold, color: ACCENT });
+  // Wrap a long zone name rather than let it run off the page
+  const lines = wrapText(label, bold, 26, PAGE_W - MARGIN * 2);
+  let y = centerY - 6;
+  for (const line of lines.slice(0, 3)) {
+    page.drawText(line, { x: MARGIN, y, size: 26, font: bold, color: INK });
+    y -= 32;
+  }
+  page.drawLine({
+    start: { x: MARGIN, y: centerY + 18 }, end: { x: PAGE_W - MARGIN, y: centerY + 18 },
+    thickness: 1.5, color: LINE,
+  });
 }
 
 /**
@@ -474,13 +518,28 @@ function drawContents(out, { font, bold, toc }) {
     y = PAGE_H - MARGIN - 40;
   };
 
+  let itemNo = 0;
   toc.forEach((entry, index) => {
     // Keep the drawn rows in step with contentsPageCount()
     if (index % CONTENTS_ROWS === 0) startPage();
     const pageNoText = String(entry.startPage);
-    page.drawText(`${index + 1}.`, { x: MARGIN, y, size: 10.5, font: bold, color: MUTED });
-    page.drawText(truncate(entry.item.name, 58), { x: MARGIN + 24, y, size: 10.5, font: bold, color: INK });
-    page.drawText(itemLabel(entry.item), { x: MARGIN + 24, y: y - 12, size: 8.5, font, color: MUTED });
+
+    if (entry.divider) {
+      // A zone heading: the zone name in the accent colour, its divider page number
+      page.drawText(truncate(entry.label, 54), { x: MARGIN, y, size: 11, font: bold, color: ACCENT });
+      page.drawText(pageNoText, {
+        x: PAGE_W - MARGIN - font.widthOfTextAtSize(pageNoText, 10.5), y, size: 10.5, font, color: INK,
+      });
+      y -= 26;
+      return;
+    }
+
+    itemNo += 1;
+    // Items indent under their zone heading when zones are in play
+    const indent = MARGIN + 24;
+    page.drawText(`${itemNo}.`, { x: MARGIN + 10, y, size: 10.5, font: bold, color: MUTED });
+    page.drawText(truncate(entry.item.name, 54), { x: indent, y, size: 10.5, font: bold, color: INK });
+    page.drawText(itemLabel(entry.item), { x: indent, y: y - 12, size: 8.5, font, color: MUTED });
     page.drawText(pageNoText, {
       x: PAGE_W - MARGIN - font.widthOfTextAtSize(pageNoText, 10.5), y, size: 10.5, font, color: INK,
     });

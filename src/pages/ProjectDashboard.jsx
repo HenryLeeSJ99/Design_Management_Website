@@ -12,7 +12,6 @@ import {
   FileText,
   FileUp,
   FolderInput,
-  GripVertical,
   Layers,
   Link2,
   Loader2,
@@ -20,6 +19,7 @@ import {
   Paperclip,
   PenLine,
   Pencil,
+  Plus,
   Trash2,
   Undo2,
   X,
@@ -32,12 +32,18 @@ import {
   coverHasContent,
   deleteCalculation,
   exportCalculationFile,
+  addZone,
+  deleteZone,
   exportProjectFile,
   getMarkups,
   getProject,
+  groupItemsByZone,
   importProjectFile,
   itemType,
   moveCalculation,
+  moveZone,
+  renameZone,
+  setItemZone,
   parseCalculationFile,
   readJsonFile,
   renameItem,
@@ -111,10 +117,6 @@ export default function ProjectDashboard() {
   const [progress, setProgress] = useState(null);
   const reportJobRef = useRef(null);
 
-  // Drag state for reordering
-  const [dragIndex, setDragIndex] = useState(null);
-  const [overIndex, setOverIndex] = useState(null);
-
   const refresh = () => {
     setProject(getProject());
     setCoverEditorKey((k) => k + 1);
@@ -157,6 +159,9 @@ export default function ProjectDashboard() {
   }, {});
   const attachedCount = calcs.filter((c) => c.pdfId).length;
   const lastUpdated = items.reduce((max, c) => Math.max(max, c.updatedAt || 0), 0);
+
+  // Items arranged for display: each zone in order, then unassigned last
+  const groups = groupItemsByZone(project);
 
   const handleRenameProject = async () => {
     const name = await promptDialog({
@@ -214,6 +219,69 @@ export default function ProjectDashboard() {
     recordUndo('reorder items');
     moveCalculation(from, to);
     refresh();
+  };
+
+  // --- Zones ---
+
+  const handleAddZone = async () => {
+    const name = await promptDialog({
+      title: 'Add zone',
+      label: 'Zone name',
+      placeholder: 'e.g. Level 2, Levels 3–20 (Typical), Roof',
+      confirmLabel: 'Add',
+    });
+    if (!name) return;
+    recordUndo('add zone');
+    addZone(name);
+    refresh();
+  };
+
+  const handleRenameZone = async (zone) => {
+    const name = await promptDialog({
+      title: 'Rename zone',
+      label: 'Zone name',
+      defaultValue: zone.name,
+      confirmLabel: 'Rename',
+    });
+    if (name && name !== zone.name) {
+      recordUndo(`rename zone "${zone.name}"`);
+      renameZone(zone.id, name);
+      refresh();
+    }
+  };
+
+  const handleDeleteZone = async (zone) => {
+    const ok = await confirmDialog({
+      title: 'Delete zone',
+      message: `Delete the zone "${zone.name}"? Its calculations and drawings are kept and move to Unassigned.`,
+      confirmLabel: 'Delete zone',
+      danger: true,
+    });
+    if (!ok) return;
+    recordUndo(`delete zone "${zone.name}"`);
+    deleteZone(zone.id);
+    refresh();
+  };
+
+  const handleMoveZone = (from, to) => {
+    recordUndo('reorder zones');
+    moveZone(from, to);
+    refresh();
+  };
+
+  const handleSetItemZone = (item, zoneId) => {
+    recordUndo(`move "${item.name}" to a zone`);
+    setItemZone(item.id, zoneId);
+    refresh();
+  };
+
+  // Reorder an item within its own zone group by swapping with its group
+  // neighbour, translated to the flat-array indices moveCalculation expects.
+  const handleMoveInGroup = (groupItems, item, dir) => {
+    const pos = groupItems.indexOf(item);
+    const neighbour = groupItems[pos + dir];
+    if (!neighbour) return;
+    handleMove(items.indexOf(item), items.indexOf(neighbour));
   };
 
   const handleUndo = () => {
@@ -432,27 +500,125 @@ export default function ProjectDashboard() {
     }
   };
 
-  // --- Drag & drop reorder ---
-  const onDragStart = (index) => (e) => {
-    setDragIndex(index);
-    e.dataTransfer.effectAllowed = 'move';
-    // Firefox needs data set for a drag to start
-    e.dataTransfer.setData('text/plain', String(index));
-  };
-  const onDragOver = (index) => (e) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    if (index !== overIndex) setOverIndex(index);
-  };
-  const onDrop = (index) => (e) => {
-    e.preventDefault();
-    if (dragIndex != null && dragIndex !== index) handleMove(dragIndex, index);
-    setDragIndex(null);
-    setOverIndex(null);
-  };
-  const onDragEnd = () => {
-    setDragIndex(null);
-    setOverIndex(null);
+  // One item row. groupItems is the item's own zone group, so the in-zone
+  // reorder arrows can tell whether a neighbour exists above or below it.
+  const renderItem = (item, groupItems) => {
+    const type = itemType(item);
+    const isPdf = type === 'pdf';
+    const isDrawing = type === 'drawing';
+    const isCalc = type === 'calculation';
+    const markupCount = isDrawing ? getMarkups(item).length : 0;
+    const links = isCalc ? linksByCalc[item.id] || [] : [];
+    const pos = groupItems.indexOf(item);
+    return (
+      <div className={styles.row} key={item.id}>
+        <span className={styles.orderNo}>{pos + 1}</span>
+
+        <div className={styles.rowInfo}>
+          {isPdf ? (
+            <span className={styles.rowNameStatic}>{item.name}</span>
+          ) : (
+            <button
+              type="button"
+              className={styles.rowName}
+              onClick={() => (isDrawing ? navigate(`/drawing/${item.id}`) : handleOpen(item))}
+              title={isDrawing ? 'Open drawing markup' : 'Open in calculator'}
+            >
+              {item.name}
+            </button>
+          )}
+          <div className={styles.rowMeta}>
+            <span className={`${styles.badge} ${isPdf ? styles.badgePdf : ''} ${isDrawing ? styles.badgeDrawing : ''}`}>
+              {isPdf && 'PDF document'}
+              {isDrawing && 'Plan drawing'}
+              {isCalc && (CALCULATORS[item.calculator]?.title || item.calculator)}
+            </span>
+            {item.pdfId && (
+              <span className={styles.pdfChip} title={item.pdfName}>
+                <Paperclip size={11} /> {isCalc ? `Report · ${formatSize(item.pdfSize)}` : formatSize(item.pdfSize)}
+              </span>
+            )}
+            {isDrawing && (
+              <span className={styles.markupChip}>
+                <PenLine size={11} /> {markupCount} markup{markupCount === 1 ? '' : 's'}
+              </span>
+            )}
+            {links.map(({ markup, drawing }) => (
+              <button
+                type="button"
+                key={markup.id}
+                className={styles.linkChip}
+                onClick={() => navigate(`/drawing/${drawing.id}`)}
+                title={`${markup.label || 'Markup'} on "${drawing.name}" — open the drawing`}
+              >
+                <Link2 size={11} /> {drawing.name} · p.{markup.page} · {markup.tag}
+              </button>
+            ))}
+            <span className={styles.rowDate}>Updated {formatWhen(item.updatedAt)}</span>
+          </div>
+        </div>
+
+        <div className={styles.rowActions}>
+          {project.zones.length > 0 && (
+            <select
+              className={styles.zoneSelect}
+              value={item.zoneId || ''}
+              onChange={(e) => handleSetItemZone(item, e.target.value)}
+              title="Move to zone"
+            >
+              <option value="">Unassigned</option>
+              {project.zones.map((z) => (
+                <option key={z.id} value={z.id}>{z.name}</option>
+              ))}
+            </select>
+          )}
+
+          <span className={styles.moveBtns}>
+            <button type="button" className={styles.iconBtn} disabled={pos === 0} onClick={() => handleMoveInGroup(groupItems, item, -1)} title="Move up">
+              <ArrowUp size={14} />
+            </button>
+            <button type="button" className={styles.iconBtn} disabled={pos === groupItems.length - 1} onClick={() => handleMoveInGroup(groupItems, item, 1)} title="Move down">
+              <ArrowDown size={14} />
+            </button>
+          </span>
+
+          {isCalc && (
+            <button type="button" className={styles.openBtn} onClick={() => handleOpen(item)}>
+              Open
+            </button>
+          )}
+          {isDrawing && (
+            <button type="button" className={styles.openBtn} onClick={() => navigate(`/drawing/${item.id}`)}>
+              Markup
+            </button>
+          )}
+
+          {item.pdfId ? (
+            <button type="button" className={styles.iconBtn} onClick={() => handleDownloadItemPdf(item)} title="Download PDF">
+              <Download size={14} />
+            </button>
+          ) : (
+            isCalc && (
+              <button
+                type="button"
+                className={styles.iconBtn}
+                onClick={() => { clearMessages(); exportCalculationFile(item); }}
+                title="Export design to .json file"
+              >
+                <Download size={14} />
+              </button>
+            )
+          )}
+
+          <button type="button" className={styles.iconBtn} onClick={() => handleRename(item)} title="Rename">
+            <Pencil size={14} />
+          </button>
+          <button type="button" className={`${styles.iconBtn} ${styles.danger}`} onClick={() => handleDelete(item)} title="Delete">
+            <Trash2 size={14} />
+          </button>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -468,7 +634,7 @@ export default function ProjectDashboard() {
           <p>
             {items.length === 0
               ? 'Project dashboard — saved calculations will appear here'
-              : 'Drag rows to arrange the compiled document order'}
+              : 'Group items into zones; the compiled PDF follows the zone order'}
           </p>
         </div>
         <div className={styles.headerActions}>
@@ -631,7 +797,7 @@ export default function ProjectDashboard() {
         </div>
       )}
 
-      {items.length === 0 ? (
+      {items.length === 0 && project.zones.length === 0 ? (
         <div className={styles.emptyCard}>
           <p className={styles.emptyTitle}>No calculations in this project yet</p>
           <p className={styles.emptyHint}>
@@ -640,125 +806,44 @@ export default function ProjectDashboard() {
           </p>
         </div>
       ) : (
-        <div className={styles.listCard}>
-          {items.map((item, index) => {
-            const type = itemType(item);
-            const isPdf = type === 'pdf';
-            const isDrawing = type === 'drawing';
-            const isCalc = type === 'calculation';
-            const markupCount = isDrawing ? getMarkups(item).length : 0;
-            const links = isCalc ? linksByCalc[item.id] || [] : [];
-            return (
-              <div
-                key={item.id}
-                className={[
-                  styles.row,
-                  dragIndex === index ? styles.dragging : '',
-                  overIndex === index && dragIndex !== null && dragIndex !== index ? styles.dropTarget : '',
-                ].join(' ')}
-                draggable
-                onDragStart={onDragStart(index)}
-                onDragOver={onDragOver(index)}
-                onDrop={onDrop(index)}
-                onDragEnd={onDragEnd}
-              >
-                <span className={styles.dragHandle} title="Drag to reorder">
-                  <GripVertical size={16} />
-                </span>
-                <span className={styles.orderNo}>{index + 1}</span>
-
-                <div className={styles.rowInfo}>
-                  {isPdf ? (
-                    <span className={styles.rowNameStatic}>{item.name}</span>
-                  ) : (
-                    <button
-                      type="button"
-                      className={styles.rowName}
-                      onClick={() => (isDrawing ? navigate(`/drawing/${item.id}`) : handleOpen(item))}
-                      title={isDrawing ? 'Open drawing markup' : 'Open in calculator'}
-                    >
-                      {item.name}
+        <div className={styles.zoneList}>
+          {groups.map(({ zone, items: groupItems }) => (
+            <section className={styles.zoneGroup} key={zone ? zone.id : 'unassigned'}>
+              <header className={styles.zoneHeader}>
+                <div className={styles.zoneTitle}>
+                  <Layers size={15} />
+                  <span>{zone ? zone.name : 'Unassigned'}</span>
+                  <span className={styles.zoneCount}>{groupItems.length}</span>
+                </div>
+                {zone && (
+                  <div className={styles.zoneActions}>
+                    <button type="button" className={styles.iconBtn} disabled={zone.order === 0} onClick={() => handleMoveZone(zone.order, zone.order - 1)} title="Move zone up">
+                      <ArrowUp size={13} />
                     </button>
-                  )}
-                  <div className={styles.rowMeta}>
-                    <span className={`${styles.badge} ${isPdf ? styles.badgePdf : ''} ${isDrawing ? styles.badgeDrawing : ''}`}>
-                      {isPdf && 'PDF document'}
-                      {isDrawing && 'Plan drawing'}
-                      {isCalc && (CALCULATORS[item.calculator]?.title || item.calculator)}
-                    </span>
-                    {item.pdfId && (
-                      <span className={styles.pdfChip} title={item.pdfName}>
-                        <Paperclip size={11} /> {isCalc ? `Report · ${formatSize(item.pdfSize)}` : formatSize(item.pdfSize)}
-                      </span>
-                    )}
-                    {isDrawing && (
-                      <span className={styles.markupChip}>
-                        <PenLine size={11} /> {markupCount} markup{markupCount === 1 ? '' : 's'}
-                      </span>
-                    )}
-                    {links.map(({ markup, drawing }) => (
-                      <button
-                        type="button"
-                        key={markup.id}
-                        className={styles.linkChip}
-                        onClick={() => navigate(`/drawing/${drawing.id}`)}
-                        title={`${markup.label || 'Markup'} on "${drawing.name}" — open the drawing`}
-                      >
-                        <Link2 size={11} /> {drawing.name} · p.{markup.page} · {markup.tag}
-                      </button>
-                    ))}
-                    <span className={styles.rowDate}>Updated {formatWhen(item.updatedAt)}</span>
+                    <button type="button" className={styles.iconBtn} disabled={zone.order === project.zones.length - 1} onClick={() => handleMoveZone(zone.order, zone.order + 1)} title="Move zone down">
+                      <ArrowDown size={13} />
+                    </button>
+                    <button type="button" className={styles.iconBtn} onClick={() => handleRenameZone(zone)} title="Rename zone">
+                      <Pencil size={13} />
+                    </button>
+                    <button type="button" className={`${styles.iconBtn} ${styles.danger}`} onClick={() => handleDeleteZone(zone)} title="Delete zone">
+                      <Trash2 size={13} />
+                    </button>
                   </div>
-                </div>
+                )}
+              </header>
 
-                <div className={styles.rowActions}>
-                  <span className={styles.moveBtns}>
-                    <button type="button" className={styles.iconBtn} disabled={index === 0} onClick={() => handleMove(index, index - 1)} title="Move up">
-                      <ArrowUp size={14} />
-                    </button>
-                    <button type="button" className={styles.iconBtn} disabled={index === items.length - 1} onClick={() => handleMove(index, index + 1)} title="Move down">
-                      <ArrowDown size={14} />
-                    </button>
-                  </span>
+              {groupItems.length === 0 ? (
+                <p className={styles.zoneEmpty}>No items in this zone yet — move one here with its zone menu.</p>
+              ) : (
+                groupItems.map((item) => renderItem(item, groupItems))
+              )}
+            </section>
+          ))}
 
-                  {isCalc && (
-                    <button type="button" className={styles.openBtn} onClick={() => handleOpen(item)}>
-                      Open
-                    </button>
-                  )}
-                  {isDrawing && (
-                    <button type="button" className={styles.openBtn} onClick={() => navigate(`/drawing/${item.id}`)}>
-                      Markup
-                    </button>
-                  )}
-
-                  {item.pdfId ? (
-                    <button type="button" className={styles.iconBtn} onClick={() => handleDownloadItemPdf(item)} title="Download PDF">
-                      <Download size={14} />
-                    </button>
-                  ) : (
-                    isCalc && (
-                      <button
-                        type="button"
-                        className={styles.iconBtn}
-                        onClick={() => { clearMessages(); exportCalculationFile(item); }}
-                        title="Export design to .json file"
-                      >
-                        <Download size={14} />
-                      </button>
-                    )
-                  )}
-
-                  <button type="button" className={styles.iconBtn} onClick={() => handleRename(item)} title="Rename">
-                    <Pencil size={14} />
-                  </button>
-                  <button type="button" className={`${styles.iconBtn} ${styles.danger}`} onClick={() => handleDelete(item)} title="Delete">
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
+          <button type="button" className={styles.addZoneBtn} onClick={handleAddZone}>
+            <Plus size={15} /> Add zone
+          </button>
         </div>
       )}
 
