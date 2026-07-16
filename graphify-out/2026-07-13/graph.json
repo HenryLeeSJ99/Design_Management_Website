@@ -14,56 +14,6 @@
       "norm_label": "multibeamcalculator.jsx"
     },
     {
-      "label": "COMPANY_LOGOS",
-      "file_type": "code",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L12",
-      "_origin": "ast",
-      "id": "src_pages_multibeamcalculator_company_logos",
-      "community": 8,
-      "norm_label": "company_logos"
-    },
-    {
-      "label": "getSessionData()",
-      "file_type": "code",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L16",
-      "_origin": "ast",
-      "id": "src_pages_multibeamcalculator_getsessiondata",
-      "community": 8,
-      "norm_label": "getsessiondata()"
-    },
-    {
-      "label": "saveSessionData()",
-      "file_type": "code",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L25",
-      "_origin": "ast",
-      "id": "src_pages_multibeamcalculator_savesessiondata",
-      "community": 8,
-      "norm_label": "savesessiondata()"
-    },
-    {
-      "label": "cleanNumericInput()",
-      "file_type": "code",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L31",
-      "_origin": "ast",
-      "id": "src_pages_multibeamcalculator_cleannumericinput",
-      "community": 8,
-      "norm_label": "cleannumericinput()"
-    },
-    {
-      "label": "CLR",
-      "file_type": "code",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L43",
-      "_origin": "ast",
-      "id": "src_pages_multibeamcalculator_clr",
-      "community": 8,
-      "norm_label": "clr"
-    },
-    {
       "label": "roundN()",
       "file_type": "code",
       "source_file": "src/pages/MultiBeamCalculator.jsx",
@@ -127,21 +77,201 @@
       "label": "ResultsPanel()",
       "file_type": "code",
       "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L1418",
+      "source_location": "L1488",
       "_origin": "ast",
       "id": "src_pages_multibeamcalculator_resultspanel",
       "community": 8,
       "norm_label": "resultspanel()"
     },
     {
-      "label": "PDFReportPreview()",
+      "label": "checks.js",
       "file_type": "code",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L1737",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L1",
       "_origin": "ast",
-      "id": "src_pages_multibeamcalculator_pdfreportpreview",
-      "community": 8,
-      "norm_label": "pdfreportpreview()"
+      "community": 7,
+      "norm_label": "checks.js",
+      "id": "src_engine_design_ec3_checks"
+    },
+    {
+      "label": "calcEpsilon()",
+      "file_type": "code",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L26",
+      "_origin": "ast",
+      "community": 7,
+      "norm_label": "calcepsilon()",
+      "id": "src_engine_design_ec3_checks_calcepsilon"
+    },
+    {
+      "label": "resolveGrade()",
+      "file_type": "code",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L36",
+      "_origin": "ast",
+      "community": 7,
+      "norm_label": "resolvegrade()",
+      "id": "src_engine_design_ec3_checks_resolvegrade"
+    },
+    {
+      "label": "classifySection()",
+      "file_type": "code",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L73",
+      "_origin": "ast",
+      "community": 7,
+      "norm_label": "classifysection()",
+      "id": "src_engine_design_ec3_checks_classifysection"
+    },
+    {
+      "label": "classifyISection()",
+      "file_type": "code",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L87",
+      "_origin": "ast",
+      "community": 7,
+      "norm_label": "classifyisection()",
+      "id": "src_engine_design_ec3_checks_classifyisection"
+    },
+    {
+      "label": "classifyHollowSection()",
+      "file_type": "code",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L137",
+      "_origin": "ast",
+      "community": 7,
+      "norm_label": "classifyhollowsection()",
+      "id": "src_engine_design_ec3_checks_classifyhollowsection"
+    },
+    {
+      "label": "checkBending()",
+      "file_type": "code",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L186",
+      "_origin": "ast",
+      "community": 7,
+      "norm_label": "checkbending()",
+      "id": "src_engine_design_ec3_checks_checkbending"
+    },
+    {
+      "label": "checkShear()",
+      "file_type": "code",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L230",
+      "_origin": "ast",
+      "community": 7,
+      "norm_label": "checkshear()",
+      "id": "src_engine_design_ec3_checks_checkshear"
+    },
+    {
+      "label": "checkBendingShearInteraction()",
+      "file_type": "code",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L275",
+      "_origin": "ast",
+      "community": 7,
+      "norm_label": "checkbendingshearinteraction()",
+      "id": "src_engine_design_ec3_checks_checkbendingshearinteraction"
+    },
+    {
+      "label": "checkDeflection()",
+      "file_type": "code",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L363",
+      "_origin": "ast",
+      "community": 7,
+      "norm_label": "checkdeflection()",
+      "id": "src_engine_design_ec3_checks_checkdeflection"
+    },
+    {
+      "label": "checkSystemBeam()",
+      "file_type": "code",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L403",
+      "_origin": "ast",
+      "community": 7,
+      "norm_label": "checksystembeam()",
+      "id": "src_engine_design_ec3_checks_checksystembeam"
+    },
+    {
+      "label": "performAllChecks()",
+      "file_type": "code",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L472",
+      "_origin": "ast",
+      "community": 7,
+      "norm_label": "performallchecks()",
+      "id": "src_engine_design_ec3_checks_performallchecks"
+    },
+    {
+      "label": "roundTo()",
+      "file_type": "code",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L584",
+      "_origin": "ast",
+      "community": 7,
+      "norm_label": "roundto()",
+      "id": "src_engine_design_ec3_checks_roundto"
+    },
+    {
+      "label": "mesher.js",
+      "file_type": "code",
+      "source_file": "src/engine/beam/mesher.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "mesher.js",
+      "id": "src_engine_beam_mesher"
+    },
+    {
+      "label": "buildMesh()",
+      "file_type": "code",
+      "source_file": "src/engine/beam/mesher.js",
+      "source_location": "L40",
+      "_origin": "ast",
+      "community": 2,
+      "norm_label": "buildmesh()",
+      "id": "src_engine_beam_mesher_buildmesh"
+    },
+    {
+      "label": "Layout.jsx",
+      "file_type": "code",
+      "source_file": "src/components/Layout.jsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "layout.jsx",
+      "id": "src_components_layout"
+    },
+    {
+      "label": "PAGE_TITLES",
+      "file_type": "code",
+      "source_file": "src/components/Layout.jsx",
+      "source_location": "L10",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "page_titles",
+      "id": "src_components_layout_page_titles"
+    },
+    {
+      "label": "getPageTitle()",
+      "file_type": "code",
+      "source_file": "src/components/Layout.jsx",
+      "source_location": "L20",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "getpagetitle()",
+      "id": "src_components_layout_getpagetitle"
+    },
+    {
+      "label": "Layout()",
+      "file_type": "code",
+      "source_file": "src/components/Layout.jsx",
+      "source_location": "L26",
+      "_origin": "ast",
+      "community": 1,
+      "norm_label": "layout()",
+      "id": "src_components_layout_layout"
     },
     {
       "label": "ShoringTowerCalculator.jsx",
@@ -149,9 +279,9 @@
       "source_file": "src/pages/ShoringTowerCalculator.jsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_pages_shoringtowercalculator",
       "community": 79,
-      "norm_label": "shoringtowercalculator.jsx"
+      "norm_label": "shoringtowercalculator.jsx",
+      "id": "src_pages_shoringtowercalculator"
     },
     {
       "label": "getSessionData()",
@@ -159,9 +289,9 @@
       "source_file": "src/pages/ShoringTowerCalculator.jsx",
       "source_location": "L16",
       "_origin": "ast",
-      "id": "src_pages_shoringtowercalculator_getsessiondata",
       "community": 79,
-      "norm_label": "getsessiondata()"
+      "norm_label": "getsessiondata()",
+      "id": "src_pages_shoringtowercalculator_getsessiondata"
     },
     {
       "label": "saveSessionData()",
@@ -169,9 +299,9 @@
       "source_file": "src/pages/ShoringTowerCalculator.jsx",
       "source_location": "L25",
       "_origin": "ast",
-      "id": "src_pages_shoringtowercalculator_savesessiondata",
       "community": 79,
-      "norm_label": "savesessiondata()"
+      "norm_label": "savesessiondata()",
+      "id": "src_pages_shoringtowercalculator_savesessiondata"
     },
     {
       "label": "cleanNumericInput()",
@@ -179,9 +309,9 @@
       "source_file": "src/pages/ShoringTowerCalculator.jsx",
       "source_location": "L33",
       "_origin": "ast",
-      "id": "src_pages_shoringtowercalculator_cleannumericinput",
       "community": 79,
-      "norm_label": "cleannumericinput()"
+      "norm_label": "cleannumericinput()",
+      "id": "src_pages_shoringtowercalculator_cleannumericinput"
     },
     {
       "label": "TYPE_COLORS",
@@ -189,9 +319,9 @@
       "source_file": "src/pages/ShoringTowerCalculator.jsx",
       "source_location": "L44",
       "_origin": "ast",
-      "id": "src_pages_shoringtowercalculator_type_colors",
       "community": 79,
-      "norm_label": "type_colors"
+      "norm_label": "type_colors",
+      "id": "src_pages_shoringtowercalculator_type_colors"
     },
     {
       "label": "STATUS_LABELS",
@@ -199,9 +329,9 @@
       "source_file": "src/pages/ShoringTowerCalculator.jsx",
       "source_location": "L52",
       "_origin": "ast",
-      "id": "src_pages_shoringtowercalculator_status_labels",
       "community": 79,
-      "norm_label": "status_labels"
+      "norm_label": "status_labels",
+      "id": "src_pages_shoringtowercalculator_status_labels"
     },
     {
       "label": "ShoringTowerCalculator()",
@@ -209,9 +339,9 @@
       "source_file": "src/pages/ShoringTowerCalculator.jsx",
       "source_location": "L57",
       "_origin": "ast",
-      "id": "src_pages_shoringtowercalculator_shoringtowercalculator",
       "community": 79,
-      "norm_label": "shoringtowercalculator()"
+      "norm_label": "shoringtowercalculator()",
+      "id": "src_pages_shoringtowercalculator_shoringtowercalculator"
     },
     {
       "label": "SlabFormworkCalculator.jsx",
@@ -219,9 +349,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator",
       "community": 78,
-      "norm_label": "slabformworkcalculator.jsx"
+      "norm_label": "slabformworkcalculator.jsx",
+      "id": "src_pages_slabformworkcalculator"
     },
     {
       "label": "getSessionData()",
@@ -229,9 +359,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L11",
       "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator_getsessiondata",
       "community": 78,
-      "norm_label": "getsessiondata()"
+      "norm_label": "getsessiondata()",
+      "id": "src_pages_slabformworkcalculator_getsessiondata"
     },
     {
       "label": "saveSessionData()",
@@ -239,9 +369,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L20",
       "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator_savesessiondata",
       "community": 78,
-      "norm_label": "savesessiondata()"
+      "norm_label": "savesessiondata()",
+      "id": "src_pages_slabformworkcalculator_savesessiondata"
     },
     {
       "label": "cleanNumericInput()",
@@ -249,9 +379,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L26",
       "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator_cleannumericinput",
       "community": 78,
-      "norm_label": "cleannumericinput()"
+      "norm_label": "cleannumericinput()",
+      "id": "src_pages_slabformworkcalculator_cleannumericinput"
     },
     {
       "label": "SlabFormworkCalculator()",
@@ -259,9 +389,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L37",
       "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator_slabformworkcalculator",
       "community": 78,
-      "norm_label": "slabformworkcalculator()"
+      "norm_label": "slabformworkcalculator()",
+      "id": "src_pages_slabformworkcalculator_slabformworkcalculator"
     },
     {
       "label": "InteractiveDiagram()",
@@ -269,9 +399,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L597",
       "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator_interactivediagram",
       "community": 78,
-      "norm_label": "interactivediagram()"
+      "norm_label": "interactivediagram()",
+      "id": "src_pages_slabformworkcalculator_interactivediagram"
     },
     {
       "label": "Marker()",
@@ -279,9 +409,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L627",
       "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator_marker",
       "community": 78,
-      "norm_label": "marker()"
+      "norm_label": "marker()",
+      "id": "src_pages_slabformworkcalculator_marker"
     },
     {
       "label": "ResultsTab()",
@@ -289,9 +419,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L652",
       "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator_resultstab",
       "community": 78,
-      "norm_label": "resultstab()"
+      "norm_label": "resultstab()",
+      "id": "src_pages_slabformworkcalculator_resultstab"
     },
     {
       "label": "WonderCrabConfigTable()",
@@ -299,9 +429,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L781",
       "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator_wondercrabconfigtable",
       "community": 78,
-      "norm_label": "wondercrabconfigtable()"
+      "norm_label": "wondercrabconfigtable()",
+      "id": "src_pages_slabformworkcalculator_wondercrabconfigtable"
     },
     {
       "label": "ResultRow()",
@@ -309,9 +439,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L856",
       "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator_resultrow",
       "community": 78,
-      "norm_label": "resultrow()"
+      "norm_label": "resultrow()",
+      "id": "src_pages_slabformworkcalculator_resultrow"
     },
     {
       "label": "SlabPDFReportPreview()",
@@ -319,9 +449,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L877",
       "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator_slabpdfreportpreview",
       "community": 78,
-      "norm_label": "slabpdfreportpreview()"
+      "norm_label": "slabpdfreportpreview()",
+      "id": "src_pages_slabformworkcalculator_slabpdfreportpreview"
     },
     {
       "label": "CLR",
@@ -329,9 +459,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L1872",
       "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator_clr",
       "community": 78,
-      "norm_label": "clr"
+      "norm_label": "clr",
+      "id": "src_pages_slabformworkcalculator_clr"
     },
     {
       "label": "roundN()",
@@ -339,9 +469,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L1885",
       "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator_roundn",
       "community": 78,
-      "norm_label": "roundn()"
+      "norm_label": "roundn()",
+      "id": "src_pages_slabformworkcalculator_roundn"
     },
     {
       "label": "flattenPoints()",
@@ -349,9 +479,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L1890",
       "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator_flattenpoints",
       "community": 78,
-      "norm_label": "flattenpoints()"
+      "norm_label": "flattenpoints()",
+      "id": "src_pages_slabformworkcalculator_flattenpoints"
     },
     {
       "label": "AnalysisDiagram()",
@@ -359,9 +489,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L1895",
       "_origin": "ast",
-      "id": "src_pages_slabformworkcalculator_analysisdiagram",
       "community": 78,
-      "norm_label": "analysisdiagram()"
+      "norm_label": "analysisdiagram()",
+      "id": "src_pages_slabformworkcalculator_analysisdiagram"
     },
     {
       "label": "WallFormworkCalculator.jsx",
@@ -369,9 +499,9 @@
       "source_file": "src/pages/WallFormworkCalculator.jsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_pages_wallformworkcalculator",
       "community": 82,
-      "norm_label": "wallformworkcalculator.jsx"
+      "norm_label": "wallformworkcalculator.jsx",
+      "id": "src_pages_wallformworkcalculator"
     },
     {
       "label": "getSessionData()",
@@ -379,9 +509,9 @@
       "source_file": "src/pages/WallFormworkCalculator.jsx",
       "source_location": "L9",
       "_origin": "ast",
-      "id": "src_pages_wallformworkcalculator_getsessiondata",
       "community": 82,
-      "norm_label": "getsessiondata()"
+      "norm_label": "getsessiondata()",
+      "id": "src_pages_wallformworkcalculator_getsessiondata"
     },
     {
       "label": "saveSessionData()",
@@ -389,9 +519,9 @@
       "source_file": "src/pages/WallFormworkCalculator.jsx",
       "source_location": "L18",
       "_origin": "ast",
-      "id": "src_pages_wallformworkcalculator_savesessiondata",
       "community": 82,
-      "norm_label": "savesessiondata()"
+      "norm_label": "savesessiondata()",
+      "id": "src_pages_wallformworkcalculator_savesessiondata"
     },
     {
       "label": "cleanNumericInput()",
@@ -399,9 +529,9 @@
       "source_file": "src/pages/WallFormworkCalculator.jsx",
       "source_location": "L24",
       "_origin": "ast",
-      "id": "src_pages_wallformworkcalculator_cleannumericinput",
       "community": 82,
-      "norm_label": "cleannumericinput()"
+      "norm_label": "cleannumericinput()",
+      "id": "src_pages_wallformworkcalculator_cleannumericinput"
     },
     {
       "label": "WallFormworkCalculator()",
@@ -409,9 +539,9 @@
       "source_file": "src/pages/WallFormworkCalculator.jsx",
       "source_location": "L35",
       "_origin": "ast",
-      "id": "src_pages_wallformworkcalculator_wallformworkcalculator",
       "community": 82,
-      "norm_label": "wallformworkcalculator()"
+      "norm_label": "wallformworkcalculator()",
+      "id": "src_pages_wallformworkcalculator_wallformworkcalculator"
     },
     {
       "label": "package.json",
@@ -859,7 +989,7 @@
       "source_file": "src/engine/materials/sections.js",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 7,
+      "community": 64,
       "norm_label": "sections.js",
       "id": "src_engine_materials_sections"
     },
@@ -869,7 +999,7 @@
       "source_file": "src/engine/materials/sections.js",
       "source_location": "L28",
       "_origin": "ast",
-      "community": 7,
+      "community": 64,
       "norm_label": "steel_grades",
       "id": "src_engine_materials_sections_steel_grades"
     },
@@ -879,7 +1009,7 @@
       "source_file": "src/engine/materials/sections.js",
       "source_location": "L39",
       "_origin": "ast",
-      "community": 7,
+      "community": 64,
       "norm_label": "section_types",
       "id": "src_engine_materials_sections_section_types"
     },
@@ -889,7 +1019,7 @@
       "source_file": "src/engine/materials/sections.js",
       "source_location": "L63",
       "_origin": "ast",
-      "community": 7,
+      "community": 64,
       "norm_label": "sections",
       "id": "src_engine_materials_sections_sections"
     },
@@ -899,7 +1029,7 @@
       "source_file": "src/engine/materials/sections.js",
       "source_location": "L318",
       "_origin": "ast",
-      "community": 7,
+      "community": 64,
       "norm_label": "getsectionbyname()",
       "id": "src_engine_materials_sections_getsectionbyname"
     },
@@ -909,49 +1039,9 @@
       "source_file": "src/engine/materials/sections.js",
       "source_location": "L341",
       "_origin": "ast",
-      "community": 7,
+      "community": 64,
       "norm_label": "getallsectionnames()",
       "id": "src_engine_materials_sections_getallsectionnames"
-    },
-    {
-      "label": "Layout.jsx",
-      "file_type": "code",
-      "source_file": "src/components/Layout.jsx",
-      "source_location": "L1",
-      "_origin": "ast",
-      "community": 1,
-      "norm_label": "layout.jsx",
-      "id": "src_components_layout"
-    },
-    {
-      "label": "PAGE_TITLES",
-      "file_type": "code",
-      "source_file": "src/components/Layout.jsx",
-      "source_location": "L10",
-      "_origin": "ast",
-      "community": 1,
-      "norm_label": "page_titles",
-      "id": "src_components_layout_page_titles"
-    },
-    {
-      "label": "getPageTitle()",
-      "file_type": "code",
-      "source_file": "src/components/Layout.jsx",
-      "source_location": "L20",
-      "_origin": "ast",
-      "community": 1,
-      "norm_label": "getpagetitle()",
-      "id": "src_components_layout_getpagetitle"
-    },
-    {
-      "label": "Layout()",
-      "file_type": "code",
-      "source_file": "src/components/Layout.jsx",
-      "source_location": "L26",
-      "_origin": "ast",
-      "community": 1,
-      "norm_label": "layout()",
-      "id": "src_components_layout_layout"
     },
     {
       "label": "eslint.config.js",
@@ -1369,7 +1459,7 @@
       "source_file": "legacy/ec3-checks.js",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 0,
+      "community": 77,
       "norm_label": "ec3-checks.js",
       "id": "legacy_ec3_checks"
     },
@@ -1379,7 +1469,7 @@
       "source_file": "legacy/ec3-checks.js",
       "source_location": "L26",
       "_origin": "ast",
-      "community": 0,
+      "community": 77,
       "norm_label": "calcepsilon()",
       "id": "legacy_ec3_checks_calcepsilon"
     },
@@ -1389,7 +1479,7 @@
       "source_file": "legacy/ec3-checks.js",
       "source_location": "L36",
       "_origin": "ast",
-      "community": 0,
+      "community": 77,
       "norm_label": "resolvegrade()",
       "id": "legacy_ec3_checks_resolvegrade"
     },
@@ -1399,7 +1489,7 @@
       "source_file": "legacy/ec3-checks.js",
       "source_location": "L73",
       "_origin": "ast",
-      "community": 0,
+      "community": 77,
       "norm_label": "classifysection()",
       "id": "legacy_ec3_checks_classifysection"
     },
@@ -1409,7 +1499,7 @@
       "source_file": "legacy/ec3-checks.js",
       "source_location": "L87",
       "_origin": "ast",
-      "community": 0,
+      "community": 77,
       "norm_label": "classifyisection()",
       "id": "legacy_ec3_checks_classifyisection"
     },
@@ -1419,7 +1509,7 @@
       "source_file": "legacy/ec3-checks.js",
       "source_location": "L137",
       "_origin": "ast",
-      "community": 0,
+      "community": 77,
       "norm_label": "classifyhollowsection()",
       "id": "legacy_ec3_checks_classifyhollowsection"
     },
@@ -1429,7 +1519,7 @@
       "source_file": "legacy/ec3-checks.js",
       "source_location": "L186",
       "_origin": "ast",
-      "community": 0,
+      "community": 77,
       "norm_label": "checkbending()",
       "id": "legacy_ec3_checks_checkbending"
     },
@@ -1439,7 +1529,7 @@
       "source_file": "legacy/ec3-checks.js",
       "source_location": "L229",
       "_origin": "ast",
-      "community": 0,
+      "community": 77,
       "norm_label": "checkshear()",
       "id": "legacy_ec3_checks_checkshear"
     },
@@ -1449,7 +1539,7 @@
       "source_file": "legacy/ec3-checks.js",
       "source_location": "L273",
       "_origin": "ast",
-      "community": 0,
+      "community": 77,
       "norm_label": "checkbendingshearinteraction()",
       "id": "legacy_ec3_checks_checkbendingshearinteraction"
     },
@@ -1459,7 +1549,7 @@
       "source_file": "legacy/ec3-checks.js",
       "source_location": "L360",
       "_origin": "ast",
-      "community": 0,
+      "community": 77,
       "norm_label": "checkdeflection()",
       "id": "legacy_ec3_checks_checkdeflection"
     },
@@ -1469,7 +1559,7 @@
       "source_file": "legacy/ec3-checks.js",
       "source_location": "L397",
       "_origin": "ast",
-      "community": 0,
+      "community": 77,
       "norm_label": "checksystembeam()",
       "id": "legacy_ec3_checks_checksystembeam"
     },
@@ -1479,7 +1569,7 @@
       "source_file": "legacy/ec3-checks.js",
       "source_location": "L466",
       "_origin": "ast",
-      "community": 0,
+      "community": 77,
       "norm_label": "performallchecks()",
       "id": "legacy_ec3_checks_performallchecks"
     },
@@ -1489,7 +1579,7 @@
       "source_file": "legacy/ec3-checks.js",
       "source_location": "L577",
       "_origin": "ast",
-      "community": 0,
+      "community": 77,
       "norm_label": "roundto()",
       "id": "legacy_ec3_checks_roundto"
     },
@@ -1959,7 +2049,7 @@
       "source_file": "legacy/solver.js",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 77,
+      "community": 0,
       "norm_label": "solver.js",
       "id": "legacy_solver"
     },
@@ -1969,7 +2059,7 @@
       "source_file": "legacy/solver.js",
       "source_location": "L29",
       "_origin": "ast",
-      "community": 77,
+      "community": 0,
       "norm_label": "solvebeam()",
       "id": "legacy_solver_solvebeam"
     },
@@ -1979,7 +2069,7 @@
       "source_file": "legacy/solver.js",
       "source_location": "L113",
       "_origin": "ast",
-      "community": 77,
+      "community": 0,
       "norm_label": "elementstiffnessmatrix()",
       "id": "legacy_solver_elementstiffnessmatrix"
     },
@@ -1989,7 +2079,7 @@
       "source_file": "legacy/solver.js",
       "source_location": "L126",
       "_origin": "ast",
-      "community": 77,
+      "community": 0,
       "norm_label": "fixedendforces()",
       "id": "legacy_solver_fixedendforces"
     },
@@ -1999,7 +2089,7 @@
       "source_file": "legacy/solver.js",
       "source_location": "L137",
       "_origin": "ast",
-      "community": 77,
+      "community": 0,
       "norm_label": "gaussianelimination()",
       "id": "legacy_solver_gaussianelimination"
     },
@@ -2009,7 +2099,7 @@
       "source_file": "legacy/solver.js",
       "source_location": "L180",
       "_origin": "ast",
-      "community": 77,
+      "community": 0,
       "norm_label": "multiplymatrixvector()",
       "id": "legacy_solver_multiplymatrixvector"
     },
@@ -2019,7 +2109,7 @@
       "source_file": "legacy/solver.js",
       "source_location": "L184",
       "_origin": "ast",
-      "community": 77,
+      "community": 0,
       "norm_label": "buildresults()",
       "id": "legacy_solver_buildresults"
     },
@@ -2029,7 +2119,7 @@
       "source_file": "legacy/solver.js",
       "source_location": "L316",
       "_origin": "ast",
-      "community": 77,
+      "community": 0,
       "norm_label": "creatematrix()",
       "id": "legacy_solver_creatematrix"
     },
@@ -2564,26 +2654,6 @@
       "id": "src_engine_beam_index_analyzebeam"
     },
     {
-      "label": "mesher.js",
-      "file_type": "code",
-      "source_file": "src/engine/beam/mesher.js",
-      "source_location": "L1",
-      "_origin": "ast",
-      "community": 2,
-      "norm_label": "mesher.js",
-      "id": "src_engine_beam_mesher"
-    },
-    {
-      "label": "buildMesh()",
-      "file_type": "code",
-      "source_file": "src/engine/beam/mesher.js",
-      "source_location": "L40",
-      "_origin": "ast",
-      "community": 2,
-      "norm_label": "buildmesh()",
-      "id": "src_engine_beam_mesher_buildmesh"
-    },
-    {
       "label": "solver.js",
       "file_type": "code",
       "source_file": "src/engine/beam/solver.js",
@@ -2672,136 +2742,6 @@
       "community": 19,
       "norm_label": "types.js",
       "id": "src_engine_beam_types"
-    },
-    {
-      "label": "checks.js",
-      "file_type": "code",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L1",
-      "_origin": "ast",
-      "community": 7,
-      "norm_label": "checks.js",
-      "id": "src_engine_design_ec3_checks"
-    },
-    {
-      "label": "calcEpsilon()",
-      "file_type": "code",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L26",
-      "_origin": "ast",
-      "community": 7,
-      "norm_label": "calcepsilon()",
-      "id": "src_engine_design_ec3_checks_calcepsilon"
-    },
-    {
-      "label": "resolveGrade()",
-      "file_type": "code",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L36",
-      "_origin": "ast",
-      "community": 7,
-      "norm_label": "resolvegrade()",
-      "id": "src_engine_design_ec3_checks_resolvegrade"
-    },
-    {
-      "label": "classifySection()",
-      "file_type": "code",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L73",
-      "_origin": "ast",
-      "community": 7,
-      "norm_label": "classifysection()",
-      "id": "src_engine_design_ec3_checks_classifysection"
-    },
-    {
-      "label": "classifyISection()",
-      "file_type": "code",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L87",
-      "_origin": "ast",
-      "community": 7,
-      "norm_label": "classifyisection()",
-      "id": "src_engine_design_ec3_checks_classifyisection"
-    },
-    {
-      "label": "classifyHollowSection()",
-      "file_type": "code",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L137",
-      "_origin": "ast",
-      "community": 7,
-      "norm_label": "classifyhollowsection()",
-      "id": "src_engine_design_ec3_checks_classifyhollowsection"
-    },
-    {
-      "label": "checkBending()",
-      "file_type": "code",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L186",
-      "_origin": "ast",
-      "community": 7,
-      "norm_label": "checkbending()",
-      "id": "src_engine_design_ec3_checks_checkbending"
-    },
-    {
-      "label": "checkShear()",
-      "file_type": "code",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L230",
-      "_origin": "ast",
-      "community": 7,
-      "norm_label": "checkshear()",
-      "id": "src_engine_design_ec3_checks_checkshear"
-    },
-    {
-      "label": "checkBendingShearInteraction()",
-      "file_type": "code",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L275",
-      "_origin": "ast",
-      "community": 7,
-      "norm_label": "checkbendingshearinteraction()",
-      "id": "src_engine_design_ec3_checks_checkbendingshearinteraction"
-    },
-    {
-      "label": "checkDeflection()",
-      "file_type": "code",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L363",
-      "_origin": "ast",
-      "community": 7,
-      "norm_label": "checkdeflection()",
-      "id": "src_engine_design_ec3_checks_checkdeflection"
-    },
-    {
-      "label": "checkSystemBeam()",
-      "file_type": "code",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L400",
-      "_origin": "ast",
-      "community": 7,
-      "norm_label": "checksystembeam()",
-      "id": "src_engine_design_ec3_checks_checksystembeam"
-    },
-    {
-      "label": "performAllChecks()",
-      "file_type": "code",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L469",
-      "_origin": "ast",
-      "community": 7,
-      "norm_label": "performallchecks()",
-      "id": "src_engine_design_ec3_checks_performallchecks"
-    },
-    {
-      "label": "roundTo()",
-      "file_type": "code",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L581",
-      "_origin": "ast",
-      "community": 7,
-      "norm_label": "roundto()",
-      "id": "src_engine_design_ec3_checks_roundto"
     },
     {
       "label": "index.js",
@@ -3179,7 +3119,7 @@
       "source_file": "src/engine/materials/formworkBeams.js",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 7,
+      "community": 64,
       "norm_label": "formworkbeams.js",
       "id": "src_engine_materials_formworkbeams"
     },
@@ -3189,7 +3129,7 @@
       "source_file": "src/engine/materials/formworkBeams.js",
       "source_location": "L31",
       "_origin": "ast",
-      "community": 7,
+      "community": 64,
       "norm_label": "formwork_beams",
       "id": "src_engine_materials_formworkbeams_formwork_beams"
     },
@@ -3199,7 +3139,7 @@
       "source_file": "src/engine/materials/formworkBeams.js",
       "source_location": "L82",
       "_origin": "ast",
-      "community": 7,
+      "community": 64,
       "norm_label": "formwork_panels",
       "id": "src_engine_materials_formworkbeams_formwork_panels"
     },
@@ -3209,7 +3149,7 @@
       "source_file": "src/engine/materials/formworkBeams.js",
       "source_location": "L123",
       "_origin": "ast",
-      "community": 7,
+      "community": 64,
       "norm_label": "shoring_towers",
       "id": "src_engine_materials_formworkbeams_shoring_towers"
     },
@@ -3219,7 +3159,7 @@
       "source_file": "src/engine/materials/formworkBeams.js",
       "source_location": "L156",
       "_origin": "ast",
-      "community": 7,
+      "community": 64,
       "norm_label": "getformworkbeam()",
       "id": "src_engine_materials_formworkbeams_getformworkbeam"
     },
@@ -3229,7 +3169,7 @@
       "source_file": "src/engine/materials/formworkBeams.js",
       "source_location": "L166",
       "_origin": "ast",
-      "community": 7,
+      "community": 64,
       "norm_label": "getformworkpanel()",
       "id": "src_engine_materials_formworkbeams_getformworkpanel"
     },
@@ -3239,7 +3179,7 @@
       "source_file": "src/engine/materials/formworkBeams.js",
       "source_location": "L177",
       "_origin": "ast",
-      "community": 7,
+      "community": 64,
       "norm_label": "getshoringtower()",
       "id": "src_engine_materials_formworkbeams_getshoringtower"
     },
@@ -3249,7 +3189,7 @@
       "source_file": "src/engine/materials/index.js",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 7,
+      "community": 64,
       "norm_label": "index.js",
       "id": "src_engine_materials_index"
     },
@@ -6669,7 +6609,7 @@
       "source_file": ".agents/skills/imagegen-frontend-web/SKILL.md",
       "source_location": "L1",
       "_origin": "ast",
-      "community": 64,
+      "community": 31,
       "norm_label": "skill.md",
       "id": "agents_skills_imagegen_frontend_web_skill"
     },
@@ -6679,7 +6619,7 @@
       "source_file": ".agents/skills/imagegen-frontend-web/SKILL.md",
       "source_location": "L6",
       "_origin": "ast",
-      "community": 64,
+      "community": 31,
       "norm_label": "hard output rule \u2014 read first",
       "id": "agents_skills_imagegen_frontend_web_skill_hard_output_rule_read_first"
     },
@@ -6689,7 +6629,7 @@
       "source_file": ".agents/skills/imagegen-frontend-web/SKILL.md",
       "source_location": "L25",
       "_origin": "ast",
-      "community": 64,
+      "community": 31,
       "norm_label": "hero composition bias \u2014 read first",
       "id": "agents_skills_imagegen_frontend_web_skill_hero_composition_bias_read_first"
     },
@@ -9009,7 +8949,7 @@
       "source_file": ".agents/skills/taste-skill/SKILL.md",
       "source_location": "L13",
       "_origin": "ast",
-      "community": 11,
+      "community": 38,
       "norm_label": "0. brief inference (read the room before anything else)",
       "id": "agents_skills_taste_skill_skill_0_brief_inference_read_the_room_before_anything_else"
     },
@@ -9019,7 +8959,7 @@
       "source_file": ".agents/skills/taste-skill/SKILL.md",
       "source_location": "L17",
       "_origin": "ast",
-      "community": 11,
+      "community": 38,
       "norm_label": "0.a read these signals first",
       "id": "agents_skills_taste_skill_skill_0_a_read_these_signals_first"
     },
@@ -9029,7 +8969,7 @@
       "source_file": ".agents/skills/taste-skill/SKILL.md",
       "source_location": "L25",
       "_origin": "ast",
-      "community": 11,
+      "community": 38,
       "norm_label": "0.b output a one-line \"design read\" before generating",
       "id": "agents_skills_taste_skill_skill_0_b_output_a_one_line_design_read_before_generating"
     },
@@ -9039,7 +8979,7 @@
       "source_file": ".agents/skills/taste-skill/SKILL.md",
       "source_location": "L33",
       "_origin": "ast",
-      "community": 11,
+      "community": 38,
       "norm_label": "0.c if the brief is ambiguous, ask one question, do not guess",
       "id": "agents_skills_taste_skill_skill_0_c_if_the_brief_is_ambiguous_ask_one_question_do_not_guess"
     },
@@ -9049,7 +8989,7 @@
       "source_file": ".agents/skills/taste-skill/SKILL.md",
       "source_location": "L38",
       "_origin": "ast",
-      "community": 11,
+      "community": 38,
       "norm_label": "0.d anti-default discipline",
       "id": "agents_skills_taste_skill_skill_0_d_anti_default_discipline"
     },
@@ -9059,7 +8999,7 @@
       "source_file": ".agents/skills/taste-skill/SKILL.md",
       "source_location": "L43",
       "_origin": "ast",
-      "community": 38,
+      "community": 11,
       "norm_label": "1. the three dials (core configuration)",
       "id": "agents_skills_taste_skill_skill_1_the_three_dials_core_configuration"
     },
@@ -9069,7 +9009,7 @@
       "source_file": ".agents/skills/taste-skill/SKILL.md",
       "source_location": "L53",
       "_origin": "ast",
-      "community": 38,
+      "community": 11,
       "norm_label": "1.a dial inference (design read \u2192 dial values)",
       "id": "agents_skills_taste_skill_skill_1_a_dial_inference_design_read_dial_values"
     },
@@ -9079,7 +9019,7 @@
       "source_file": ".agents/skills/taste-skill/SKILL.md",
       "source_location": "L64",
       "_origin": "ast",
-      "community": 38,
+      "community": 11,
       "norm_label": "1.b use-case presets",
       "id": "agents_skills_taste_skill_skill_1_b_use_case_presets"
     },
@@ -9089,7 +9029,7 @@
       "source_file": ".agents/skills/taste-skill/SKILL.md",
       "source_location": "L77",
       "_origin": "ast",
-      "community": 38,
+      "community": 11,
       "norm_label": "1.c how the dials drive output",
       "id": "agents_skills_taste_skill_skill_1_c_how_the_dials_drive_output"
     },
@@ -10174,50 +10114,10 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L31",
-      "weight": 1.0,
-      "source": "src_pages_multibeamcalculator",
-      "target": "src_pages_multibeamcalculator_cleannumericinput",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L43",
-      "weight": 1.0,
-      "source": "src_pages_multibeamcalculator",
-      "target": "src_pages_multibeamcalculator_clr",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L12",
-      "weight": 1.0,
-      "source": "src_pages_multibeamcalculator",
-      "target": "src_pages_multibeamcalculator_company_logos",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
       "source_location": "L61",
       "weight": 1.0,
       "source": "src_pages_multibeamcalculator",
       "target": "src_pages_multibeamcalculator_flattenpoints",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L16",
-      "weight": 1.0,
-      "source": "src_pages_multibeamcalculator",
-      "target": "src_pages_multibeamcalculator_getsessiondata",
       "confidence_score": 1.0
     },
     {
@@ -10234,17 +10134,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L1737",
-      "weight": 1.0,
-      "source": "src_pages_multibeamcalculator",
-      "target": "src_pages_multibeamcalculator_pdfreportpreview",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L1418",
+      "source_location": "L1488",
       "weight": 1.0,
       "source": "src_pages_multibeamcalculator",
       "target": "src_pages_multibeamcalculator_resultspanel",
@@ -10264,53 +10154,10 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L25",
-      "weight": 1.0,
-      "source": "src_pages_multibeamcalculator",
-      "target": "src_pages_multibeamcalculator_savesessiondata",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
       "source_location": "L66",
       "weight": 1.0,
       "source": "src_pages_multibeamcalculator",
       "target": "src_pages_multibeamcalculator_utilbar",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L363",
-      "weight": 1.0,
-      "source": "src_pages_multibeamcalculator_multibeamcalculator",
-      "target": "src_pages_multibeamcalculator_getsessiondata",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L470",
-      "weight": 1.0,
-      "source": "src_pages_multibeamcalculator_multibeamcalculator",
-      "target": "src_pages_multibeamcalculator_savesessiondata",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L503",
-      "weight": 1.0,
-      "source": "src_pages_multibeamcalculator_multibeamcalculator",
-      "target": "src_pages_multibeamcalculator_cleannumericinput",
       "confidence_score": 1.0
     },
     {
@@ -10340,18 +10187,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L2001",
-      "weight": 1.0,
-      "source": "src_pages_multibeamcalculator_pdfreportpreview",
-      "target": "src_pages_multibeamcalculator_roundn",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L1461",
+      "source_location": "L1531",
       "weight": 1.0,
       "source": "src_pages_multibeamcalculator_resultspanel",
       "target": "src_pages_multibeamcalculator_roundn",
@@ -10362,22 +10198,512 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L1759",
+      "source_location": "L1504",
       "weight": 1.0,
-      "source": "src_pages_multibeamcalculator_pdfreportpreview",
+      "source": "src_pages_multibeamcalculator_resultspanel",
       "target": "src_pages_multibeamcalculator_flattenpoints",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L26",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks",
+      "target": "src_engine_design_ec3_checks_calcepsilon"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L186",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks",
+      "target": "src_engine_design_ec3_checks_checkbending"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L275",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks",
+      "target": "src_engine_design_ec3_checks_checkbendingshearinteraction"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L363",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks",
+      "target": "src_engine_design_ec3_checks_checkdeflection"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L230",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks",
+      "target": "src_engine_design_ec3_checks_checkshear"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L403",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks",
+      "target": "src_engine_design_ec3_checks_checksystembeam"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L137",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks",
+      "target": "src_engine_design_ec3_checks_classifyhollowsection"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L87",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks",
+      "target": "src_engine_design_ec3_checks_classifyisection"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L73",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks",
+      "target": "src_engine_design_ec3_checks_classifysection"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L472",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks",
+      "target": "src_engine_design_ec3_checks_performallchecks"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L36",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks",
+      "target": "src_engine_design_ec3_checks_resolvegrade"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L584",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks",
+      "target": "src_engine_design_ec3_checks_roundto"
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/index.js",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_index",
+      "target": "src_engine_design_ec3_checks"
     },
     {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
-      "source_file": "src/pages/MultiBeamCalculator.jsx",
-      "source_location": "L1434",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L75",
       "weight": 1.0,
-      "source": "src_pages_multibeamcalculator_resultspanel",
-      "target": "src_pages_multibeamcalculator_flattenpoints",
-      "confidence_score": 1.0
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks_classifysection",
+      "target": "src_engine_design_ec3_checks_calcepsilon"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L187",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks_checkbending",
+      "target": "src_engine_design_ec3_checks_resolvegrade"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L276",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks_checkbendingshearinteraction",
+      "target": "src_engine_design_ec3_checks_resolvegrade"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L231",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks_checkshear",
+      "target": "src_engine_design_ec3_checks_resolvegrade"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L74",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks_classifysection",
+      "target": "src_engine_design_ec3_checks_resolvegrade"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L190",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks_checkbending",
+      "target": "src_engine_design_ec3_checks_classifysection"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L282",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks_checkbendingshearinteraction",
+      "target": "src_engine_design_ec3_checks_classifysection"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L80",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks_classifysection",
+      "target": "src_engine_design_ec3_checks_classifyhollowsection"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L78",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks_classifysection",
+      "target": "src_engine_design_ec3_checks_classifyisection"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L551",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks_performallchecks",
+      "target": "src_engine_design_ec3_checks_classifysection"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L203",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks_checkbending",
+      "target": "src_engine_design_ec3_checks_roundto"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L280",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks_checkbendingshearinteraction",
+      "target": "src_engine_design_ec3_checks_checkbending"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L552",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks_performallchecks",
+      "target": "src_engine_design_ec3_checks_checkbending"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L281",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks_checkbendingshearinteraction",
+      "target": "src_engine_design_ec3_checks_checkshear"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L242",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks_checkshear",
+      "target": "src_engine_design_ec3_checks_roundto"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L553",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks_performallchecks",
+      "target": "src_engine_design_ec3_checks_checkshear"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L297",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks_checkbendingshearinteraction",
+      "target": "src_engine_design_ec3_checks_roundto"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L554",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks_performallchecks",
+      "target": "src_engine_design_ec3_checks_checkbendingshearinteraction"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L369",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks_checkdeflection",
+      "target": "src_engine_design_ec3_checks_roundto"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L410",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks_checksystembeam",
+      "target": "src_engine_design_ec3_checks_checkdeflection"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L506",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks_performallchecks",
+      "target": "src_engine_design_ec3_checks_checkdeflection"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L414",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks_checksystembeam",
+      "target": "src_engine_design_ec3_checks_roundto"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/checks.js",
+      "source_location": "L519",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_checks_performallchecks",
+      "target": "src_engine_design_ec3_checks_checksystembeam"
+    },
+    {
+      "relation": "re_exports",
+      "context": "re-export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/design/ec3/index.js",
+      "source_location": "L6",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_design_ec3_index",
+      "target": "src_engine_design_ec3_checks_performallchecks"
+    },
+    {
+      "relation": "re_exports",
+      "context": "export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/beam/index.js",
+      "source_location": "L9",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_beam_index",
+      "target": "src_engine_beam_mesher"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/beam/mesher.js",
+      "source_location": "L40",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_beam_mesher",
+      "target": "src_engine_beam_mesher_buildmesh"
+    },
+    {
+      "relation": "re_exports",
+      "context": "re-export",
+      "confidence": "EXTRACTED",
+      "source_file": "src/engine/beam/index.js",
+      "source_location": "L9",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_engine_beam_index",
+      "target": "src_engine_beam_mesher_buildmesh"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/engine/beam/index.js",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "src_engine_beam_index_analyzebeam",
+      "target": "src_engine_beam_mesher_buildmesh"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.jsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_app",
+      "target": "src_components_layout"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/Layout.jsx",
+      "source_location": "L20",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_components_layout",
+      "target": "src_components_layout_getpagetitle"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/Layout.jsx",
+      "source_location": "L26",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_components_layout",
+      "target": "src_components_layout_layout"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/Layout.jsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_components_layout",
+      "target": "src_components_layout_page_titles"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/components/Layout.jsx",
+      "source_location": "L175",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_components_layout_layout",
+      "target": "src_components_layout_getpagetitle"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/App.jsx",
+      "source_location": "L4",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "src_app",
+      "target": "src_components_layout_layout"
     },
     {
       "relation": "contains",
@@ -10385,9 +10711,9 @@
       "source_file": "src/pages/ShoringTowerCalculator.jsx",
       "source_location": "L33",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_shoringtowercalculator",
-      "target": "src_pages_shoringtowercalculator_cleannumericinput",
-      "confidence_score": 1.0
+      "target": "src_pages_shoringtowercalculator_cleannumericinput"
     },
     {
       "relation": "contains",
@@ -10395,9 +10721,9 @@
       "source_file": "src/pages/ShoringTowerCalculator.jsx",
       "source_location": "L16",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_shoringtowercalculator",
-      "target": "src_pages_shoringtowercalculator_getsessiondata",
-      "confidence_score": 1.0
+      "target": "src_pages_shoringtowercalculator_getsessiondata"
     },
     {
       "relation": "contains",
@@ -10405,9 +10731,9 @@
       "source_file": "src/pages/ShoringTowerCalculator.jsx",
       "source_location": "L25",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_shoringtowercalculator",
-      "target": "src_pages_shoringtowercalculator_savesessiondata",
-      "confidence_score": 1.0
+      "target": "src_pages_shoringtowercalculator_savesessiondata"
     },
     {
       "relation": "contains",
@@ -10415,9 +10741,9 @@
       "source_file": "src/pages/ShoringTowerCalculator.jsx",
       "source_location": "L57",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_shoringtowercalculator",
-      "target": "src_pages_shoringtowercalculator_shoringtowercalculator",
-      "confidence_score": 1.0
+      "target": "src_pages_shoringtowercalculator_shoringtowercalculator"
     },
     {
       "relation": "contains",
@@ -10425,9 +10751,9 @@
       "source_file": "src/pages/ShoringTowerCalculator.jsx",
       "source_location": "L52",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_shoringtowercalculator",
-      "target": "src_pages_shoringtowercalculator_status_labels",
-      "confidence_score": 1.0
+      "target": "src_pages_shoringtowercalculator_status_labels"
     },
     {
       "relation": "contains",
@@ -10435,9 +10761,9 @@
       "source_file": "src/pages/ShoringTowerCalculator.jsx",
       "source_location": "L44",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_shoringtowercalculator",
-      "target": "src_pages_shoringtowercalculator_type_colors",
-      "confidence_score": 1.0
+      "target": "src_pages_shoringtowercalculator_type_colors"
     },
     {
       "relation": "calls",
@@ -10446,9 +10772,9 @@
       "source_file": "src/pages/ShoringTowerCalculator.jsx",
       "source_location": "L58",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_shoringtowercalculator_shoringtowercalculator",
-      "target": "src_pages_shoringtowercalculator_getsessiondata",
-      "confidence_score": 1.0
+      "target": "src_pages_shoringtowercalculator_getsessiondata"
     },
     {
       "relation": "calls",
@@ -10457,9 +10783,9 @@
       "source_file": "src/pages/ShoringTowerCalculator.jsx",
       "source_location": "L96",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_shoringtowercalculator_shoringtowercalculator",
-      "target": "src_pages_shoringtowercalculator_savesessiondata",
-      "confidence_score": 1.0
+      "target": "src_pages_shoringtowercalculator_savesessiondata"
     },
     {
       "relation": "calls",
@@ -10468,9 +10794,9 @@
       "source_file": "src/pages/ShoringTowerCalculator.jsx",
       "source_location": "L352",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_shoringtowercalculator_shoringtowercalculator",
-      "target": "src_pages_shoringtowercalculator_cleannumericinput",
-      "confidence_score": 1.0
+      "target": "src_pages_shoringtowercalculator_cleannumericinput"
     },
     {
       "relation": "contains",
@@ -10478,9 +10804,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L1895",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_analysisdiagram",
-      "confidence_score": 1.0
+      "target": "src_pages_slabformworkcalculator_analysisdiagram"
     },
     {
       "relation": "contains",
@@ -10488,9 +10814,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L26",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_cleannumericinput",
-      "confidence_score": 1.0
+      "target": "src_pages_slabformworkcalculator_cleannumericinput"
     },
     {
       "relation": "contains",
@@ -10498,9 +10824,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L1872",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_clr",
-      "confidence_score": 1.0
+      "target": "src_pages_slabformworkcalculator_clr"
     },
     {
       "relation": "contains",
@@ -10508,9 +10834,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L1890",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_flattenpoints",
-      "confidence_score": 1.0
+      "target": "src_pages_slabformworkcalculator_flattenpoints"
     },
     {
       "relation": "contains",
@@ -10518,9 +10844,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L11",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_getsessiondata",
-      "confidence_score": 1.0
+      "target": "src_pages_slabformworkcalculator_getsessiondata"
     },
     {
       "relation": "contains",
@@ -10528,9 +10854,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L597",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_interactivediagram",
-      "confidence_score": 1.0
+      "target": "src_pages_slabformworkcalculator_interactivediagram"
     },
     {
       "relation": "contains",
@@ -10538,9 +10864,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L627",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_marker",
-      "confidence_score": 1.0
+      "target": "src_pages_slabformworkcalculator_marker"
     },
     {
       "relation": "contains",
@@ -10548,9 +10874,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L856",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_resultrow",
-      "confidence_score": 1.0
+      "target": "src_pages_slabformworkcalculator_resultrow"
     },
     {
       "relation": "contains",
@@ -10558,9 +10884,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L652",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_resultstab",
-      "confidence_score": 1.0
+      "target": "src_pages_slabformworkcalculator_resultstab"
     },
     {
       "relation": "contains",
@@ -10568,9 +10894,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L1885",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_roundn",
-      "confidence_score": 1.0
+      "target": "src_pages_slabformworkcalculator_roundn"
     },
     {
       "relation": "contains",
@@ -10578,9 +10904,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L20",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_savesessiondata",
-      "confidence_score": 1.0
+      "target": "src_pages_slabformworkcalculator_savesessiondata"
     },
     {
       "relation": "contains",
@@ -10588,9 +10914,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L37",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_slabformworkcalculator",
-      "confidence_score": 1.0
+      "target": "src_pages_slabformworkcalculator_slabformworkcalculator"
     },
     {
       "relation": "contains",
@@ -10598,9 +10924,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L877",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_slabpdfreportpreview",
-      "confidence_score": 1.0
+      "target": "src_pages_slabformworkcalculator_slabpdfreportpreview"
     },
     {
       "relation": "contains",
@@ -10608,9 +10934,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L781",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_wondercrabconfigtable",
-      "confidence_score": 1.0
+      "target": "src_pages_slabformworkcalculator_wondercrabconfigtable"
     },
     {
       "relation": "calls",
@@ -10619,9 +10945,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L38",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_slabformworkcalculator_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_getsessiondata",
-      "confidence_score": 1.0
+      "target": "src_pages_slabformworkcalculator_getsessiondata"
     },
     {
       "relation": "calls",
@@ -10630,9 +10956,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L123",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_slabformworkcalculator_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_savesessiondata",
-      "confidence_score": 1.0
+      "target": "src_pages_slabformworkcalculator_savesessiondata"
     },
     {
       "relation": "calls",
@@ -10641,9 +10967,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L282",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_slabformworkcalculator_slabformworkcalculator",
-      "target": "src_pages_slabformworkcalculator_cleannumericinput",
-      "confidence_score": 1.0
+      "target": "src_pages_slabformworkcalculator_cleannumericinput"
     },
     {
       "relation": "calls",
@@ -10652,9 +10978,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L893",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_slabformworkcalculator_slabpdfreportpreview",
-      "target": "src_pages_slabformworkcalculator_flattenpoints",
-      "confidence_score": 1.0
+      "target": "src_pages_slabformworkcalculator_flattenpoints"
     },
     {
       "relation": "calls",
@@ -10663,9 +10989,9 @@
       "source_file": "src/pages/SlabFormworkCalculator.jsx",
       "source_location": "L1939",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_slabformworkcalculator_analysisdiagram",
-      "target": "src_pages_slabformworkcalculator_roundn",
-      "confidence_score": 1.0
+      "target": "src_pages_slabformworkcalculator_roundn"
     },
     {
       "relation": "contains",
@@ -10673,9 +10999,9 @@
       "source_file": "src/pages/WallFormworkCalculator.jsx",
       "source_location": "L24",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_wallformworkcalculator",
-      "target": "src_pages_wallformworkcalculator_cleannumericinput",
-      "confidence_score": 1.0
+      "target": "src_pages_wallformworkcalculator_cleannumericinput"
     },
     {
       "relation": "contains",
@@ -10683,9 +11009,9 @@
       "source_file": "src/pages/WallFormworkCalculator.jsx",
       "source_location": "L9",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_wallformworkcalculator",
-      "target": "src_pages_wallformworkcalculator_getsessiondata",
-      "confidence_score": 1.0
+      "target": "src_pages_wallformworkcalculator_getsessiondata"
     },
     {
       "relation": "contains",
@@ -10693,9 +11019,9 @@
       "source_file": "src/pages/WallFormworkCalculator.jsx",
       "source_location": "L18",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_wallformworkcalculator",
-      "target": "src_pages_wallformworkcalculator_savesessiondata",
-      "confidence_score": 1.0
+      "target": "src_pages_wallformworkcalculator_savesessiondata"
     },
     {
       "relation": "contains",
@@ -10703,9 +11029,9 @@
       "source_file": "src/pages/WallFormworkCalculator.jsx",
       "source_location": "L35",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_wallformworkcalculator",
-      "target": "src_pages_wallformworkcalculator_wallformworkcalculator",
-      "confidence_score": 1.0
+      "target": "src_pages_wallformworkcalculator_wallformworkcalculator"
     },
     {
       "relation": "calls",
@@ -10714,9 +11040,9 @@
       "source_file": "src/pages/WallFormworkCalculator.jsx",
       "source_location": "L122",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_wallformworkcalculator_wallformworkcalculator",
-      "target": "src_pages_wallformworkcalculator_getsessiondata",
-      "confidence_score": 1.0
+      "target": "src_pages_wallformworkcalculator_getsessiondata"
     },
     {
       "relation": "calls",
@@ -10725,9 +11051,9 @@
       "source_file": "src/pages/WallFormworkCalculator.jsx",
       "source_location": "L127",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_wallformworkcalculator_wallformworkcalculator",
-      "target": "src_pages_wallformworkcalculator_savesessiondata",
-      "confidence_score": 1.0
+      "target": "src_pages_wallformworkcalculator_savesessiondata"
     },
     {
       "relation": "calls",
@@ -10736,9 +11062,9 @@
       "source_file": "src/pages/WallFormworkCalculator.jsx",
       "source_location": "L269",
       "weight": 1.0,
+      "confidence_score": 1.0,
       "source": "src_pages_wallformworkcalculator_wallformworkcalculator",
-      "target": "src_pages_wallformworkcalculator_cleannumericinput",
-      "confidence_score": 1.0
+      "target": "src_pages_wallformworkcalculator_cleannumericinput"
     },
     {
       "relation": "contains",
@@ -11371,17 +11697,6 @@
       "target": "src_engine_formwork_slabformwork_checkwondercrabtower"
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L13",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks",
-      "target": "src_engine_materials_sections"
-    },
-    {
       "relation": "re_exports",
       "context": "export",
       "confidence": "EXTRACTED",
@@ -11443,17 +11758,6 @@
       "target": "src_engine_materials_sections_steel_grades"
     },
     {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L13",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks",
-      "target": "src_engine_materials_sections_steel_grades"
-    },
-    {
       "relation": "re_exports",
       "context": "re-export",
       "confidence": "EXTRACTED",
@@ -11507,80 +11811,6 @@
       "confidence_score": 1.0,
       "source": "src_engine_materials_index",
       "target": "src_engine_materials_sections_getallsectionnames"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/App.jsx",
-      "source_location": "L4",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_app",
-      "target": "src_components_layout"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/Layout.jsx",
-      "source_location": "L20",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_components_layout",
-      "target": "src_components_layout_getpagetitle"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/Layout.jsx",
-      "source_location": "L26",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_components_layout",
-      "target": "src_components_layout_layout"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/Layout.jsx",
-      "source_location": "L10",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_components_layout",
-      "target": "src_components_layout_page_titles"
-    },
-    {
-      "relation": "references",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/components/Layout.jsx",
-      "source_location": "L22",
-      "weight": 1.0,
-      "source": "src_components_layout_getpagetitle",
-      "target": "src_components_layout_page_titles"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/components/Layout.jsx",
-      "source_location": "L169",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_components_layout_layout",
-      "target": "src_components_layout_getpagetitle"
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/App.jsx",
-      "source_location": "L4",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_app",
-      "target": "src_components_layout_layout"
     },
     {
       "relation": "contains",
@@ -15079,28 +15309,6 @@
       "context": "export",
       "confidence": "EXTRACTED",
       "source_file": "src/engine/beam/index.js",
-      "source_location": "L9",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_beam_index",
-      "target": "src_engine_beam_mesher"
-    },
-    {
-      "relation": "re_exports",
-      "context": "re-export",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/beam/index.js",
-      "source_location": "L9",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_beam_index",
-      "target": "src_engine_beam_mesher_buildmesh"
-    },
-    {
-      "relation": "re_exports",
-      "context": "export",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/beam/index.js",
       "source_location": "L10",
       "weight": 1.0,
       "confidence_score": 1.0,
@@ -15135,17 +15343,6 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/engine/beam/index.js",
-      "source_location": "L19",
-      "weight": 1.0,
-      "source": "src_engine_beam_index_analyzebeam",
-      "target": "src_engine_beam_mesher_buildmesh"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/engine/beam/index.js",
       "source_location": "L20",
       "weight": 1.0,
       "source": "src_engine_beam_index_analyzebeam",
@@ -15161,16 +15358,6 @@
       "confidence_score": 1.0,
       "source": "src_engine_index",
       "target": "src_engine_beam_index_analyzebeam"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/beam/mesher.js",
-      "source_location": "L40",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_beam_mesher",
-      "target": "src_engine_beam_mesher_buildmesh"
     },
     {
       "relation": "contains",
@@ -15329,401 +15516,6 @@
       "confidence_score": 1.0,
       "source": "src_engine_beam_solver_buildresults",
       "target": "src_engine_beam_solver_multiplymatrixvector"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L26",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks",
-      "target": "src_engine_design_ec3_checks_calcepsilon"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L186",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks",
-      "target": "src_engine_design_ec3_checks_checkbending"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L275",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks",
-      "target": "src_engine_design_ec3_checks_checkbendingshearinteraction"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L363",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks",
-      "target": "src_engine_design_ec3_checks_checkdeflection"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L230",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks",
-      "target": "src_engine_design_ec3_checks_checkshear"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L400",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks",
-      "target": "src_engine_design_ec3_checks_checksystembeam"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L137",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks",
-      "target": "src_engine_design_ec3_checks_classifyhollowsection"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L87",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks",
-      "target": "src_engine_design_ec3_checks_classifyisection"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L73",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks",
-      "target": "src_engine_design_ec3_checks_classifysection"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L469",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks",
-      "target": "src_engine_design_ec3_checks_performallchecks"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L36",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks",
-      "target": "src_engine_design_ec3_checks_resolvegrade"
-    },
-    {
-      "relation": "contains",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L581",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks",
-      "target": "src_engine_design_ec3_checks_roundto"
-    },
-    {
-      "relation": "re_exports",
-      "context": "export",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/index.js",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_index",
-      "target": "src_engine_design_ec3_checks"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L75",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks_classifysection",
-      "target": "src_engine_design_ec3_checks_calcepsilon"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L187",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks_checkbending",
-      "target": "src_engine_design_ec3_checks_resolvegrade"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L276",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks_checkbendingshearinteraction",
-      "target": "src_engine_design_ec3_checks_resolvegrade"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L231",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks_checkshear",
-      "target": "src_engine_design_ec3_checks_resolvegrade"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L74",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks_classifysection",
-      "target": "src_engine_design_ec3_checks_resolvegrade"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L190",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks_checkbending",
-      "target": "src_engine_design_ec3_checks_classifysection"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L282",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks_checkbendingshearinteraction",
-      "target": "src_engine_design_ec3_checks_classifysection"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L80",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks_classifysection",
-      "target": "src_engine_design_ec3_checks_classifyhollowsection"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L78",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks_classifysection",
-      "target": "src_engine_design_ec3_checks_classifyisection"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L548",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks_performallchecks",
-      "target": "src_engine_design_ec3_checks_classifysection"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L203",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks_checkbending",
-      "target": "src_engine_design_ec3_checks_roundto"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L280",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks_checkbendingshearinteraction",
-      "target": "src_engine_design_ec3_checks_checkbending"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L549",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks_performallchecks",
-      "target": "src_engine_design_ec3_checks_checkbending"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L281",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks_checkbendingshearinteraction",
-      "target": "src_engine_design_ec3_checks_checkshear"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L242",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks_checkshear",
-      "target": "src_engine_design_ec3_checks_roundto"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L550",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks_performallchecks",
-      "target": "src_engine_design_ec3_checks_checkshear"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L297",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks_checkbendingshearinteraction",
-      "target": "src_engine_design_ec3_checks_roundto"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L551",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks_performallchecks",
-      "target": "src_engine_design_ec3_checks_checkbendingshearinteraction"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L369",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks_checkdeflection",
-      "target": "src_engine_design_ec3_checks_roundto"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L407",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks_checksystembeam",
-      "target": "src_engine_design_ec3_checks_checkdeflection"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L503",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks_performallchecks",
-      "target": "src_engine_design_ec3_checks_checkdeflection"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L411",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks_checksystembeam",
-      "target": "src_engine_design_ec3_checks_roundto"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/checks.js",
-      "source_location": "L516",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_checks_performallchecks",
-      "target": "src_engine_design_ec3_checks_checksystembeam"
-    },
-    {
-      "relation": "re_exports",
-      "context": "re-export",
-      "confidence": "EXTRACTED",
-      "source_file": "src/engine/design/ec3/index.js",
-      "source_location": "L6",
-      "weight": 1.0,
-      "confidence_score": 1.0,
-      "source": "src_engine_design_ec3_index",
-      "target": "src_engine_design_ec3_checks_performallchecks"
     },
     {
       "relation": "re_exports",
@@ -23603,5 +23395,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "b09bb1c95c6e685d093be48a14b43cc4fe7850ca"
+  "built_at_commit": "c8d18a1ed31fd1c71a41aae011d483dcddef6528"
 }

@@ -86,8 +86,10 @@ export async function saveNow() {
     // Keep what is on disk before overwriting it. Throttled inside, so this is
     // a trail of sessions rather than one version per keystroke, and it never
     // throws — history must not be able to block a save.
-    await snapshotVersion(filename);
-    await writeProjectFile(filename, encodeTw(project, pdfs));
+    await writeProjectFile(filename, encodeTw(project, pdfs), {
+      name: project.name,
+      calculation_count: project.calculations?.length || 0
+    });
     emit('saved', { at: Date.now() });
 
     // Sweep PDF blobs no live item references. Deleting an item no longer
@@ -172,12 +174,32 @@ export async function openProject(filename) {
 }
 
 /** Create a new .tw and open it. */
-export async function createProject(filename, name) {
+export async function createProject(filename, name, coverImageFile = null) {
+  const { createProjectRecord } = await import('./supabaseDb');
+  const { uploadCoverImage } = await import('./supabaseStorage');
+  
+  // We need an ID for the project before we can upload the cover image to that ID
+  const newId = crypto.randomUUID();
+  let coverImageUrl = null;
+
+  if (coverImageFile) {
+    coverImageUrl = await uploadCoverImage(newId, coverImageFile);
+  }
+
+  // Pass metadata to create the DB record first
+  const record = await createProjectRecord({
+    id: newId,
+    name,
+    cover_image: coverImageUrl,
+    metadata: { calculation_count: 0, drawing_count: 0, file_size: 0 }
+  });
+
   const project = { name, coverPage: false, calculations: [] };
-  await writeProjectFile(filename, encodeTw(project, new Map()));
+  // The database ID becomes the storage filename/id
+  await writeProjectFile(record.id, encodeTw(project, new Map()));
   await clearAllPdfs();
   localStorage.setItem(PROJECT_STORAGE_KEY, JSON.stringify(project));
-  setOpenFilename(filename);
+  setOpenFilename(record.id);
   clearUndo(); // the previous project's undo history is meaningless here
   emit("saved", { at: Date.now() });
   return project;

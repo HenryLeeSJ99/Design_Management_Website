@@ -1,26 +1,14 @@
-/**
- * Projects.jsx
- * Every project in the engineer's projects folder, as cards.
- *
- * Each card is one .tw file on disk. This page is a view of a folder, not of
- * browser storage — so what is listed here is what is backed up, copied and
- * shared, and nothing is hiding in a database only this browser can see.
- */
-
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  AlertTriangle, Calculator, Copy, FolderOpen, FolderPlus, HardDrive, History,
-  Layers, Map, Pencil, Plus, RefreshCw, RotateCcw, Trash2, Undo2,
+  FolderOpen, FolderPlus, Map, Plus, RefreshCw, Trash2, Undo2, LayoutTemplate, Calculator, Image as ImageIcon, X
 } from 'lucide-react';
 import {
-  deleteProjectFile, ensurePermission, getFolder, isFolderSupported, listProjects,
-  listTrash, needsPermission, pickFolder, purgeExpiredTrash, readProjectFile,
-  restoreFromTrash, trashProject, uniqueFilename, writeProjectFile, TRASH_DAYS,
+  deleteProjectFile, listProjects, trashProject, restoreFromTrash, deleteFromTrash, TRASH_DAYS
 } from '../services/projectFiles';
 import { closeProject, createProject, getOpenFilename, openProject } from '../services/projectSession';
-import { TwFileError } from '../services/twFile';
-import { confirmDialog, promptDialog } from '../services/dialog';
+import { confirmDialog } from '../services/dialog';
+import { useAuth } from '../contexts/AuthContext';
 import styles from './Projects.module.css';
 
 const formatSize = (bytes) => {
@@ -33,37 +21,119 @@ const formatWhen = (ts) => (ts
   ? new Date(ts).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
   : '—');
 
+function CreateProjectModal({ onClose, onSubmit, busy }) {
+  const [name, setName] = useState('New Project');
+  const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState(null);
+  const fileInputRef = useRef(null);
+
+  const handleFileChange = (e) => {
+    const selected = e.target.files[0];
+    if (selected) {
+      setFile(selected);
+      setPreview(URL.createObjectURL(selected));
+    }
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!name.trim()) return;
+    onSubmit(name.trim(), file);
+  };
+
+  return (
+    <div className={styles.modalBackdrop}>
+      <div className={styles.modal}>
+        <div className={styles.modalHeader}>
+          <h2>Create New Project</h2>
+          <button type="button" className={styles.btnIconGhost} onClick={onClose} disabled={busy}>
+            <X size={20} />
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className={styles.modalBody}>
+          <div className={styles.formGroup}>
+            <label>Project Name</label>
+            <input 
+              type="text" 
+              value={name} 
+              onChange={(e) => setName(e.target.value)} 
+              disabled={busy} 
+              required
+              className={styles.textInput}
+            />
+          </div>
+          
+          <div className={styles.formGroup}>
+            <label>Cover Image (Optional)</label>
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={handleFileChange}
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+              disabled={busy}
+            />
+            
+            {preview ? (
+              <div className={styles.imagePreviewContainer}>
+                <img src={preview} alt="Preview" className={styles.imagePreview} />
+                <button type="button" className={styles.btnSecondary} onClick={() => { setFile(null); setPreview(null); }} disabled={busy}>
+                  Remove Image
+                </button>
+              </div>
+            ) : (
+              <button type="button" className={styles.btnSecondary} onClick={() => fileInputRef.current.click()} disabled={busy}>
+                <ImageIcon size={18} /> Upload Image
+              </button>
+            )}
+          </div>
+
+          <div className={styles.modalFooter}>
+            <button type="button" className={styles.btnGhost} onClick={onClose} disabled={busy}>Cancel</button>
+            <button type="submit" className={styles.btnPrimary} disabled={busy || !name.trim()}>
+              {busy ? 'Creating...' : 'Create Project'}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
 export default function Projects() {
   const navigate = useNavigate();
+  const { role } = useAuth();
   const [projects, setProjects] = useState([]);
   const [trash, setTrash] = useState([]);
   const [showTrash, setShowTrash] = useState(false);
-  const [folderName, setFolderName] = useState(null);
-  const [state, setState] = useState('loading'); // loading | ready | no-folder | needs-permission | unsupported
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState('');
-  const [historyFor, setHistoryFor] = useState(null); // a project whose versions are shown
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  
+  // For editing covers
+  const coverInputRef = useRef(null);
+  const [editingProjectId, setEditingProjectId] = useState(null);
 
   const openFilename = getOpenFilename();
 
+  // Updated to include team_leader
+  const isManagerLevel = role === 'admin' || role === 'manager' || role === 'team_leader';
+  const isSales = role === 'sales';
+
   const refresh = useCallback(async () => {
     setError('');
-    if (!isFolderSupported()) { setState('unsupported'); return; }
-    if (await needsPermission()) { setState('needs-permission'); return; }
-    const dir = await getFolder();
-    if (!dir) { setState('no-folder'); return; }
-    setFolderName(dir.name);
+    setLoading(true);
     try {
-      // Looking at the folder is also when expired trash gets swept, so no
-      // scheduler is needed
-      await purgeExpiredTrash(dir).catch(() => {});
-      const [live, binned] = await Promise.all([listProjects(dir), listTrash(dir)]);
+      const allProjects = await listProjects();
+      const live = allProjects.filter(p => p.status !== 'trashed');
+      const binned = allProjects.filter(p => p.status === 'trashed');
       setProjects(live);
       setTrash(binned);
-      setState('ready');
     } catch (e) {
-      setError(e?.message || 'The projects folder could not be read.');
-      setState('ready');
+      setError(e?.message || 'Projects could not be loaded from the cloud.');
+    } finally {
+      setLoading(false);
     }
   }, []);
 
@@ -75,69 +145,47 @@ export default function Projects() {
     try {
       await fn();
     } catch (e) {
-      setError(e instanceof TwFileError ? e.message : (e?.message || 'Something went wrong.'));
+      setError(e?.message || 'Something went wrong.');
     } finally {
       setBusy('');
     }
   };
 
-  const handlePickFolder = () => guard('folder', async () => {
-    if (await pickFolder()) await refresh();
-  });
-
-  const handleGrant = () => guard('folder', async () => {
-    await ensurePermission();
-    await refresh();
-  });
-
-  const handleNew = () => guard('new', async () => {
-    const name = await promptDialog({
-      title: 'New project',
-      label: 'Project name',
-      defaultValue: 'New Project',
-      confirmLabel: 'Create',
+  const handleCreateSubmit = async (name, coverImageFile) => {
+    await guard('new', async () => {
+      await createProject(null, name, coverImageFile);
+      setShowCreateModal(false);
+      navigate('/dashboard');
     });
-    if (!name) return;
-    const filename = await uniqueFilename(name);
-    await createProject(filename, name);
-    navigate('/dashboard');
-  });
+  };
+
+  const handleEditCoverClick = (projectId) => {
+    setEditingProjectId(projectId);
+    coverInputRef.current?.click();
+  };
+
+  const handleCoverSelect = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !editingProjectId) return;
+    
+    await guard('editCover', async () => {
+      const { uploadCoverImage } = await import('../services/supabaseStorage');
+      const { updateProjectRecord } = await import('../services/supabaseDb');
+      
+      const coverUrl = await uploadCoverImage(editingProjectId, file);
+      await updateProjectRecord(editingProjectId, { cover_image: coverUrl });
+      await refresh();
+    });
+    
+    setEditingProjectId(null);
+    e.target.value = null; // reset input
+  };
 
   const handleOpen = (project) => guard(project.filename, async () => {
+    if (isSales) return;
     if (project.error) return;
     await openProject(project.filename);
     navigate('/dashboard');
-  });
-
-  const handleRename = (project) => guard(project.filename, async () => {
-    const name = await promptDialog({
-      title: 'Rename project',
-      label: 'Project name',
-      defaultValue: project.name,
-      confirmLabel: 'Rename',
-    });
-    if (!name || name === project.name) return;
-
-    // No rename in the File System Access API: copy to the new name, then drop
-    // the old file. Read first so a failure leaves the original untouched.
-    const bytes = await readProjectFile(project.filename);
-    const target = await uniqueFilename(name);
-    await writeProjectFile(target, new Uint8Array(bytes));
-    await deleteProjectFile(project.filename);
-
-    // Renaming the file does not rename the project inside it
-    await openProject(target);
-    const { setProjectName } = await import('../services/projectStore');
-    setProjectName(name);
-    if (openFilename !== project.filename) await closeProject();
-    await refresh();
-  });
-
-  const handleDuplicate = (project) => guard(project.filename, async () => {
-    const bytes = await readProjectFile(project.filename);
-    const target = await uniqueFilename(`${project.name} copy`);
-    await writeProjectFile(target, new Uint8Array(bytes));
-    await refresh();
   });
 
   const handleDelete = (project) => guard(project.filename, async () => {
@@ -166,308 +214,147 @@ export default function Projects() {
       danger: true,
     });
     if (!ok) return;
-    const { deleteFromTrash } = await import('../services/projectFiles');
     await deleteFromTrash(item.filename);
     await refresh();
   });
 
-  // --- Empty / gate states ---
-
-  if (state === 'loading') {
-    return <div className={styles.pageContainer}><p className={styles.muted}>Reading your projects folder…</p></div>;
+  if (loading) {
+    return <div className={styles.pageContainer}><p className={styles.muted}>Loading projects from cloud…</p></div>;
   }
-
-  if (state === 'unsupported') {
-    return (
-      <div className={styles.pageContainer}>
-        <header className={styles.pageHeader}><div className={styles.titleBlock}><h1>Projects</h1></div></header>
-        <div className={styles.gate}>
-          <AlertTriangle size={22} className={styles.gateIcon} />
-          <div>
-            <p className={styles.gateTitle}>This browser can’t open a projects folder</p>
-            <p className={styles.gateHint}>
-              Opening a folder needs Chrome or Edge. In this browser you can still work on one project at a
-              time and move it with <strong>Import</strong> and <strong>Export</strong> on the dashboard —
-              same .tw file, just more steps.
-            </p>
-            <button type="button" className={styles.btnSecondary} onClick={() => navigate('/dashboard')}>
-              Go to the dashboard
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (state === 'needs-permission' || state === 'no-folder') {
-    const returning = state === 'needs-permission';
-    return (
-      <div className={styles.pageContainer}>
-        <header className={styles.pageHeader}><div className={styles.titleBlock}><h1>Projects</h1></div></header>
-        <div className={styles.gate}>
-          <FolderOpen size={22} className={styles.gateIcon} />
-          <div>
-            <p className={styles.gateTitle}>
-              {returning ? 'Reconnect your projects folder' : 'Choose where your projects live'}
-            </p>
-            <p className={styles.gateHint}>
-              {returning
-                ? 'Your browser needs permission again to read that folder. Nothing has been lost — your .tw files are still on disk.'
-                : 'Pick a folder and every project becomes a .tw file inside it — PDFs and drawings included. Back it up, sync it, copy it to another machine: it is yours.'}
-            </p>
-            {error && <p className={styles.error}>{error}</p>}
-            <button
-              type="button"
-              className={styles.btnPrimary}
-              onClick={returning ? handleGrant : handlePickFolder}
-              disabled={busy === 'folder'}
-            >
-              <FolderOpen size={15} /> {returning ? 'Reconnect folder' : 'Choose folder'}
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // --- The folder ---
 
   return (
     <div className={styles.pageContainer}>
+      {showCreateModal && (
+        <CreateProjectModal 
+          onClose={() => setShowCreateModal(false)}
+          onSubmit={handleCreateSubmit}
+          busy={!!busy}
+        />
+      )}
+
       <header className={styles.pageHeader}>
         <div className={styles.titleBlock}>
-          <h1>Projects</h1>
-          <p>
-            <HardDrive size={13} /> {folderName} · {projects.length} project{projects.length === 1 ? '' : 's'}
-          </p>
+          <h1>{showTrash ? 'Trash' : 'Projects'}</h1>
+          <button type="button" className={styles.btnIcon} onClick={refresh} title="Refresh projects" disabled={!!busy}>
+            <RefreshCw size={18} className={busy === 'folder' ? styles.spin : ''} />
+          </button>
         </div>
         <div className={styles.headerActions}>
-          <button type="button" className={styles.btnSecondary} onClick={refresh} title="Re-read the folder">
-            <RefreshCw size={15} /> Refresh
+          <button type="button" className={styles.btnGhost} onClick={() => setShowTrash(!showTrash)}>
+            {showTrash ? <><FolderOpen size={18} /><span>Back to projects</span></> : <><Trash2 size={18} /><span>View trash</span></>}
           </button>
-          <button type="button" className={styles.btnSecondary} onClick={handlePickFolder} disabled={busy === 'folder'}>
-            <FolderOpen size={15} /> Change folder
-          </button>
-          <button type="button" className={styles.btnPrimary} onClick={handleNew} disabled={busy === 'new'}>
-            <Plus size={15} /> New project
-          </button>
+          
+          {!showTrash && isManagerLevel && (
+            <button type="button" className={styles.btnPrimary} onClick={() => setShowCreateModal(true)} disabled={!!busy}>
+              <Plus size={18} /><span>New project</span>
+            </button>
+          )}
         </div>
       </header>
 
-      {error && <div className={styles.errorBox}>{error}</div>}
+      {error && <div className={styles.errorBanner}><p>{error}</p></div>}
+      
+      <input 
+        type="file" 
+        accept="image/*" 
+        style={{ display: 'none' }} 
+        ref={coverInputRef} 
+        onChange={handleCoverSelect} 
+      />
 
-      {projects.length === 0 ? (
-        <div className={styles.emptyCard}>
-          <FolderPlus size={20} />
-          <p className={styles.emptyTitle}>No projects in this folder yet</p>
-          <p className={styles.emptyHint}>
-            Create one and it is saved as a .tw file in <strong>{folderName}</strong> as you work.
-          </p>
-          <button type="button" className={styles.btnPrimary} onClick={handleNew}>
-            <Plus size={15} /> New project
-          </button>
-        </div>
-      ) : (
-        <div className={styles.grid}>
-          {projects.map((project) => {
-            const isOpen = openFilename === project.filename;
-            const working = busy === project.filename;
-            return (
-              <article
-                key={project.filename}
-                className={[styles.card, project.error ? styles.cardBroken : '', isOpen ? styles.cardOpen : ''].join(' ')}
-              >
-                {project.error ? (
-                  <>
-                    <div className={styles.cardHead}>
-                      <AlertTriangle size={16} className={styles.brokenIcon} />
-                      <h2 className={styles.cardName}>{project.name}</h2>
-                    </div>
-                    <p className={styles.brokenMsg}>{project.error}</p>
-                    <p className={styles.filename}>{project.filename}</p>
-                    <div className={styles.cardActions}>
-                      <button type="button" className={`${styles.iconBtn} ${styles.danger}`} onClick={() => handleDelete(project)} title="Delete this file">
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <div className={styles.cardHead}>
-                      <button type="button" className={styles.cardName} onClick={() => handleOpen(project)}>
-                        {project.name}
-                      </button>
-                      {isOpen && <span className={styles.openBadge}>Open</span>}
-                    </div>
-
-                    {project.cover?.reportReference && (
-                      <p className={styles.cardRef}>{project.cover.reportReference}</p>
-                    )}
-
-                    <div className={styles.stats}>
-                      <span title="Calculations"><Calculator size={12} /> {project.calculationCount}</span>
-                      <span title="Drawings"><Map size={12} /> {project.drawingCount}</span>
-                      <span title="Documents"><Layers size={12} /> {project.documentCount}</span>
-                    </div>
-
-                    <p className={styles.meta}>
-                      {formatSize(project.size)} · saved {formatWhen(project.modifiedAt)}
-                    </p>
-                    <p className={styles.filename} title={project.filename}>{project.filename}</p>
-
-                    <div className={styles.cardActions}>
-                      <button type="button" className={styles.openBtn} onClick={() => handleOpen(project)} disabled={working}>
-                        {working ? 'Opening…' : 'Open'}
-                      </button>
-                      <button type="button" className={styles.iconBtn} onClick={() => handleRename(project)} title="Rename" disabled={working}>
-                        <Pencil size={14} />
-                      </button>
-                      <button type="button" className={styles.iconBtn} onClick={() => handleDuplicate(project)} title="Duplicate" disabled={working}>
-                        <Copy size={14} />
-                      </button>
-                      <button type="button" className={styles.iconBtn} onClick={() => setHistoryFor(project)} title="Version history" disabled={working}>
-                        <History size={14} />
-                      </button>
-                      <button type="button" className={`${styles.iconBtn} ${styles.danger}`} onClick={() => handleDelete(project)} title="Move to trash" disabled={working}>
-                        <Trash2 size={14} />
-                      </button>
-                    </div>
-                  </>
+      <div className={styles.grid}>
+        {(!showTrash ? projects : trash).map((project) => (
+          <div key={project.filename} className={styles.card}>
+            <div className={styles.cardCover}>
+              {project.cover_image ? (
+                <img src={project.cover_image} alt={`${project.name} cover`} />
+              ) : (
+                <div className={styles.cardCoverPlaceholder}>
+                  <ImageIcon size={48} />
+                </div>
+              )}
+              
+              {!showTrash && (role === 'admin' || role === 'manager') && (
+                <button 
+                  type="button" 
+                  className={styles.editCoverBtn}
+                  onClick={() => handleEditCoverClick(project.id)}
+                  disabled={!!busy}
+                >
+                  <ImageIcon size={14} /> Edit Cover
+                </button>
+              )}
+            </div>
+            <div className={styles.cardContent}>
+              <div className={styles.cardInfo}>
+                <h3 className={styles.cardName}>{project.name}</h3>
+                <p className={styles.cardMeta}>
+                  Modified {formatWhen(project.last_modified_at)} &middot; {formatSize(project.file_size)}
+                </p>
+                {isManagerLevel && project.updater_email && (
+                  <p className={styles.cardMeta} style={{ marginTop: '-4px' }}>
+                    By {project.updater_email}
+                  </p>
                 )}
-              </article>
-            );
-          })}
-        </div>
-      )}
-
-      {/* Trash — collapsed by default so it never competes with live projects */}
-      {trash.length > 0 && (
-        <div className={styles.trashSection}>
-          <button type="button" className={styles.trashToggle} onClick={() => setShowTrash((v) => !v)}>
-            <Trash2 size={14} />
-            Trash ({trash.length}) — kept {TRASH_DAYS} days
-            <span className={styles.trashChevron}>{showTrash ? '▾' : '▸'}</span>
-          </button>
-          {showTrash && (
-            <div className={styles.trashList}>
-              {trash.map((item) => {
-                const working = busy === `trash:${item.filename}`;
-                return (
-                  <div className={styles.trashRow} key={item.filename}>
-                    <div className={styles.trashInfo}>
-                      <span className={styles.trashName}>{item.name}</span>
-                      <span className={styles.trashMeta}>
-                        {formatSize(item.size)} · deleted {formatWhen(item.deletedAt)} ·{' '}
-                        <strong>{item.daysLeft} day{item.daysLeft === 1 ? '' : 's'} left</strong>
-                      </span>
-                    </div>
-                    <div className={styles.trashActions}>
-                      <button type="button" className={styles.restoreBtn} onClick={() => handleRestore(item)} disabled={working}>
-                        <RotateCcw size={13} /> Restore
-                      </button>
-                      <button type="button" className={`${styles.iconBtn} ${styles.danger}`} onClick={() => handleDeleteForever(item)} title="Delete permanently" disabled={working}>
-                        <Trash2 size={13} />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      )}
-
-      {historyFor && (
-        <VersionHistory
-          project={historyFor}
-          onClose={() => setHistoryFor(null)}
-          onRestored={async () => { setHistoryFor(null); await refresh(); }}
-        />
-      )}
-    </div>
-  );
-}
-
-/**
- * Version history for one project, in a dialog. Each row is a snapshot taken
- * before a later save overwrote it; restoring one snapshots the current file
- * first, so it is itself undoable.
- */
-function VersionHistory({ project, onClose, onRestored }) {
-  const [versions, setVersions] = useState(null);
-  const [error, setError] = useState('');
-  const [busy, setBusy] = useState('');
-
-  useEffect(() => {
-    let cancelled = false;
-    import('../services/projectFiles')
-      .then(({ listVersions }) => listVersions(project.filename))
-      .then((v) => { if (!cancelled) setVersions(v); })
-      .catch((e) => { if (!cancelled) { setError(e?.message || 'Version history could not be read.'); setVersions([]); } });
-    return () => { cancelled = true; };
-  }, [project.filename]);
-
-  useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape') onClose(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [onClose]);
-
-  const handleRestore = async (version) => {
-    if (project.filename === getOpenFilename()) {
-      const ok = await confirmDialog({
-        title: 'Restore this version',
-        message: 'The current version is kept in history first, so you can undo this.',
-        confirmLabel: 'Restore',
-      });
-      if (!ok) return;
-    }
-    setBusy(version.filename);
-    setError('');
-    try {
-      const { restoreVersion } = await import('../services/projectFiles');
-      await restoreVersion(project.filename, version.filename);
-      // If the restored project is the one open, reload it into the working copy
-      if (project.filename === getOpenFilename()) await openProject(project.filename);
-      await onRestored();
-    } catch (e) {
-      setError(e instanceof TwFileError ? e.message : (e?.message || 'The version could not be restored.'));
-      setBusy('');
-    }
-  };
-
-  return (
-    <div className={styles.backdrop} onClick={onClose} role="presentation">
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Version history">
-        <header className={styles.modalHead}>
-          <div>
-            <h2><History size={16} /> Version history</h2>
-            <p>{project.name}</p>
-          </div>
-          <button type="button" className={styles.iconBtn} onClick={onClose} title="Close">✕</button>
-        </header>
-
-        <div className={styles.modalBody}>
-          {error && <p className={styles.error}>{error}</p>}
-          {versions === null && <p className={styles.muted}>Reading history…</p>}
-          {versions?.length === 0 && !error && (
-            <p className={styles.muted}>
-              No earlier versions yet. One is kept each time the project is saved after a change.
-            </p>
-          )}
-          {versions?.map((v, i) => (
-            <div className={styles.versionRow} key={v.filename}>
-              <div>
-                <span className={styles.versionWhen}>{formatWhen(v.savedAt)}</span>
-                {i === 0 && <span className={styles.versionTag}>most recent</span>}
-                <span className={styles.versionSize}>{formatSize(v.size)}</span>
+                {isSales && <span className={styles.badge}>Status: {project.status}</span>}
+                <div className={styles.cardStats}>
+                  {project.calculation_count > 0 && <span title="Calculations"><Calculator size={14} />{project.calculation_count}</span>}
+                  {project.drawing_count > 0 && <span title="Drawings"><Map size={14} />{project.drawing_count}</span>}
+                </div>
               </div>
-              <button type="button" className={styles.restoreBtn} onClick={() => handleRestore(v)} disabled={!!busy}>
-                <Undo2 size={13} /> {busy === v.filename ? 'Restoring…' : 'Restore'}
-              </button>
+
+              {!showTrash ? (
+                <div className={styles.cardActions}>
+                  {!isSales && (
+                    <button type="button" className={styles.btnSecondary} onClick={() => handleOpen(project)} disabled={!!busy || !!project.error}>
+                      {openFilename === project.filename ? 'Resume' : 'Open'}
+                    </button>
+                  )}
+                  {isManagerLevel && (
+                    <button type="button" className={styles.btnIconGhost} onClick={() => handleDelete(project)} title="Move to trash" disabled={!!busy}>
+                      <Trash2 size={18} />
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <div className={styles.cardActions}>
+                  <button type="button" className={styles.btnSecondary} onClick={() => handleRestore(project)} disabled={!!busy}>
+                    <Undo2 size={16} /> Restore
+                  </button>
+                  {isManagerLevel && (
+                    <button type="button" className={styles.btnIconGhost} onClick={() => handleDeleteForever(project)} title="Delete forever" disabled={!!busy}>
+                      <Trash2 size={18} />
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
+
+        {projects.length === 0 && !showTrash && !error && (
+          <div className={styles.emptyState}>
+            <LayoutTemplate size={48} className={styles.emptyIcon} />
+            <h2>No projects yet</h2>
+            <p>
+              {isManagerLevel 
+                ? 'Create a new project to get started.' 
+                : 'You have no assigned projects yet.'}
+            </p>
+            {isManagerLevel && (
+              <button type="button" className={styles.btnPrimary} onClick={() => setShowCreateModal(true)} disabled={!!busy}>
+                <Plus size={18} /><span>New project</span>
+              </button>
+            )}
+          </div>
+        )}
+
+        {trash.length === 0 && showTrash && !error && (
+          <div className={styles.emptyState}>
+            <Trash2 size={48} className={styles.emptyIcon} />
+            <h2>Trash is empty</h2>
+          </div>
+        )}
       </div>
     </div>
   );

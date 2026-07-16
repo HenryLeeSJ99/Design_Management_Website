@@ -430,14 +430,14 @@
     "semantic_hash": ""
   },
   "src/pages/ProjectDashboard.jsx": {
-    "mtime": 1784206485.2520516,
-    "ast_hash": "8f18a5b5e39f98ed657b0e8bbbf081c4",
+    "mtime": 1784189549.8983095,
+    "ast_hash": "d9d60aa9f97e943424dc3cc4aeba774a",
     "semantic_hash": ""
   },
   "src/services/pdfCompile.js": {
-    "mtime": 1784206648.1772385,
-    "ast_hash": "d5184ca99ae838d078f3d86fb091c770",
-    "semantic_hash": ""
+    "mtime": 1784133909.0508835,
+    "ast_hash": "efdcf1e27f01cace73c5ae0d150d14ef",
+    "semantic_hash": "efdcf1e27f01cace73c5ae0d150d14ef"
   },
   "src/services/pdfStore.js": {
     "mtime": 1784186585.8378296,
@@ -445,8 +445,8 @@
     "semantic_hash": ""
   },
   "src/services/projectStore.js": {
-    "mtime": 1784206091.2734308,
-    "ast_hash": "34d51487bd60a6168e057bde8c02692d",
+    "mtime": 1784188291.7027273,
+    "ast_hash": "96ec0042664dc684ce7b4cff99007f58",
     "semantic_hash": ""
   },
   "src/components/CoverPageEditor.jsx": {

@@ -1,16 +1,16 @@
-# Graph Report - Design_Management_Website  (2026-07-12)
+# Graph Report - Design_Management_Website  (2026-07-13)
 
 ## Corpus Check
-- 85 files · ~135,679 words
+- 85 files · ~136,094 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1014 nodes · 1307 edges · 86 communities (77 shown, 9 thin omitted)
+- 1008 nodes · 1293 edges · 86 communities (78 shown, 8 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 12 edges (avg confidence: 0.58)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `b09bb1c9`
+- Built from commit: `c8d18a1e`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -77,7 +77,7 @@
 - The Sonner Principles (Building Loved Components)
 - Spring Animations
 - 21. MOBILE ANTI-AI-TELLS RULE
-- 0. BRIEF INFERENCE (Read the Room Before Anything Else)
+- index.js
 - 12. THE BLOCK LIBRARY (Contract - Implementations Land Here Iteratively)
 - 5. CONTEXT-AWARE PROACTIVITY
 - 8. DARK MODE PROTOCOL
@@ -124,14 +124,14 @@
 ## Import Cycles
 - None detected.
 
-## Communities (86 total, 9 thin omitted)
+## Communities (86 total, 8 thin omitted)
 
 ### Community 0 - "Legacy Application Core"
 Cohesion: 0.06
-Nodes (80): addCheckRow(), addLoad(), addSpan(), $btnAddLoad, $btnAddSpanRight, $btnCalculate, $btnDownload, $btnRemoveSpan (+72 more)
+Nodes (75): addCheckRow(), addLoad(), addSpan(), $btnAddLoad, $btnAddSpanRight, $btnCalculate, $btnDownload, $btnRemoveSpan (+67 more)
 
 ### Community 1 - "React Navigation & Components"
-Cohesion: 0.06
+Cohesion: 0.05
 Nodes (35): firebase, App(), Dashboard, Library, Login, MultiBeamCalculator, MultiSpanBeamCalculator, NotFound (+27 more)
 
 ### Community 2 - "Beam Solver Engine"
@@ -155,12 +155,12 @@ Cohesion: 0.23
 Nodes (13): C, drawBoundaryConditions(), drawDesignChecks(), drawDiagrams(), drawFooter(), drawHeader(), drawResults(), drawVerdict() (+5 more)
 
 ### Community 7 - "Eurocode 3 Design Engine"
-Cohesion: 0.17
-Nodes (23): calcEpsilon(), checkBending(), checkBendingShearInteraction(), checkDeflection(), checkShear(), checkSystemBeam(), classifyHollowSection(), classifyISection() (+15 more)
+Cohesion: 0.41
+Nodes (12): calcEpsilon(), checkBending(), checkBendingShearInteraction(), checkDeflection(), checkShear(), checkSystemBeam(), classifyHollowSection(), classifyISection() (+4 more)
 
 ### Community 8 - "ec3-checks.js"
-Cohesion: 0.24
-Nodes (12): AnalysisDiagram(), CheckRow(), cleanNumericInput(), CLR, COMPANY_LOGOS, flattenPoints(), getSessionData(), MultiBeamCalculator() (+4 more)
+Cohesion: 0.39
+Nodes (5): AnalysisDiagram(), CheckRow(), flattenPoints(), ResultsPanel(), roundN()
 
 ### Community 9 - "React Multi-Span Beam Page"
 Cohesion: 0.06
@@ -171,8 +171,8 @@ Cohesion: 0.06
 Nodes (34): 10. DEVICE MOCKUP FRAME RULE, 11. ONBOARDING FLOW RULE, 12. FIRST SCREEN CLEANLINESS RULE, 13. SAFE AREA AND SYSTEM REGION RULE, 14. NAVIGATION RULE, 15. CLEAN LAYOUT RULE, 16. CREATIVE IMAGE DIRECTION RULE, 17. BACKGROUND TEXTURE AND SURFACE RULE (+26 more)
 
 ### Community 11 - "Legacy Beam Solver"
-Cohesion: 0.40
-Nodes (5): 0.A Read these signals first, 0.B Output a one-line "Design Read" before generating, 0. BRIEF INFERENCE (Read the Room Before Anything Else), 0.C If the brief is ambiguous, ask one question, do not guess, 0.D Anti-Default Discipline
+Cohesion: 0.50
+Nodes (4): 1.A Dial Inference (design read → dial values), 1.B Use-Case Presets, 1.C How the Dials Drive Output, 1. THE THREE DIALS (Core Configuration)
 
 ### Community 21 - "High-Agency Frontend Skill"
 Cohesion: 0.06
@@ -215,8 +215,8 @@ Cohesion: 0.13
 Nodes (14): 1. Visual Theme & Atmosphere, 2. Color Palette & Roles, 3. Typography Rules, 4. Component Stylings, 5. Hero Section, 6. Layout Principles, 7. Responsive Rules, 8. Motion & Interaction (Code-Phase Intent) (+6 more)
 
 ### Community 31 - "CORE DIRECTIVE: AWWWARDS-LEVEL IMAGE ART DIRECTION"
-Cohesion: 0.14
-Nodes (14): 10. SECTION RHYTHM RULE, 12. DENSITY & SPACING DISCIPLINE, 14. IMAGE / MEDIA DIRECTION, 16. MULTI-IMAGE CONSISTENCY RULE, 17. CLARITY CHECK, 19. RESPONSE BEHAVIOR, 1. ACTIVE BASELINE CONFIGURATION, 21. FINAL GOAL (+6 more)
+Cohesion: 0.12
+Nodes (16): 10. SECTION RHYTHM RULE, 12. DENSITY & SPACING DISCIPLINE, 14. IMAGE / MEDIA DIRECTION, 16. MULTI-IMAGE CONSISTENCY RULE, 17. CLARITY CHECK, 19. RESPONSE BEHAVIOR, 1. ACTIVE BASELINE CONFIGURATION, 21. FINAL GOAL (+8 more)
 
 ### Community 32 - "2. THE COMBINATORIAL VARIATION ENGINE"
 Cohesion: 0.14
@@ -243,8 +243,8 @@ Cohesion: 0.20
 Nodes (10): 10. REFERENCE VOCABULARY (Pattern Names the Agent Should Know), Animation Library Choice, Cards & Containers, Galleries & Media, Hero Paradigms, Layout & Grids, Micro-Interactions & Effects, Navigation & Menus (+2 more)
 
 ### Community 38 - "tasteskill: Anti-Slop Frontend Skill"
-Cohesion: 0.20
-Nodes (10): 13. OUT OF SCOPE, 14. FINAL PRE-FLIGHT CHECK, 1.A Dial Inference (design read → dial values), 1.B Use-Case Presets, 1.C How the Dials Drive Output, 1. THE THREE DIALS (Core Configuration), 2.A When to reach for a real design system (use official packages), 2.B When the brief is an aesthetic, not a system (+2 more)
+Cohesion: 0.18
+Nodes (11): 0.A Read these signals first, 0.B Output a one-line "Design Read" before generating, 0. BRIEF INFERENCE (Read the Room Before Anything Else), 0.C If the brief is ambiguous, ask one question, do not guess, 0.D Anti-Default Discipline, 13. OUT OF SCOPE, 14. FINAL PRE-FLIGHT CHECK, 2.A When to reach for a real design system (use official packages) (+3 more)
 
 ### Community 39 - "Design Engineering"
 Cohesion: 0.22
@@ -346,6 +346,10 @@ Nodes (5): Interruptibility advantage, Spring Animations, Spring-based mouse int
 Cohesion: 0.40
 Nodes (5): 21. MOBILE ANTI-AI-TELLS RULE, Copy AI tells, Layout AI tells, UI clutter tells, Visual AI tells
 
+### Community 64 - "index.js"
+Cohesion: 0.26
+Nodes (11): FORMWORK_BEAMS, FORMWORK_PANELS, getFormworkBeam(), getFormworkPanel(), getShoringTower(), SHORING_TOWERS, getAllSectionNames(), getSectionByName() (+3 more)
+
 ### Community 65 - "12. THE BLOCK LIBRARY (Contract - Implementations Land Here Iteratively)"
 Cohesion: 0.40
 Nodes (5): 12.A File Location, 12.B Required Frontmatter, 12.C Required Body Sections, 12.D Block-Library Discipline, 12. THE BLOCK LIBRARY (Contract - Implementations Land Here Iteratively)
@@ -395,8 +399,8 @@ Cohesion: 0.50
 Nodes (4): 20. EXAMPLE INTERPRETATIONS, Example 1, Example 2, Example 3
 
 ### Community 77 - "solver.js"
-Cohesion: 0.54
-Nodes (7): buildResults(), createMatrix(), elementStiffnessMatrix(), fixedEndForces(), gaussianElimination(), multiplyMatrixVector(), solveBeam()
+Cohesion: 0.45
+Nodes (12): calcEpsilon(), checkBending(), checkBendingShearInteraction(), checkDeflection(), checkShear(), checkSystemBeam(), classifyHollowSection(), classifyISection() (+4 more)
 
 ### Community 78 - "SlabFormworkCalculator.jsx"
 Cohesion: 0.18
@@ -415,9 +419,9 @@ Cohesion: 0.50
 Nodes (4): 7. DIAL DEFINITIONS (Technical Reference), DESIGN_VARIANCE (Level 1-10), MOTION_INTENSITY (Level 1-10), VISUAL_DENSITY (Level 1-10)
 
 ## Knowledge Gaps
-- **614 isolated node(s):** `COMPANY_LOGOS`, `CLR`, `TYPE_COLORS`, `STATUS_LABELS`, `CLR` (+609 more)
+- **613 isolated node(s):** `PAGE_TITLES`, `TYPE_COLORS`, `STATUS_LABELS`, `CLR`, `name` (+608 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **9 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **8 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -425,14 +429,14 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `jspdf` connect `Legacy PDF Reports` to `devDependencies`, `solver.js`?**
   _High betweenness centrality (0.033) - this node is a cross-community bridge._
 - **Why does `dependencies` connect `devDependencies` to `React Navigation & Components`, `Legacy PDF Reports`?**
-  _High betweenness centrality (0.026) - this node is a cross-community bridge._
+  _High betweenness centrality (0.027) - this node is a cross-community bridge._
 - **Why does `generateReport()` connect `Legacy PDF Reports` to `Legacy Application Core`?**
-  _High betweenness centrality (0.024) - this node is a cross-community bridge._
+  _High betweenness centrality (0.022) - this node is a cross-community bridge._
 - **Are the 9 inferred relationships involving `init()` (e.g. with `app.js` and `addLoad()`) actually correct?**
   _`init()` has 9 INFERRED edges - model-reasoned connections that need verification._
-- **What connects `COMPANY_LOGOS`, `CLR`, `TYPE_COLORS` to the rest of the system?**
-  _615 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **What connects `PAGE_TITLES`, `TYPE_COLORS`, `STATUS_LABELS` to the rest of the system?**
+  _614 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Legacy Application Core` be split into smaller, more focused modules?**
-  _Cohesion score 0.05663474692202462 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05709876543209876 - nodes in this community are weakly interconnected._
 - **Should `React Navigation & Components` be split into smaller, more focused modules?**
-  _Cohesion score 0.055152394775036286 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.054426705370101594 - nodes in this community are weakly interconnected._

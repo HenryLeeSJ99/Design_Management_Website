@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
 import Layout from './components/Layout';
 import CalcInstance from './components/CalcInstance';
@@ -7,6 +7,8 @@ import RouteLoader from './components/RouteLoader';
 import ErrorBoundary from './components/ErrorBoundary';
 import DialogHost from './components/DialogHost';
 import { useState, useEffect, lazy, Suspense } from 'react';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import Login from './pages/Login';
 
 // Route-level code splitting: each of these (and their dependencies -
 // Chart.js, jsPDF, html2canvas) ships in its own chunk and only
@@ -19,6 +21,13 @@ const MultiBeamCalculator = lazy(() => import('./pages/MultiBeamCalculator'));
 const SlabFormworkCalculator = lazy(() => import('./pages/SlabFormworkCalculator'));
 const WallFormworkCalculator = lazy(() => import('./pages/WallFormworkCalculator'));
 const ShoringTowerCalculator = lazy(() => import('./pages/ShoringTowerCalculator'));
+
+function AuthGuard({ children }) {
+  const { user, loading } = useAuth();
+  if (loading) return <RouteLoader full />;
+  if (!user) return <Navigate to="/login" replace />;
+  return children;
+}
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
@@ -35,42 +44,47 @@ function App() {
   }
 
   return (
-    <Router>
-      <ErrorBoundary>
-        <Suspense fallback={<RouteLoader full />}>
-          <Routes>
-            {/* Main layout with nested routes */}
-            <Route path="/" element={<Layout />}>
-              {/* Default home → landing page */}
-              <Route index element={<Home />} />
+    <AuthProvider>
+      <Router>
+        <ErrorBoundary>
+          <Suspense fallback={<RouteLoader full />}>
+            <Routes>
+              {/* Login Page */}
+              <Route path="/login" element={<Login />} />
 
-              {/* Every project in the engineer's folder, one .tw file each */}
-              <Route path="projects" element={<Projects />} />
+              {/* Main layout with nested routes */}
+              <Route path="/" element={<Layout />}>
+                {/* Default home → landing page */}
+                <Route index element={<Home />} />
 
-              {/* Project dashboard — saved calculations for the open project */}
-              <Route path="dashboard" element={<ProjectDashboard />} />
+                {/* Every project in the engineer's folder, one .tw file each */}
+                <Route path="projects" element={<AuthGuard><Projects /></AuthGuard>} />
 
-              {/* Plan drawing markup canvas — pdf.js ships in its own chunk */}
-              <Route path="drawing/:itemId" element={<DrawingViewer />} />
+                {/* Project dashboard — saved calculations for the open project */}
+                <Route path="dashboard" element={<AuthGuard><ProjectDashboard /></AuthGuard>} />
 
-              {/* Calculator routes — CalcInstance lets "Load design" remount them */}
-              <Route path="calculators/multi-beam" element={<CalcInstance><MultiBeamCalculator /></CalcInstance>} />
-              <Route path="calculators/slab-formwork" element={<CalcInstance><SlabFormworkCalculator /></CalcInstance>} />
-              <Route path="calculators/wall-formwork" element={<CalcInstance><WallFormworkCalculator /></CalcInstance>} />
-              <Route path="calculators/shoring-tower" element={<CalcInstance><ShoringTowerCalculator /></CalcInstance>} />
+                {/* Plan drawing markup canvas — pdf.js ships in its own chunk */}
+                <Route path="drawing/:itemId" element={<AuthGuard><DrawingViewer /></AuthGuard>} />
 
-              {/* 404 — catch-all nested under layout */}
+                {/* Calculator routes — CalcInstance lets "Load design" remount them */}
+                <Route path="calculators/multi-beam" element={<CalcInstance><MultiBeamCalculator /></CalcInstance>} />
+                <Route path="calculators/slab-formwork" element={<CalcInstance><SlabFormworkCalculator /></CalcInstance>} />
+                <Route path="calculators/wall-formwork" element={<CalcInstance><WallFormworkCalculator /></CalcInstance>} />
+                <Route path="calculators/shoring-tower" element={<CalcInstance><ShoringTowerCalculator /></CalcInstance>} />
+
+                {/* 404 — catch-all nested under layout */}
+                <Route path="*" element={<NotFound />} />
+              </Route>
+
+              {/* 404 — catch-all for top-level unknown paths */}
               <Route path="*" element={<NotFound />} />
-            </Route>
-
-            {/* 404 — catch-all for top-level unknown paths */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Suspense>
-        {/* App-wide confirm/prompt dialogs, above every route and modal */}
-        <DialogHost />
-      </ErrorBoundary>
-    </Router>
+            </Routes>
+          </Suspense>
+          {/* App-wide confirm/prompt dialogs, above every route and modal */}
+          <DialogHost />
+        </ErrorBoundary>
+      </Router>
+    </AuthProvider>
   );
 }
 

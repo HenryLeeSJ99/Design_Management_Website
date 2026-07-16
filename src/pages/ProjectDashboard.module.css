@@ -386,16 +386,54 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  padding: 0.2rem;
+  border: none;
+  background: none;
+  font-family: inherit;
   font-size: 0.92rem;
   font-weight: 800;
   color: var(--text-main, #1e293b);
   min-width: 0;
+  cursor: pointer;
+  border-radius: 6px;
 }
 
-.zoneTitle > span:nth-child(2) {
+.zoneTitle:hover {
+  background: var(--bg-app, #f8fafc);
+}
+
+.zoneTitle svg:first-child {
+  flex-shrink: 0;
+  color: var(--text-muted, #94a3b8);
+}
+
+.zoneName {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.zoneListBar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: -0.3rem;
+}
+
+.zoneBulkBtn {
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-color, #e2e8f0);
+  background: var(--bg-card, #fff);
+  color: var(--text-secondary, #475569);
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.zoneBulkBtn:hover {
+  border-color: var(--primary, #2563eb);
+  color: var(--primary, #2563eb);
 }
 
 .zoneCount {

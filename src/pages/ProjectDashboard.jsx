@@ -5,6 +5,8 @@ import {
   ArrowUp,
   BookOpen,
   Calculator,
+  ChevronDown,
+  ChevronRight,
   Clock,
   Download,
   Eye,
@@ -116,6 +118,42 @@ export default function ProjectDashboard() {
   const [reportJob, setReportJob] = useState(null);
   const [progress, setProgress] = useState(null);
   const reportJobRef = useRef(null);
+
+  // Which zones are collapsed. A building with dozens of levels and hundreds
+  // of items needs this to stay navigable — kept in sessionStorage (a view
+  // preference, not project data) so it survives a trip to a calculator and
+  // back, but starts fresh — everything expanded — for a new tab or project.
+  const [collapsedZones, setCollapsedZones] = useState(() => {
+    try {
+      return new Set(JSON.parse(sessionStorage.getItem('tempworks_dashboard_collapsed') || '[]'));
+    } catch {
+      return new Set();
+    }
+  });
+
+  const persistCollapsed = (next) => {
+    try {
+      sessionStorage.setItem('tempworks_dashboard_collapsed', JSON.stringify([...next]));
+    } catch { /* sessionStorage unavailable — collapse state just won't persist */ }
+  };
+
+  const toggleZone = (zoneId) => {
+    setCollapsedZones((prev) => {
+      const next = new Set(prev);
+      if (next.has(zoneId)) next.delete(zoneId);
+      else next.add(zoneId);
+      persistCollapsed(next);
+      return next;
+    });
+  };
+
+  // Collapse/expand every zone at once — the fast way to get an overview of a
+  // project with many levels, or to open them all back up.
+  const setAllCollapsed = (collapsed) => {
+    const next = new Set(collapsed ? project.zones.map((z) => z.id) : []);
+    setCollapsedZones(next);
+    persistCollapsed(next);
+  };
 
   const refresh = () => {
     setProject(getProject());
@@ -807,39 +845,63 @@ export default function ProjectDashboard() {
         </div>
       ) : (
         <div className={styles.zoneList}>
-          {groups.map(({ zone, items: groupItems }) => (
-            <section className={styles.zoneGroup} key={zone ? zone.id : 'unassigned'}>
-              <header className={styles.zoneHeader}>
-                <div className={styles.zoneTitle}>
-                  <Layers size={15} />
-                  <span>{zone ? zone.name : 'Unassigned'}</span>
-                  <span className={styles.zoneCount}>{groupItems.length}</span>
-                </div>
-                {zone && (
-                  <div className={styles.zoneActions}>
-                    <button type="button" className={styles.iconBtn} disabled={zone.order === 0} onClick={() => handleMoveZone(zone.order, zone.order - 1)} title="Move zone up">
-                      <ArrowUp size={13} />
-                    </button>
-                    <button type="button" className={styles.iconBtn} disabled={zone.order === project.zones.length - 1} onClick={() => handleMoveZone(zone.order, zone.order + 1)} title="Move zone down">
-                      <ArrowDown size={13} />
-                    </button>
-                    <button type="button" className={styles.iconBtn} onClick={() => handleRenameZone(zone)} title="Rename zone">
-                      <Pencil size={13} />
-                    </button>
-                    <button type="button" className={`${styles.iconBtn} ${styles.danger}`} onClick={() => handleDeleteZone(zone)} title="Delete zone">
-                      <Trash2 size={13} />
-                    </button>
-                  </div>
-                )}
-              </header>
+          {project.zones.length > 1 && (
+            <div className={styles.zoneListBar}>
+              <button type="button" className={styles.zoneBulkBtn} onClick={() => setAllCollapsed(true)}>
+                Collapse all
+              </button>
+              <button type="button" className={styles.zoneBulkBtn} onClick={() => setAllCollapsed(false)}>
+                Expand all
+              </button>
+            </div>
+          )}
 
-              {groupItems.length === 0 ? (
-                <p className={styles.zoneEmpty}>No items in this zone yet — move one here with its zone menu.</p>
-              ) : (
-                groupItems.map((item) => renderItem(item, groupItems))
-              )}
-            </section>
-          ))}
+          {groups.map(({ zone, items: groupItems }) => {
+            const groupKey = zone ? zone.id : 'unassigned';
+            const collapsed = collapsedZones.has(groupKey);
+            return (
+              <section className={styles.zoneGroup} key={groupKey}>
+                <header className={styles.zoneHeader}>
+                  <button
+                    type="button"
+                    className={styles.zoneTitle}
+                    onClick={() => toggleZone(groupKey)}
+                    aria-expanded={!collapsed}
+                    title={collapsed ? 'Expand' : 'Collapse'}
+                  >
+                    {collapsed ? <ChevronRight size={16} /> : <ChevronDown size={16} />}
+                    <Layers size={15} />
+                    <span className={styles.zoneName}>{zone ? zone.name : 'Unassigned'}</span>
+                    <span className={styles.zoneCount}>{groupItems.length}</span>
+                  </button>
+                  {zone && (
+                    <div className={styles.zoneActions}>
+                      <button type="button" className={styles.iconBtn} disabled={zone.order === 0} onClick={() => handleMoveZone(zone.order, zone.order - 1)} title="Move zone up">
+                        <ArrowUp size={13} />
+                      </button>
+                      <button type="button" className={styles.iconBtn} disabled={zone.order === project.zones.length - 1} onClick={() => handleMoveZone(zone.order, zone.order + 1)} title="Move zone down">
+                        <ArrowDown size={13} />
+                      </button>
+                      <button type="button" className={styles.iconBtn} onClick={() => handleRenameZone(zone)} title="Rename zone">
+                        <Pencil size={13} />
+                      </button>
+                      <button type="button" className={`${styles.iconBtn} ${styles.danger}`} onClick={() => handleDeleteZone(zone)} title="Delete zone">
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  )}
+                </header>
+
+                {!collapsed && (
+                  groupItems.length === 0 ? (
+                    <p className={styles.zoneEmpty}>No items in this zone yet — move one here with its zone menu.</p>
+                  ) : (
+                    groupItems.map((item) => renderItem(item, groupItems))
+                  )
+                )}
+              </section>
+            );
+          })}
 
           <button type="button" className={styles.addZoneBtn} onClick={handleAddZone}>
             <Plus size={15} /> Add zone
