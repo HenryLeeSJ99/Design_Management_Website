@@ -1,0 +1,23 @@
+# Keep the knowledge graph about this codebase, so querying it stays cheap.
+# Everything here is scaffolding or build output, not source worth graphing.
+
+# Agent/skill prompt libraries — long markdown, zero relevance to the app
+.agents/
+.claude/
+.gemini/
+
+# Build and deploy output
+dist/
+.firebase/
+legacy/
+
+# The graph's own output (never graph the graph)
+graphify-out/
+
+# Brand assets. Each image costs a vision pass to extract and yields nothing a
+# query would ever want. Diagrams (e.g. slab-diagram.png) are deliberately kept.
+**/PLYTEC_Logo.svg
+**/plytec-logo.png
+**/favicon.svg
+**/react.svg
+**/vite.svg
