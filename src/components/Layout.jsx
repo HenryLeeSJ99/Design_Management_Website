@@ -1,9 +1,10 @@
 import { useState, useEffect, Suspense } from 'react';
-import { Outlet, Link, useLocation } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import styles from './Layout.module.css';
 import Logo from './Logo';
 import RouteLoader from './RouteLoader';
-import { Menu, X, SquareMenu, Layers, Building, ChevronsUp, Columns, Cuboid, RefreshCw, LayoutDashboard, FolderOpen, Settings as SettingsIcon } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { Menu, X, SquareMenu, Layers, Building, ChevronsUp, Columns, Cuboid, RefreshCw, LayoutDashboard, FolderOpen, Settings as SettingsIcon, LogOut } from 'lucide-react';
 
 // Page titles shown beside the hamburger in the mobile top header
 // (pages hide their own title blocks on small viewports)
@@ -24,12 +25,19 @@ function getPageTitle(pathname) {
 
 export default function Layout() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Close sidebar on route change (mobile nav tap)
   useEffect(() => {
     setSidebarOpen(false);
   }, [location.pathname]);
+
+  const handleLogout = async () => {
+    await logout();
+    navigate('/login');
+  };
 
   const handleClearCache = async () => {
     // Calculator working state and the stale-bundle reload guards all live in
@@ -165,6 +173,15 @@ export default function Layout() {
 
         {/* Credit & version */}
         <div className={styles.sidebarFooter}>
+          {user && (
+            <div className={styles.userInfo}>
+              <span className={styles.userEmail}>{user.email}</span>
+              {user.role && <span className={styles.userRole}>{user.role}</span>}
+              <button type="button" className={styles.logoutBtn} onClick={handleLogout}>
+                <LogOut size={15} /> Log out
+              </button>
+            </div>
+          )}
           <span className={styles.devCredit}>Developed by: Henry Lee | 2026</span>
           <span className={styles.versionTag}>Version 0.35 (Beta)</span>
         </div>
