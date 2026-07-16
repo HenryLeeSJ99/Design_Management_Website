@@ -149,14 +149,22 @@
   color: var(--text-muted);
   font-weight: 700;
   font-size: 0.82rem;
+  font-family: inherit;
   cursor: pointer;
   border-radius: 999px;
+  border: none;
   transition: var(--transition-spring);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   background: transparent;
   white-space: nowrap;
   user-select: none;
+}
+
+.tab:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--primary-light);
+  color: var(--text-main);
 }
 
 .tab:hover {

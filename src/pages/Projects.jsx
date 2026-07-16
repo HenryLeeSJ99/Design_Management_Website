@@ -7,8 +7,12 @@ import {
   deleteFromTrash, listProjects, listVersions, purgeExpiredTrash,
   restoreFromTrash, restoreVersion, trashProject, TRASH_DAYS,
 } from '../services/projectFiles';
-import { closeProject, createProject, getOpenFilename, openProject } from '../services/projectSession';
-import { confirmDialog } from '../services/dialog';
+import {
+  closeProject, createProject, exportLocalDraftAsTw, getOpenFilename,
+  openProject, promoteLocalDraftToCloud, UnsavedDraftError,
+} from '../services/projectSession';
+import { confirmDialog, promptDialog } from '../services/dialog';
+import { getProject } from '../services/projectStore';
 import { useAuth } from '../contexts/AuthContext';
 import styles from './Projects.module.css';
 
@@ -165,6 +169,48 @@ function VersionHistoryModal({ project, onClose, onRestored }) {
   );
 }
 
+/**
+ * Shown when opening or creating a project would silently wipe out local
+ * work that was never saved to a cloud project or exported — a calculator's
+ * "Save to project" writes into the local working copy with no idea whether
+ * a cloud project is open, so this is the only place that can catch it before
+ * openProject/createProject would otherwise destroy it outright.
+ */
+function DraftGuardModal({ draft, onSave, onExport, onDiscard, onClose, busy }) {
+  const itemWord = draft.calculations === 1 ? 'calculation' : 'calculations';
+  return (
+    <div className={styles.modalBackdrop} onClick={onClose}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <h2>Unsaved local work</h2>
+          <button type="button" className={styles.btnIconGhost} onClick={onClose} disabled={!!busy}>
+            <X size={20} />
+          </button>
+        </div>
+        <div className={styles.modalBody}>
+          <p>
+            {draft.calculations > 0 ? `${draft.calculations} ${itemWord}` : 'Some project details'} exist{draft.calculations === 1 ? 's' : ''} here
+            that {draft.calculations === 1 ? "hasn't" : "haven't"} been saved to a cloud project or exported.
+            Continuing without saving will lose {draft.calculations === 1 ? 'it' : 'them'}.
+          </p>
+        </div>
+        <div className={styles.modalFooter} style={{ flexWrap: 'wrap', justifyContent: 'flex-end', gap: '0.5rem' }}>
+          <button type="button" className={styles.btnGhost} onClick={onClose} disabled={!!busy}>Cancel</button>
+          <button type="button" className={styles.btnSecondary} onClick={onDiscard} disabled={!!busy}>
+            {busy === 'discard' ? 'Discarding…' : 'Discard it'}
+          </button>
+          <button type="button" className={styles.btnSecondary} onClick={onExport} disabled={!!busy}>
+            {busy === 'export' ? 'Exporting…' : 'Export as file'}
+          </button>
+          <button type="button" className={styles.btnPrimary} onClick={onSave} disabled={!!busy}>
+            {busy === 'save' ? 'Saving…' : 'Save as new project'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Projects() {
   const navigate = useNavigate();
   const { role } = useAuth();
@@ -187,6 +233,8 @@ export default function Projects() {
   const isSales = role === 'sales';
 
   const [historyFor, setHistoryFor] = useState(null); // the project whose versions are shown
+  const [draftGuard, setDraftGuard] = useState(null); // { calculations, resume } while the guard dialog is up
+  const [draftBusy, setDraftBusy] = useState('');
 
   const daysLeft = (project) => Math.max(
     0,
@@ -227,12 +275,33 @@ export default function Projects() {
     }
   };
 
+  /**
+   * Run a create/open action; if it refuses because it would silently
+   * destroy an unsaved local draft, show the guard dialog instead of letting
+   * the error just become an error banner. `attempt` takes {force}. `onDone`
+   * runs after the action actually completes — whether that is immediately,
+   * or later once the guard dialog resolves and retries with force:true —
+   * so "close the modal and navigate to the dashboard" only ever happens once,
+   * on whichever path the action really finished on.
+   */
+  const runWithDraftGuard = async (attempt, onDone) => {
+    try {
+      await attempt({ force: false });
+      onDone();
+    } catch (e) {
+      if (!(e instanceof UnsavedDraftError)) throw e;
+      setDraftGuard({
+        calculations: getProject().calculations.length,
+        resume: async () => { await attempt({ force: true }); onDone(); },
+      });
+    }
+  };
+
   const handleCreateSubmit = async (name, coverImageFile) => {
-    await guard('new', async () => {
-      await createProject(null, name, coverImageFile);
-      setShowCreateModal(false);
-      navigate('/dashboard');
-    });
+    await guard('new', () => runWithDraftGuard(
+      ({ force }) => createProject(null, name, coverImageFile, { force }),
+      () => { setShowCreateModal(false); navigate('/dashboard'); },
+    ));
   };
 
   const handleEditCoverClick = (projectId) => {
@@ -260,9 +329,68 @@ export default function Projects() {
   const handleOpen = (project) => guard(project.filename, async () => {
     if (isSales) return;
     if (project.error) return;
-    await openProject(project.filename);
-    navigate('/dashboard');
+    await runWithDraftGuard(
+      ({ force }) => openProject(project.filename, { force }),
+      () => navigate('/dashboard'),
+    );
   });
+
+  // --- Resolving the draft guard dialog ---
+
+  const handleGuardSave = async () => {
+    const name = await promptDialog({
+      title: 'Save as new project',
+      label: 'Project name',
+      defaultValue: 'My Project',
+      confirmLabel: 'Save',
+    });
+    if (!name) return; // cancelled — leave the guard dialog open to try again
+    setDraftBusy('save');
+    try {
+      await promoteLocalDraftToCloud(name);
+      await draftGuard.resume();
+      setDraftGuard(null);
+      await refresh();
+    } catch (e) {
+      setError(e?.message || 'Could not save the local draft.');
+    } finally {
+      setDraftBusy('');
+    }
+  };
+
+  const handleGuardExport = async () => {
+    setDraftBusy('export');
+    try {
+      await exportLocalDraftAsTw();
+      await draftGuard.resume();
+      setDraftGuard(null);
+      await refresh();
+    } catch (e) {
+      setError(e?.message || 'Could not export the local draft.');
+    } finally {
+      setDraftBusy('');
+    }
+  };
+
+  const handleGuardDiscard = async () => {
+    const ok = await confirmDialog({
+      title: 'Discard unsaved work',
+      message: 'This cannot be undone. The local work will be lost for good.',
+      confirmLabel: 'Discard',
+      danger: true,
+    });
+    if (!ok) return;
+    setDraftBusy('discard');
+    try {
+      await draftGuard.resume();
+      setDraftGuard(null);
+      await refresh();
+    } catch (e) {
+      setError(e?.message || 'Something went wrong.');
+    } finally {
+      setDraftBusy('');
+    }
+  };
 
   const handleDelete = (project) => guard(project.filename, async () => {
     const ok = await confirmDialog({
@@ -313,6 +441,17 @@ export default function Projects() {
           project={historyFor}
           onClose={() => setHistoryFor(null)}
           onRestored={async () => { setHistoryFor(null); await refresh(); }}
+        />
+      )}
+
+      {draftGuard && (
+        <DraftGuardModal
+          draft={draftGuard}
+          busy={draftBusy}
+          onSave={handleGuardSave}
+          onExport={handleGuardExport}
+          onDiscard={handleGuardDiscard}
+          onClose={() => setDraftGuard(null)}
         />
       )}
 

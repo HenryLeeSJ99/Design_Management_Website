@@ -247,14 +247,20 @@ export default function WallFormworkCalculator({ initialTab }) {
 
       {/* Tabs – above the grid so they stay at the top of the page on mobile */}
       <div ref={tabsContainerRef} className={styles.tabsContainer}>
-        <div className={styles.tabs}>
+        <div className={styles.tabs} role="tablist">
           <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'calculator'}
             className={`${styles.tab} ${activeTab === 'calculator' ? styles.active : ''}`}
             onClick={() => setActiveTab('calculator')}
           >
             Calculator UI
           </button>
           <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'report'}
             className={`${styles.tab} ${activeTab === 'report' ? styles.active : ''}`}
             onClick={() => setActiveTab('report')}
           >

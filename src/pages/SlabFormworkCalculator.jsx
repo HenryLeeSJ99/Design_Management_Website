@@ -247,25 +247,34 @@ export default function SlabFormworkCalculator({ initialTab }) {
       )}
 
       <div ref={tabsWrapperRef} className={styles.tabsWrapper}>
-        <div className={styles.tabs}>
-          <div
+        <div className={styles.tabs} role="tablist">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'configuration'}
             className={`${styles.tab} ${activeTab === 'configuration' ? styles.active : ''}`}
             onClick={() => setActiveTab('configuration')}
           >
             System Configuration
-          </div>
-          <div
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'results'}
             className={`${styles.tab} ${activeTab === 'results' ? styles.active : ''}`}
             onClick={() => setActiveTab('results')}
           >
             Check Results
-          </div>
-          <div
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activeTab === 'report'}
             className={`${styles.tab} ${activeTab === 'report' ? styles.active : ''}`}
             onClick={() => setActiveTab('report')}
           >
             Report
-          </div>
+          </button>
         </div>
       </div>
 

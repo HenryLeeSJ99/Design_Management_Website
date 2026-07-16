@@ -14,10 +14,10 @@
  * engineer owns and backs up.
  */
 
-import { PROJECT_STORAGE_KEY, getProject, onProjectChange } from './projectStore';
+import { PROJECT_STORAGE_KEY, coverHasContent, getProject, onProjectChange } from './projectStore';
 import { clearAllPdfs, deletePdf, getPdf, listPdfIds, putPdf } from './pdfStore';
 import { readProjectFile, snapshotVersion, writeProjectFile } from './projectFiles';
-import { decodeTw, encodeTw } from './twFile';
+import { decodeTw, encodeTw, twFilename } from './twFile';
 import { clearUndo } from './undo';
 
 // Which file the working copy came from. Kept out of the project itself so the
@@ -153,13 +153,46 @@ export async function flush() {
 }
 
 /**
+ * Thrown by openProject/createProject when proceeding would silently destroy
+ * a local draft that has never been saved anywhere. Callers must resolve the
+ * draft (save it to the cloud, export it, or explicitly discard it) and retry
+ * with { force: true }.
+ */
+export class UnsavedDraftError extends Error {
+  constructor() {
+    super('There is unsaved local work that has not been saved to a project or exported.');
+    this.name = 'UnsavedDraftError';
+  }
+}
+
+/**
+ * True when the working copy holds real content that (a) came from a
+ * calculator's "Save to project" or the cover editor rather than an opened
+ * project, and (b) has never been pushed to a cloud project or exported.
+ *
+ * saveCalculation() writes straight into the local working copy with no idea
+ * whether a cloud project is open — that is exactly how a draft with real
+ * work in it can exist while getOpenFilename() is still null.
+ */
+export function hasUnsavedLocalDraft() {
+  if (getOpenFilename()) return false; // already bound to a cloud project — every edit is already saved there
+  const project = getProject();
+  return project.calculations.length > 0 || project.zones.length > 0 || coverHasContent(project.cover);
+}
+
+/**
  * Load a .tw into the working copy, replacing whatever was open.
  *
  * The PDF cache is cleared first: it belongs to the previous project, and
  * leaving its blobs behind would let a stale drawing resolve against a new
  * project's id and silently show the wrong sheet.
+ *
+ * Refuses with UnsavedDraftError if that would silently discard a local
+ * draft — pass { force: true } once the caller has resolved it.
  */
-export async function openProject(filename) {
+export async function openProject(filename, { force = false } = {}) {
+  if (!force && hasUnsavedLocalDraft()) throw new UnsavedDraftError();
+
   const bytes = await readProjectFile(filename);
   const { project, pdfs } = decodeTw(bytes); // throws TwFileError on a bad file
 
@@ -170,15 +203,19 @@ export async function openProject(filename) {
   localStorage.setItem(PROJECT_STORAGE_KEY, JSON.stringify(project));
   setOpenFilename(filename);
   clearUndo(); // the previous project's undo history is meaningless here
-  emit("saved", { at: Date.now() });
+  emit('saved', { at: Date.now() });
   return project;
 }
 
-/** Create a new .tw and open it. */
-export async function createProject(filename, name, coverImageFile = null) {
+/**
+ * The guts of creating a cloud project record + its blob, shared by
+ * createProject() (a blank project) and promoteLocalDraftToCloud() (the
+ * current working copy's real content) so the two never drift apart.
+ */
+async function createProjectFromData(name, project, pdfs, coverImageFile) {
   const { createProjectRecord } = await import('./supabaseDb');
   const { uploadCoverImage } = await import('./supabaseStorage');
-  
+
   // We need an ID for the project before we can upload the cover image to that ID
   const newId = crypto.randomUUID();
   let coverImageUrl = null;
@@ -187,23 +224,76 @@ export async function createProject(filename, name, coverImageFile = null) {
     coverImageUrl = await uploadCoverImage(newId, coverImageFile);
   }
 
-  // Pass metadata to create the DB record first
   const record = await createProjectRecord({
     id: newId,
     name,
     cover_image: coverImageUrl,
-    metadata: { calculation_count: 0, drawing_count: 0, file_size: 0 }
+    metadata: {
+      calculation_count: project.calculations.length,
+      drawing_count: project.calculations.filter((c) => c.type === 'drawing').length,
+      file_size: 0,
+    },
   });
 
-  const project = { name, coverPage: false, calculations: [] };
   // The database ID becomes the storage filename/id
-  await writeProjectFile(record.id, encodeTw(project, new Map()));
+  await writeProjectFile(record.id, encodeTw(project, pdfs));
   await clearAllPdfs();
+  for (const [id, blob] of pdfs) {
+    await putPdf(id, blob);
+  }
   localStorage.setItem(PROJECT_STORAGE_KEY, JSON.stringify(project));
   setOpenFilename(record.id);
   clearUndo(); // the previous project's undo history is meaningless here
-  emit("saved", { at: Date.now() });
+  emit('saved', { at: Date.now() });
   return project;
+}
+
+/**
+ * Create a new, blank .tw and open it.
+ *
+ * Refuses with UnsavedDraftError if that would silently discard a local
+ * draft — pass { force: true } once the caller has resolved it.
+ */
+export async function createProject(filename, name, coverImageFile = null, { force = false } = {}) {
+  if (!force && hasUnsavedLocalDraft()) throw new UnsavedDraftError();
+  return createProjectFromData(name, { name, coverPage: false, zones: [], calculations: [] }, new Map(), coverImageFile);
+}
+
+/**
+ * Push the current local draft to the cloud as a brand-new project, carrying
+ * over its real calculations, drawings, cover and PDFs — never a blank one.
+ * This is the "save my unsaved work" half of the draft guard.
+ */
+export async function promoteLocalDraftToCloud(name, coverImageFile = null) {
+  const project = getProject();
+  const pdfs = new Map();
+  for (const id of referencedPdfIds(project)) {
+    const bytes = await getPdf(id);
+    if (bytes) pdfs.set(id, bytes);
+  }
+  return createProjectFromData(name, { ...project, name }, pdfs, coverImageFile);
+}
+
+/**
+ * Download the current local draft as a .tw file — the export half of the
+ * draft guard, for anyone who would rather keep it as a file than push it to
+ * the cloud right now.
+ */
+export async function exportLocalDraftAsTw() {
+  const project = getProject();
+  const pdfs = new Map();
+  for (const id of referencedPdfIds(project)) {
+    const bytes = await getPdf(id);
+    if (bytes) pdfs.set(id, bytes);
+  }
+  const bytes = encodeTw(project, pdfs);
+  const blob = new Blob([bytes], { type: 'application/zip' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = twFilename(project.name);
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 /** Flush pending work and detach from the file, leaving the working copy be. */
