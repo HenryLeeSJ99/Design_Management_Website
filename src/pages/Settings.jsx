@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { supabase } from '../services/supabaseClient';
 import styles from './Settings.module.css';
-import { User, Mail, Shield, Save, CheckCircle } from 'lucide-react';
+import { User, Mail, Shield, Save, CheckCircle, Sun, Moon, Monitor } from 'lucide-react';
 
 export default function Settings() {
   const { user, role } = useAuth();
+  const { theme, setTheme } = useTheme();
   
   const [displayName, setDisplayName] = useState('');
   const [loading, setLoading] = useState(false);
@@ -115,6 +117,44 @@ export default function Settings() {
             </button>
           </div>
         </form>
+
+        <div className={styles.preferencesCard}>
+          <h2 className={styles.cardTitle}>App Preferences</h2>
+          <div className={styles.formGroup}>
+            <label className={styles.themeLabel}>
+              <Monitor size={16} /> Theme Preference
+            </label>
+            <div className={styles.themeOptions}>
+              <button
+                type="button"
+                className={`${styles.themeOption} ${theme === 'light' ? styles.themeOptionActive : ''}`}
+                onClick={() => setTheme('light')}
+              >
+                <Sun size={18} />
+                <span>Light</span>
+              </button>
+              <button
+                type="button"
+                className={`${styles.themeOption} ${theme === 'dark' ? styles.themeOptionActive : ''}`}
+                onClick={() => setTheme('dark')}
+              >
+                <Moon size={18} />
+                <span>Dark</span>
+              </button>
+              <button
+                type="button"
+                className={`${styles.themeOption} ${theme === 'system' ? styles.themeOptionActive : ''}`}
+                onClick={() => setTheme('system')}
+              >
+                <Monitor size={18} />
+                <span>System</span>
+              </button>
+            </div>
+            <p className={styles.helpText}>
+              Choose a theme preference or let it match your system/device settings automatically.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

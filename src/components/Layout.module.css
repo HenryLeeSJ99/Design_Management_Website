@@ -297,7 +297,7 @@
   display: none;
   height: 64px;
   min-height: 64px;
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: var(--bg-topheader);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-color-light);
   align-items: center;
@@ -318,6 +318,25 @@
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
+}
+
+.mobileThemeToggle {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.4rem;
+  border-radius: 8px;
+  transition: var(--transition-fast);
+}
+
+.mobileThemeToggle:hover {
+  background: var(--border-color-light);
+  color: var(--text-main);
 }
 
 /* Hamburger – hidden on desktop */

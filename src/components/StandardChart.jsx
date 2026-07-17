@@ -40,34 +40,34 @@ export default function StandardChart({
           data={data}
           margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
         >
-          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border-color)" />
           
           <XAxis 
             dataKey={xAxis.dataKey} 
             type="number"
-            tick={{ fill: '#64748b', fontSize: 12 }}
-            tickLine={{ stroke: '#cbd5e1' }}
-            axisLine={{ stroke: '#cbd5e1' }}
+            tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
+            tickLine={{ stroke: 'var(--border-color)' }}
+            axisLine={{ stroke: 'var(--border-color)' }}
             domain={xAxis.domain || ['dataMin', 'dataMax']}
-            label={{ value: xAxis.label, position: 'bottom', offset: 0, fill: '#334155', fontSize: 13, fontWeight: 500 }}
+            label={{ value: xAxis.label, position: 'bottom', offset: 0, fill: 'var(--text-secondary)', fontSize: 13, fontWeight: 500 }}
             tickFormatter={xAxis.tickFormatter}
             {...xAxis.props}
           />
           
           <YAxis 
             dataKey={yAxis.dataKey}
-            tick={{ fill: '#64748b', fontSize: 12 }}
-            tickLine={{ stroke: '#cbd5e1' }}
-            axisLine={{ stroke: '#cbd5e1' }}
+            tick={{ fill: 'var(--text-muted)', fontSize: 12 }}
+            tickLine={{ stroke: 'var(--border-color)' }}
+            axisLine={{ stroke: 'var(--border-color)' }}
             domain={yAxis.domain || ['auto', 'auto']}
-            label={{ value: yAxis.label, angle: -90, position: 'left', offset: 0, fill: '#334155', fontSize: 13, fontWeight: 500 }}
+            label={{ value: yAxis.label, angle: -90, position: 'left', offset: 0, fill: 'var(--text-secondary)', fontSize: 13, fontWeight: 500 }}
             tickFormatter={yAxis.tickFormatter}
             {...yAxis.props}
           />
           
           <Tooltip 
-            contentStyle={{ borderRadius: '8px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}
-            labelStyle={{ fontWeight: 600, color: '#0f172a', marginBottom: '4px' }}
+            contentStyle={{ borderRadius: '8px', border: '1px solid var(--border-color)', backgroundColor: 'var(--bg-card)', boxShadow: 'var(--shadow-md)' }}
+            labelStyle={{ fontWeight: 600, color: 'var(--text-main)', marginBottom: '4px' }}
           />
           
           {(lines.length > 0 || areas.length > 0) && (

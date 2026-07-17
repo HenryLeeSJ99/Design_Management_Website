@@ -5,7 +5,8 @@ import Logo from './Logo';
 import RouteLoader from './RouteLoader';
 import ProjectContextBar from './ProjectContextBar';
 import { useAuth } from '../contexts/AuthContext';
-import { Menu, X, SquareMenu, Layers, Building, ChevronsUp, ChevronDown, Columns, Cuboid, RefreshCw, LayoutDashboard, FolderOpen, Settings as SettingsIcon, LogIn, LogOut, ShieldCheck, TrendingUp } from 'lucide-react';
+import { useTheme } from '../contexts/ThemeContext';
+import { Menu, X, SquareMenu, Layers, Building, ChevronsUp, ChevronDown, Columns, Cuboid, RefreshCw, LayoutDashboard, FolderOpen, Settings as SettingsIcon, LogIn, LogOut, ShieldCheck, TrendingUp, Sun, Moon } from 'lucide-react';
 import TermsModal from './TermsModal';
 
 // Page titles shown beside the hamburger in the mobile top header
@@ -61,6 +62,7 @@ export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, role, logout } = useAuth();
+  const { resolvedTheme, setTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
 
@@ -237,15 +239,24 @@ export default function Layout() {
             ))}
           </div>
 
-          {/* Clear Cache & Reload */}
+          {/* Theme Toggle & Clear Cache */}
           <div className={styles.navSection}>
+            <button
+              type="button"
+              className={styles.sidebarActionBtn}
+              onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+              title={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
+            >
+              {resolvedTheme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
+              {resolvedTheme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+            </button>
             <button
               className={styles.sidebarActionBtn}
               onClick={() => setIsTermsOpen(true)}
               title="View Terms & Conditions"
             >
               <ShieldCheck size={15} />
-              Terms & Conditions
+              Terms &amp; Conditions
             </button>
             <button
               className={styles.clearCacheBtn}
@@ -286,6 +297,17 @@ export default function Layout() {
           </button>
           {/* Current page title – fills the otherwise-empty mobile header */}
           <h1 className={styles.headerTitle}>{getPageTitle(location.pathname)}</h1>
+          
+          {/* Theme Quick Toggle (mobile header) */}
+          <button
+            type="button"
+            className={styles.mobileThemeToggle}
+            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
+            aria-label={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
+            title={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
+          >
+            {resolvedTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
         </header>
 
         <main className={styles.mainContent}>

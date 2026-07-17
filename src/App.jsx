@@ -8,6 +8,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 import DialogHost from './components/DialogHost';
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import Login from './pages/Login';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
@@ -62,69 +63,71 @@ function App() {
   }
 
   return (
-    <AuthProvider>
-      <Router>
-        <ErrorBoundary>
-          <Suspense fallback={<RouteLoader full />}>
-            <Routes>
-              {/* Login Page */}
-              <Route path="/login" element={<Login />} />
+    <ThemeProvider>
+      <AuthProvider>
+        <Router>
+          <ErrorBoundary>
+            <Suspense fallback={<RouteLoader full />}>
+              <Routes>
+                {/* Login Page */}
+                <Route path="/login" element={<Login />} />
 
-              {/* Password recovery. Both deliberately outside AuthGuard and
-                  outside Layout: /reset-password is where the emailed link
-                  lands, and supabase-js turns that link into a live session —
-                  so an AuthGuard here would bounce the arriving user to
-                  /projects before they could set a password. */}
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
+                {/* Password recovery. Both deliberately outside AuthGuard and
+                    outside Layout: /reset-password is where the emailed link
+                    lands, and supabase-js turns that link into a live session —
+                    so an AuthGuard here would bounce the arriving user to
+                    /projects before they could set a password. */}
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/reset-password" element={<ResetPassword />} />
 
-              {/* Main layout with nested routes */}
-              <Route path="/" element={<Layout />}>
-                {/* Default home → landing page */}
-                <Route index element={<Home />} />
+                {/* Main layout with nested routes */}
+                <Route path="/" element={<Layout />}>
+                  {/* Default home → landing page */}
+                  <Route index element={<Home />} />
 
-                {/* Global Overview Dashboard */}
-                <Route path="overview" element={<AuthGuard><Overview /></AuthGuard>} />
+                  {/* Global Overview Dashboard */}
+                  <Route path="overview" element={<AuthGuard><Overview /></AuthGuard>} />
 
-                {/* Every project in the engineer's folder, one .tw file each */}
-                <Route path="projects" element={<AuthGuard><Projects /></AuthGuard>} />
+                  {/* Every project in the engineer's folder, one .tw file each */}
+                  <Route path="projects" element={<AuthGuard><Projects /></AuthGuard>} />
 
-                {/* Project management view for one project — timeline and
-                    status, for managers/team leaders/sales. The design work
-                    itself lives in the workbook at /dashboard. */}
-                <Route path="projects/:projectId" element={<AuthGuard><ProjectOverview /></AuthGuard>} />
+                  {/* Project management view for one project — timeline and
+                      status, for managers/team leaders/sales. The design work
+                      itself lives in the workbook at /dashboard. */}
+                  <Route path="projects/:projectId" element={<AuthGuard><ProjectOverview /></AuthGuard>} />
 
-                {/* Project dashboard — saved calculations for the open project */}
-                <Route path="dashboard" element={<AuthGuard><ProjectDashboard /></AuthGuard>} />
-                
-                {/* User Settings */}
-                <Route path="settings" element={<AuthGuard><Settings /></AuthGuard>} />
+                  {/* Project dashboard — saved calculations for the open project */}
+                  <Route path="dashboard" element={<AuthGuard><ProjectDashboard /></AuthGuard>} />
+                  
+                  {/* User Settings */}
+                  <Route path="settings" element={<AuthGuard><Settings /></AuthGuard>} />
 
-                {/* Plan drawing markup canvas — pdf.js ships in its own chunk */}
-                <Route path="drawing/:itemId" element={<AuthGuard><DrawingViewer /></AuthGuard>} />
+                  {/* Plan drawing markup canvas — pdf.js ships in its own chunk */}
+                  <Route path="drawing/:itemId" element={<AuthGuard><DrawingViewer /></AuthGuard>} />
 
-                {/* Calculator routes — CalcInstance lets "Load design" remount them */}
-                <Route path="calculators/multi-beam" element={<CalcInstance><MultiBeamCalculator /></CalcInstance>} />
-                <Route path="calculators/slab-formwork" element={<CalcInstance><SlabFormworkCalculator /></CalcInstance>} />
-                <Route path="calculators/wall-formwork" element={<CalcInstance><WallFormworkCalculator /></CalcInstance>} />
-                <Route path="calculators/wall-formwork/design" element={<CalcInstance><WallPanelDesignCalculator /></CalcInstance>} />
-                <Route path="calculators/shoring-tower" element={<CalcInstance><ShoringTowerCalculator /></CalcInstance>} />
-                <Route path="calculators/steel-prop" element={<CalcInstance><SteelPropCalculator /></CalcInstance>} />
-                <Route path="calculators/backprop" element={<CalcInstance><BackpropCalculator /></CalcInstance>} />
+                  {/* Calculator routes — CalcInstance lets "Load design" remount them */}
+                  <Route path="calculators/multi-beam" element={<CalcInstance><MultiBeamCalculator /></CalcInstance>} />
+                  <Route path="calculators/slab-formwork" element={<CalcInstance><SlabFormworkCalculator /></CalcInstance>} />
+                  <Route path="calculators/wall-formwork" element={<CalcInstance><WallFormworkCalculator /></CalcInstance>} />
+                  <Route path="calculators/wall-formwork/design" element={<CalcInstance><WallPanelDesignCalculator /></CalcInstance>} />
+                  <Route path="calculators/shoring-tower" element={<CalcInstance><ShoringTowerCalculator /></CalcInstance>} />
+                  <Route path="calculators/steel-prop" element={<CalcInstance><SteelPropCalculator /></CalcInstance>} />
+                  <Route path="calculators/backprop" element={<CalcInstance><BackpropCalculator /></CalcInstance>} />
 
-                {/* 404 — catch-all nested under layout */}
+                  {/* 404 — catch-all nested under layout */}
+                  <Route path="*" element={<NotFound />} />
+                </Route>
+
+                {/* 404 — catch-all for top-level unknown paths */}
                 <Route path="*" element={<NotFound />} />
-              </Route>
-
-              {/* 404 — catch-all for top-level unknown paths */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-          {/* App-wide confirm/prompt dialogs, above every route and modal */}
-          <DialogHost />
-        </ErrorBoundary>
-      </Router>
-    </AuthProvider>
+              </Routes>
+            </Suspense>
+            {/* App-wide confirm/prompt dialogs, above every route and modal */}
+            <DialogHost />
+          </ErrorBoundary>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
 
