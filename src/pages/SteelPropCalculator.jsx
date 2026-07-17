@@ -115,8 +115,8 @@ function PropDiagram({ model, height, ext, load, reportMode = false }) {
         <line x1={25} y1={yTop} x2={25} y2={230} stroke="var(--primary)" strokeWidth={1.5} />
         <polygon points={`25,${yTop} 21,${yTop + 6} 29,${yTop + 6}`} fill="var(--primary)" />
         <polygon points="25,230 21,224 29,224" fill="var(--primary)" />
-        <rect x={6} y={(yTop + 230) / 2 - 8} width={38} height={16} fill="var(--bg-card)" rx={4} />
-        <text x={25} y={(yTop + 230) / 2 + 4} fill="var(--primary)" fontSize={10} fontWeight="bold" textAnchor="middle">
+        <rect x={4} y={(yTop + 230) / 2 - 9} width={42} height={18} fill="var(--bg-card)" rx={4} />
+        <text x={25} y={(yTop + 230) / 2 + 5} fill="var(--primary)" fontSize={12} fontWeight="bold" textAnchor="middle">
           {hVal.toFixed(2)}m
         </text>
       </g>
@@ -126,7 +126,7 @@ function PropDiagram({ model, height, ext, load, reportMode = false }) {
         <g>
           <line x1={60} y1={arrowY1} x2={60} y2={arrowY2} stroke="#dc2626" strokeWidth={2} />
           <polygon points={`60,${arrowY2} 56,${arrowY2 - 6} 64,${arrowY2 - 6}`} fill="#dc2626" />
-          <text x={60} y={arrowY1 - 4} fill="#dc2626" fontSize={8} fontWeight="bold" textAnchor="middle">
+          <text x={60} y={arrowY1 - 6} fill="#dc2626" fontSize={11} fontWeight="bold" textAnchor="middle">
             {Number(load).toFixed(2)} kN
           </text>
         </g>
