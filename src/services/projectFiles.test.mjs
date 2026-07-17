@@ -38,6 +38,9 @@ const REAL_PROJECT_STATUS_ENUM = new Set([
 mock.module('./supabaseDb', {
   namedExports: {
     fetchProjects: async () => [...db.values()],
+    // Mirrors the real maybeSingle(): a row the caller cannot see is null,
+    // not an error.
+    fetchProject: async (id) => db.get(id) || null,
     fetchTrashedProjects: async () => [...db.values()].filter((r) => r.status === 'trashed'),
     createProjectRecord: async (p) => {
       const record = { id: p.id, name: p.name, status: 'active', last_modified_at: nowIso(), file_size: 0 };
@@ -302,4 +305,51 @@ test('status: every pickable status is a real enum value (would not 22P02 in pro
   for (const s of PROJECT_STATUSES) {
     assert.ok(REAL_PROJECT_STATUS_ENUM.has(s), `"${s}" must exist in the live project_status enum`);
   }
+});
+
+// --- Reading one project / saving its timeline ---
+
+test('readProject: returns the record, and null for one that is not visible', async () => {
+  db.clear(); blobs.clear();
+  await seedProject('r1', 'content');
+
+  const found = await pf.readProject('r1');
+  assert.equal(found.id, 'r1');
+
+  // RLS hiding a row surfaces as null, not a throw — the page renders
+  // "not found" rather than an error banner.
+  assert.equal(await pf.readProject('does-not-exist'), null);
+});
+
+test('saveTimeline: writes only the timeline column, leaving the rest of the row alone', async () => {
+  db.clear(); blobs.clear();
+  await seedProject('t1', 'content');
+  db.set('t1', { ...db.get('t1'), name: 'Keep me', status: 'active', file_size: 4242 });
+
+  const { readTimeline, setMilestoneDone, setTargetDate } = await import('./projectTimeline.js');
+  let timeline = readTimeline({ timeline: null });
+  timeline = setTargetDate(timeline, '2026-08-30');
+  timeline = setMilestoneDone(timeline, 'design_start', true);
+
+  await pf.saveTimeline('t1', timeline);
+
+  const row = db.get('t1');
+  assert.equal(row.name, 'Keep me', 'name untouched');
+  assert.equal(row.status, 'active', 'status untouched');
+  assert.equal(row.file_size, 4242, "the designer's file_size is not clobbered by a manager's timeline edit");
+  assert.equal(row.timeline.targetDate, '2026-08-30');
+  assert.equal(row.timeline.milestones.find((m) => m.key === 'design_start').doneAt !== null, true);
+});
+
+test('saveTimeline: round-trips through the store back into a usable timeline', async () => {
+  db.clear(); blobs.clear();
+  await seedProject('t2', 'content');
+
+  const { readTimeline, setMilestoneDue, timelineProgress } = await import('./projectTimeline.js');
+  const timeline = setMilestoneDue(readTimeline({ timeline: null }), 'issued', '2026-08-01');
+  await pf.saveTimeline('t2', timeline);
+
+  const back = readTimeline(await pf.readProject('t2'));
+  assert.equal(back.milestones.find((m) => m.key === 'issued').due, '2026-08-01');
+  assert.deepEqual(timelineProgress(back), { done: 0, total: 5, pct: 0 });
 });
