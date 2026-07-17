@@ -27,8 +27,8 @@ import './services/projectSession';
 // loads when the user actually navigates there.
 const Projects = lazy(() => import('./pages/Projects'));
 const ProjectOverview = lazy(() => import('./pages/ProjectOverview'));
+const Overview = lazy(() => import('./pages/Overview'));
 const ProjectDashboard = lazy(() => import('./pages/ProjectDashboard'));
-const DrawingViewer = lazy(() => import('./pages/DrawingViewer'));
 const NotFound = lazy(() => import('./pages/NotFound'));
 const Settings = lazy(() => import('./pages/Settings'));
 const MultiBeamCalculator = lazy(() => import('./pages/MultiBeamCalculator'));
@@ -38,6 +38,7 @@ const WallPanelDesignCalculator = lazy(() => import('./pages/WallPanelDesignCalc
 const ShoringTowerCalculator = lazy(() => import('./pages/ShoringTowerCalculator'));
 const SteelPropCalculator = lazy(() => import('./pages/SteelPropCalculator'));
 const BackpropCalculator = lazy(() => import('./pages/BackpropCalculator'));
+const DrawingViewer = lazy(() => import('./pages/DrawingViewer'));
 
 function AuthGuard({ children }) {
   const { user, loading } = useAuth();
@@ -81,6 +82,9 @@ function App() {
               <Route path="/" element={<Layout />}>
                 {/* Default home → landing page */}
                 <Route index element={<Home />} />
+
+                {/* Global Overview Dashboard */}
+                <Route path="overview" element={<AuthGuard><Overview /></AuthGuard>} />
 
                 {/* Every project in the engineer's folder, one .tw file each */}
                 <Route path="projects" element={<AuthGuard><Projects /></AuthGuard>} />

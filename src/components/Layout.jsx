@@ -5,12 +5,13 @@ import Logo from './Logo';
 import RouteLoader from './RouteLoader';
 import ProjectContextBar from './ProjectContextBar';
 import { useAuth } from '../contexts/AuthContext';
-import { Menu, X, SquareMenu, Layers, Building, ChevronsUp, ChevronDown, Columns, Cuboid, RefreshCw, LayoutDashboard, FolderOpen, Settings as SettingsIcon, LogIn, LogOut, ShieldCheck } from 'lucide-react';
+import { Menu, X, SquareMenu, Layers, Building, ChevronsUp, ChevronDown, Columns, Cuboid, RefreshCw, LayoutDashboard, FolderOpen, Settings as SettingsIcon, LogIn, LogOut, ShieldCheck, TrendingUp } from 'lucide-react';
 import TermsModal from './TermsModal';
 
 // Page titles shown beside the hamburger in the mobile top header
 // (pages hide their own title blocks on small viewports)
 const PAGE_TITLES = [
+  { path: '/overview', title: 'Overview' },
   { path: '/calculators/multi-beam', title: 'Multi Beam Span' },
   { path: '/calculators/slab-formwork', title: 'Slab Formwork' },
   { path: '/calculators/wall-formwork/design', title: 'Wall Formwork Design' },
@@ -133,6 +134,7 @@ export default function Layout() {
 
   const navItems = [
     { name: 'Sign in', path: '/login', icon: LogIn, show: !signedIn },
+    { name: 'Overview', path: '/overview', icon: TrendingUp, show: signedIn },
     { name: 'Projects', path: '/projects', icon: FolderOpen, show: signedIn },
     // "Project Dashboard" sat directly under "Projects" and read as a sibling
     // of it — two names for what sounded like the same thing. It is not a
