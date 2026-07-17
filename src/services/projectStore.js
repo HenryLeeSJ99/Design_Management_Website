@@ -49,6 +49,11 @@ export const CALCULATORS = {
     route: '/calculators/steel-prop',
     prefix: 'tempworks_steelprop_',
   },
+  'backprop': {
+    title: 'Backpropping',
+    route: '/calculators/backprop',
+    prefix: 'tempworks_backprop_',
+  },
 };
 
 const generateId = () =>

@@ -13,3 +13,4 @@ export {
   evaluateConfigurations,
   buildCapacityChartData,
 } from './shoringTower.js';
+export { calculateBackprop } from './backprop.js';

@@ -34,6 +34,12 @@ const calculators = [
     icon: ChevronsUp,
     description: 'Heavy duty steel prop capacity check per model and length.',
   },
+  {
+    name: 'Backpropping',
+    path: '/calculators/backprop',
+    icon: ChevronsUp,
+    description: 'Multistory concrete slab load distribution and prop capacities.',
+  },
 ];
 
 const upcoming = [
