@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   FolderOpen, History, Map, Plus, RefreshCw, Trash2, Undo2, LayoutTemplate, Calculator,
   Image as ImageIcon, X, LayoutGrid, List as ListIcon, Search,
@@ -613,7 +613,13 @@ export default function Projects() {
 
         {visible.map((project) => (view === 'list' ? (
           <div key={project.filename} className={styles.listRow}>
-            <span className={styles.listName} title={project.name}>{project.name}</span>
+            {showTrash ? (
+              <span className={styles.listName} title={project.name}>{project.name}</span>
+            ) : (
+              <Link to={`/projects/${project.filename}`} className={styles.listNameLink} title={`${project.name} — open project overview`}>
+                {project.name}
+              </Link>
+            )}
 
             <span className={styles.listCell}>
               {showTrash
@@ -686,7 +692,15 @@ export default function Projects() {
             </div>
             <div className={styles.cardContent}>
               <div className={styles.cardInfo}>
-                <h3 className={styles.cardName}>{project.name}</h3>
+                {showTrash ? (
+                  <h3 className={styles.cardName}>{project.name}</h3>
+                ) : (
+                  <h3 className={styles.cardName}>
+                    <Link to={`/projects/${project.filename}`} className={styles.cardNameLink} title={`${project.name} — open project overview`}>
+                      {project.name}
+                    </Link>
+                  </h3>
+                )}
                 <p className={styles.cardMeta}>
                   Modified {formatWhen(project.last_modified_at)} &middot; {formatSize(project.file_size)}
                 </p>

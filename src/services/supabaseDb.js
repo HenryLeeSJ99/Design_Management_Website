@@ -19,6 +19,26 @@ export async function fetchProjects() {
 }
 
 /**
+ * One project by id, or null if it isn't visible to this user.
+ *
+ * Uses maybeSingle() rather than single(): RLS returning no row is a normal
+ * outcome (a designer looking at a project not assigned to them), not an
+ * error worth throwing over — the caller renders "not found" either way.
+ */
+export async function fetchProject(projectId) {
+  const { data, error } = await supabase
+    .from('projects')
+    .select('*')
+    .eq('id', projectId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(`Failed to fetch project: ${error.message}`);
+  }
+  return data;
+}
+
+/**
  * Create a new project record.
  * RLS enforces that only Managers/Admins can do this.
  */

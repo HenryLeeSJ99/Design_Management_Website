@@ -14,6 +14,7 @@ const PAGE_TITLES = [
   { path: '/calculators/slab-formwork', title: 'Slab Formwork' },
   { path: '/calculators/wall-formwork', title: 'Wall Formwork' },
   { path: '/calculators/shoring-tower', title: 'Shoring Tower' },
+  { path: '/calculators/steel-prop', title: 'Steel Prop' },
   { path: '/dashboard', title: 'Dashboard' },
   { path: '/projects', title: 'Projects' },
 ];
@@ -79,6 +80,7 @@ export default function Layout() {
       ]
     },
     { name: 'Shoring Tower', path: '/calculators/shoring-tower', icon: ChevronsUp, active: true },
+    { name: 'Steel Prop', path: '/calculators/steel-prop', icon: ChevronsUp, active: true },
     { name: 'Column Formwork', path: '#', icon: Columns, active: false },
     { name: 'Beam Formwork', path: '#', icon: Cuboid, active: false },
   ];

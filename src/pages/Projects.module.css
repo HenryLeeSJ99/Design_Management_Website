@@ -369,12 +369,30 @@
   background: var(--bg-app);
 }
 
-.listName {
+.listName,
+.listNameLink {
   font-weight: 700;
   color: var(--text-main);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* The name is the way into the project overview. Underlined on hover rather
+   than always, so a long list doesn't read as a wall of links. */
+.listNameLink {
+  transition: var(--transition-fast);
+}
+
+.listNameLink:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+.listNameLink:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 .listCell {
@@ -417,7 +435,8 @@
     padding: 1rem 1.25rem;
   }
 
-  .listName {
+  .listName,
+  .listNameLink {
     grid-column: 1 / -1;
     white-space: normal;
   }
@@ -549,6 +568,21 @@
   color: var(--text-main);
   margin: 0;
   letter-spacing: -0.02em;
+}
+
+.cardNameLink {
+  color: inherit;
+  transition: var(--transition-fast);
+}
+
+.cardNameLink:hover {
+  color: var(--primary);
+}
+
+.cardNameLink:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 2px;
 }
 
 .cardMeta {

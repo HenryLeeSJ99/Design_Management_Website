@@ -2,8 +2,6 @@
   padding: 0;
   max-width: 1400px;
   margin: 0 auto;
-  /* As a flex item of the route wrapper, min-width:auto would let the
-     scrollable tab strip's intrinsic width blow the page out on mobile */
   width: 100%;
   min-width: 0;
 }
@@ -224,6 +222,22 @@
   white-space: nowrap;
 }
 
+.configTable tbody tr {
+  transition: background-color 150ms ease;
+}
+
+.configTable tbody tr:hover {
+  background-color: var(--border-color-light);
+}
+
+.rowSelected {
+  background-color: var(--primary-light, rgba(37, 99, 235, 0.08)) !important;
+}
+
+.rowSelected .systemCell {
+  color: var(--primary) !important;
+}
+
 .configTable td.numCell {
   text-align: right;
   font-variant-numeric: tabular-nums;
@@ -240,9 +254,6 @@
   color: var(--text-main);
 }
 
-/* Combined system/type + configuration column: wraps so the
-   table fits laptop widths without horizontal scrolling.
-   (td.configCell needed to outrank the .configTable td nowrap rule) */
 .configTable td.configCell {
   display: flex;
   flex-direction: column;
@@ -309,7 +320,6 @@
   min-width: 36px;
 }
 
-/* ── Table toolbar + options popup ── */
 .tableToolbar {
   display: flex;
   justify-content: space-between;
@@ -401,7 +411,6 @@
   text-align: right;
 }
 
-/* ── System selector chips (chart card) ── */
 .systemChips {
   display: inline-flex;
   gap: 0.25rem;
@@ -490,13 +499,90 @@
   box-shadow: var(--shadow-sm);
 }
 
+.chartContainer {
+  margin-top: 0.5rem;
+}
+
+/* ── Top Row split layout ── */
+.topRow {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 1.5rem;
+  align-items: stretch;
+}
+
+@media (max-width: 820px) {
+  .topRow {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Prop Visualizer Styles ── */
+.visualizerCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2.25rem 2rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-bezel);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-md), var(--shadow-bezel-inner);
+  transition: var(--transition-spring);
+  height: 100%;
+  min-height: 250px;
+}
+
+.visualizerCard:hover {
+  box-shadow: var(--shadow-lg), var(--shadow-bezel-inner);
+}
+
+.visualizerWrapper {
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+}
+
+.visualizerSvg {
+  width: auto;
+  height: 100%;
+  max-height: 240px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.05));
+}
+
+.visualizerLabel {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* Report print styles and layout */
+.reportSheet {
+  width: 210mm;
+  min-height: 297mm;
+  background-color: #ffffff;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
+  border: 1px solid #cbd5e1;
+  padding: 24px 30px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 11px;
+  color: #1e293b;
+}
+
 @media (max-width: 1100px) {
   .mainGrid {
     grid-template-columns: 1fr;
   }
 }
 
-/* ── A4 report sheet: scale to fit instead of overflowing ── */
 @media (max-width: 1160px) {
   .reportSheet { zoom: 0.8; }
 }
@@ -530,8 +616,6 @@
 }
 
 @media (max-width: 760px) {
-  /* Title moves to the app top bar; keep the header row for its actions
-     (My Designs) which have no other home on mobile */
   .titleBlock {
     display: none;
   }
@@ -567,9 +651,6 @@
     width: 100%;
   }
 
-  /* The toolbar wraps on mobile, putting the options button at the left
-     edge — anchor the popup to the button's left so it opens rightward
-     (on-screen) instead of overflowing off the left edge. */
   .optionsPopover {
     right: auto;
     left: 0;

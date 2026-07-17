@@ -3,10 +3,11 @@ import {
   removeVersionObjects, uploadProjectFile, uploadVersionObject,
 } from './supabaseStorage';
 import {
-  deleteProjectRecord, fetchProjects, fetchTrashedProjects, updateProjectRecord,
+  deleteProjectRecord, fetchProject, fetchProjects, fetchTrashedProjects, updateProjectRecord,
 } from './supabaseDb';
 import { TwFileError } from './twFile';
 import { PROJECT_STATUSES } from './projectStatus';
+import { serialiseTimeline } from './projectTimeline';
 
 export const TRASH_DAYS = 30;
 
@@ -76,6 +77,31 @@ export async function deleteProjectFile(projectId) {
     await deleteProjectRecord(projectId);
   } catch (e) {
     throw new TwFileError(`Failed to delete project: ${e.message}`);
+  }
+}
+
+/** One project's record, or null when it isn't visible to this user. */
+export async function readProject(projectId) {
+  try {
+    return await fetchProject(projectId);
+  } catch (e) {
+    throw new TwFileError(`Could not read the project: ${e.message}`);
+  }
+}
+
+/**
+ * Save a project's timeline (target date + milestone due/done state).
+ *
+ * Only ever writes the timeline column, so it cannot collide with a designer
+ * saving the .tw contents at the same moment — the two touch different
+ * columns of the same row.
+ */
+export async function saveTimeline(projectId, timeline) {
+  try {
+    await updateProjectRecord(projectId, { timeline: serialiseTimeline(timeline) });
+    return projectId;
+  } catch (e) {
+    throw new TwFileError(`Could not save the timeline: ${e.message}`);
   }
 }
 

@@ -28,6 +28,12 @@ const calculators = [
     icon: ChevronsUp,
     description: 'WONDERCrab tower load capacity check per configuration.',
   },
+  {
+    name: 'Steel Prop',
+    path: '/calculators/steel-prop',
+    icon: ChevronsUp,
+    description: 'Heavy duty steel prop capacity check per model and length.',
+  },
 ];
 
 const upcoming = [

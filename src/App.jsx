@@ -14,6 +14,7 @@ import Login from './pages/Login';
 // Chart.js, jsPDF, html2canvas) ships in its own chunk and only
 // loads when the user actually navigates there.
 const Projects = lazy(() => import('./pages/Projects'));
+const ProjectOverview = lazy(() => import('./pages/ProjectOverview'));
 const ProjectDashboard = lazy(() => import('./pages/ProjectDashboard'));
 const DrawingViewer = lazy(() => import('./pages/DrawingViewer'));
 const NotFound = lazy(() => import('./pages/NotFound'));
@@ -22,6 +23,7 @@ const MultiBeamCalculator = lazy(() => import('./pages/MultiBeamCalculator'));
 const SlabFormworkCalculator = lazy(() => import('./pages/SlabFormworkCalculator'));
 const WallFormworkCalculator = lazy(() => import('./pages/WallFormworkCalculator'));
 const ShoringTowerCalculator = lazy(() => import('./pages/ShoringTowerCalculator'));
+const SteelPropCalculator = lazy(() => import('./pages/SteelPropCalculator'));
 
 function AuthGuard({ children }) {
   const { user, loading } = useAuth();
@@ -61,6 +63,11 @@ function App() {
                 {/* Every project in the engineer's folder, one .tw file each */}
                 <Route path="projects" element={<AuthGuard><Projects /></AuthGuard>} />
 
+                {/* Project management view for one project — timeline and
+                    status, for managers/team leaders/sales. The design work
+                    itself lives in the workbook at /dashboard. */}
+                <Route path="projects/:projectId" element={<AuthGuard><ProjectOverview /></AuthGuard>} />
+
                 {/* Project dashboard — saved calculations for the open project */}
                 <Route path="dashboard" element={<AuthGuard><ProjectDashboard /></AuthGuard>} />
                 
@@ -75,6 +82,7 @@ function App() {
                 <Route path="calculators/slab-formwork" element={<CalcInstance><SlabFormworkCalculator /></CalcInstance>} />
                 <Route path="calculators/wall-formwork" element={<CalcInstance><WallFormworkCalculator /></CalcInstance>} />
                 <Route path="calculators/shoring-tower" element={<CalcInstance><ShoringTowerCalculator /></CalcInstance>} />
+                <Route path="calculators/steel-prop" element={<CalcInstance><SteelPropCalculator /></CalcInstance>} />
 
                 {/* 404 — catch-all nested under layout */}
                 <Route path="*" element={<NotFound />} />

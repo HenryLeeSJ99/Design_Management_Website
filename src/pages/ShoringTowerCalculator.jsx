@@ -141,6 +141,9 @@ export default function ShoringTowerCalculator({ initialTab }) {
     saveSessionData('tempworks_shoringtower_verification_date', verificationDate);
   }, [verificationDate]);
 
+  // Report configurations visibility state
+  const [visibleReportConfigs, setVisibleReportConfigs] = useState(null);
+
   useEffect(() => {
     saveSessionData('tempworks_shoringtower_inputs', {
       concreteThickness, unitWeight, formworkLoad, towerHeight,
@@ -185,6 +188,46 @@ export default function ShoringTowerCalculator({ initialTab }) {
   }), [towerHeight, legLoad.F, systemMode, jackExtension]);
 
   const passCount = configResults.filter((r) => r.pass).length;
+
+  useEffect(() => {
+    setVisibleReportConfigs(null);
+  }, [configResults]);
+
+  const activeReportConfigs = useMemo(() => {
+    return visibleReportConfigs ?? configResults.map(r => `${r.system}-${r.type}`);
+  }, [visibleReportConfigs, configResults]);
+
+  const reportPassCount = useMemo(() => {
+    return configResults.filter((r) => activeReportConfigs.includes(`${r.system}-${r.type}`) && r.pass).length;
+  }, [configResults, activeReportConfigs]);
+
+  const filteredReportResults = useMemo(() => {
+    return configResults.filter((r) => activeReportConfigs.includes(`${r.system}-${r.type}`));
+  }, [configResults, activeReportConfigs]);
+
+  const handleToggleConfig = (key) => {
+    setVisibleReportConfigs((prev) => {
+      const current = prev ?? configResults.map((r) => `${r.system}-${r.type}`);
+      if (current.includes(key)) {
+        return current.filter((k) => k !== key);
+      } else {
+        return [...current, key];
+      }
+    });
+  };
+
+  const handleSelectAllConfigs = () => {
+    setVisibleReportConfigs(null);
+  };
+
+  const handleSelectPassOnlyConfigs = () => {
+    const passingKeys = configResults.filter((r) => r.pass).map((r) => `${r.system}-${r.type}`);
+    setVisibleReportConfigs(passingKeys);
+  };
+
+  const handleClearAllConfigs = () => {
+    setVisibleReportConfigs([]);
+  };
 
   // On-screen table rows after applying the display options
   // (the audit report always shows the full set in manual order)
@@ -669,6 +712,55 @@ export default function ShoringTowerCalculator({ initialTab }) {
                     />
                   </div>
                 </div>
+
+                {/* Report Configuration Selection Filters */}
+                <div style={{ marginTop: '16px', background: 'var(--border-color-light)', padding: '16px', borderRadius: '8px', border: '1px solid var(--border-bezel)', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-main)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                      Configurations to Include in Report:
+                    </span>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button 
+                        onClick={handleSelectAllConfigs} 
+                        style={{ fontSize: '10px', padding: '4px 10px', borderRadius: '4px', border: '1px solid var(--border-bezel)', background: 'var(--bg-card)', color: 'var(--text-main)', cursor: 'pointer', fontWeight: 700 }}
+                      >
+                        Select All
+                      </button>
+                      <button 
+                        onClick={handleSelectPassOnlyConfigs} 
+                        style={{ fontSize: '10px', padding: '4px 10px', borderRadius: '4px', border: '1px solid var(--border-bezel)', background: 'var(--bg-card)', color: '#16a34a', cursor: 'pointer', fontWeight: 700 }}
+                      >
+                        Select PASS Only
+                      </button>
+                      <button 
+                        onClick={handleClearAllConfigs} 
+                        style={{ fontSize: '10px', padding: '4px 10px', borderRadius: '4px', border: '1px solid var(--border-bezel)', background: 'var(--bg-card)', color: '#dc2626', cursor: 'pointer', fontWeight: 700 }}
+                      >
+                        Clear All
+                      </button>
+                    </div>
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px, 1fr))', gap: '10px' }}>
+                    {configResults.map((r) => {
+                      const key = `${r.system}-${r.type}`;
+                      const isChecked = activeReportConfigs.includes(key);
+                      return (
+                        <label key={key} style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: 'var(--text-secondary)', cursor: 'pointer', userSelect: 'none' }}>
+                          <input 
+                            type="checkbox" 
+                            checked={isChecked} 
+                            onChange={() => handleToggleConfig(key)} 
+                            style={{ accentColor: 'var(--primary)', cursor: 'pointer' }}
+                          />
+                          <span style={{ fontWeight: 600 }}>{r.system} Type {r.type}</span>
+                          <span style={{ fontSize: '8px', padding: '1px 4px', borderRadius: '3px', background: r.pass ? 'rgba(22, 163, 74, 0.1)' : 'rgba(220, 38, 38, 0.1)', color: r.pass ? '#16a34a' : '#dc2626', fontWeight: 800 }}>
+                            {r.pass ? 'PASS' : 'FAIL'}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
 
               {/* A4 Printable Sheet */}
@@ -725,8 +817,8 @@ export default function ShoringTowerCalculator({ initialTab }) {
                     </div>
                     <div>
                       <span style={{ color: '#64748b', fontSize: '8px', textTransform: 'uppercase', fontWeight: 700 }}>Status</span>
-                      <div style={{ fontWeight: 800, fontSize: '10px', color: passCount > 0 ? '#16a34a' : '#dc2626' }}>
-                        {passCount > 0 ? `✅ ${passCount} CONFIGURATION${passCount > 1 ? 'S' : ''} ADEQUATE` : '❌ NO ADEQUATE CONFIGURATION'}
+                      <div style={{ fontWeight: 800, fontSize: '10px', color: reportPassCount > 0 ? '#16a34a' : '#dc2626' }}>
+                        {reportPassCount > 0 ? `✅ ${reportPassCount} CONFIGURATION${reportPassCount > 1 ? 'S' : ''} ADEQUATE` : '❌ NO ADEQUATE CONFIGURATION'}
                       </div>
                     </div>
                   </div>
@@ -823,22 +915,30 @@ export default function ShoringTowerCalculator({ initialTab }) {
                         </tr>
                       </thead>
                       <tbody>
-                        {configResults.map((row) => (
-                          <tr key={`rep-${row.system}-${row.type}`} style={{ borderBottom: '1px solid #f1f5f9', background: row.capacity !== null && !row.pass ? '#fef2f2' : 'transparent' }}>
-                            <td style={{ padding: '3px 4px', fontWeight: 700 }}>{row.system}</td>
-                            <td style={{ padding: '3px 4px' }}>{row.type}</td>
-                            <td style={{ padding: '3px 4px', color: '#475569' }}>{row.description}</td>
-                            <td style={{ padding: '3px 4px', textAlign: 'right' }}>{row.tableHeight !== null ? row.tableHeight.toFixed(1) : '—'}</td>
-                            <td style={{ padding: '3px 4px', textAlign: 'right', fontWeight: 600 }}>{row.capacity !== null ? row.capacity.toFixed(1) : '—'}</td>
-                            <td style={{ padding: '3px 4px', textAlign: 'right' }}>{fmt(legLoad.F, 1)}</td>
-                            <td style={{ padding: '3px 4px', textAlign: 'right', fontWeight: 700, color: utilizationColor(row.utilization) }}>
-                              {row.utilization !== null ? `${(row.utilization * 100).toFixed(0)}%` : '—'}
-                            </td>
-                            <td style={{ padding: '3px 4px', textAlign: 'center', fontWeight: 800, color: row.capacity === null ? '#94a3b8' : row.pass ? '#16a34a' : '#dc2626' }}>
-                              {row.capacity === null ? 'N/A' : row.pass ? 'PASS' : 'FAIL'}
+                        {filteredReportResults.length === 0 ? (
+                          <tr>
+                            <td colSpan={8} style={{ padding: '12px', textAlign: 'center', color: '#94a3b8', fontStyle: 'italic' }}>
+                              No configurations selected for report.
                             </td>
                           </tr>
-                        ))}
+                        ) : (
+                          filteredReportResults.map((row) => (
+                            <tr key={`rep-${row.system}-${row.type}`} style={{ borderBottom: '1px solid #f1f5f9', background: row.capacity !== null && !row.pass ? '#fef2f2' : 'transparent' }}>
+                              <td style={{ padding: '3px 4px', fontWeight: 700 }}>{row.system}</td>
+                              <td style={{ padding: '3px 4px' }}>{row.type}</td>
+                              <td style={{ padding: '3px 4px', color: '#475569' }}>{row.description}</td>
+                              <td style={{ padding: '3px 4px', textAlign: 'right' }}>{row.tableHeight !== null ? row.tableHeight.toFixed(1) : '—'}</td>
+                              <td style={{ padding: '3px 4px', textAlign: 'right', fontWeight: 600 }}>{row.capacity !== null ? row.capacity.toFixed(1) : '—'}</td>
+                              <td style={{ padding: '3px 4px', textAlign: 'right' }}>{fmt(legLoad.F, 1)}</td>
+                              <td style={{ padding: '3px 4px', textAlign: 'right', fontWeight: 700, color: utilizationColor(row.utilization) }}>
+                                {row.utilization !== null ? `${(row.utilization * 100).toFixed(0)}%` : '—'}
+                              </td>
+                              <td style={{ padding: '3px 4px', textAlign: 'center', fontWeight: 800, color: row.capacity === null ? '#94a3b8' : row.pass ? '#16a34a' : '#dc2626' }}>
+                                {row.capacity === null ? 'N/A' : row.pass ? 'PASS' : 'FAIL'}
+                              </td>
+                            </tr>
+                          ))
+                        )}
                       </tbody>
                     </table>
                   </div>

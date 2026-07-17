@@ -39,6 +39,11 @@ export const CALCULATORS = {
     route: '/calculators/shoring-tower',
     prefix: 'tempworks_shoringtower_',
   },
+  'steel-prop': {
+    title: 'Steel Prop',
+    route: '/calculators/steel-prop',
+    prefix: 'tempworks_steelprop_',
+  },
 };
 
 const generateId = () =>

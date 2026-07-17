@@ -21,6 +21,7 @@ const CALCULATOR_COMPONENTS = {
   'slab-formwork': lazy(() => import('../pages/SlabFormworkCalculator')),
   'wall-formwork': lazy(() => import('../pages/WallFormworkCalculator')),
   'shoring-tower': lazy(() => import('../pages/ShoringTowerCalculator')),
+  'steel-prop': lazy(() => import('../pages/SteelPropCalculator')),
 };
 
 const READY_TIMEOUT = 40000;
