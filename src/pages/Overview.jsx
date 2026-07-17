@@ -98,67 +98,75 @@ export default function Overview() {
       dbDesignerStats[email].projectsCount += 1;
     });
 
-    // Preset mock designers to make the leaderboard look rich and competitive
-    const presetDesigners = [
-      { name: 'Alex Tan', email: 'alext@plytec.com', score: 82, badge: 'Elite Designer', colorIndex: 0 },
-      { name: 'Chloe Lee', email: 'chloel@plytec.com', score: 64, badge: 'Slab Expert', colorIndex: 1 },
-      { name: 'Vijay Kumar', email: 'vijayk@plytec.com', score: 45, badge: 'Tower Specialist', colorIndex: 2 },
-      { name: 'Siti Aminah', email: 'sitia@plytec.com', score: 38, badge: 'Prop Sizer', colorIndex: 3 },
-    ];
-
-    // Merge database users into designers ranking
-    const designerList = [...presetDesigners];
-    Object.values(dbDesignerStats).forEach(dbUser => {
-      // Check if user already exists in list (by email match)
-      const existing = designerList.find(d => d.email.toLowerCase() === dbUser.email.toLowerCase());
-      if (existing) {
-        existing.score += dbUser.count;
-      } else {
-        // Parse friendly name from email
-        const parsedName = dbUser.email.split('@')[0]
-          .replace(/[^a-zA-Z]/g, ' ')
-          .replace(/\b\w/g, c => c.toUpperCase());
-        
-        designerList.push({
-          name: parsedName,
-          email: dbUser.email,
-          score: dbUser.count,
-          badge: dbUser.count > 30 ? 'Senior Engineer' : 'Design Associate',
-          colorIndex: designerList.length % AVATAR_COLORS.length
-        });
-      }
+    const designerList = Object.values(dbDesignerStats).map((dbUser, index) => {
+      const parsedName = dbUser.email.split('@')[0]
+        .replace(/[^a-zA-Z]/g, ' ')
+        .replace(/\b\w/g, c => c.toUpperCase());
+      
+      return {
+        name: parsedName,
+        email: dbUser.email,
+        score: dbUser.count,
+        badge: dbUser.count > 10 ? 'Senior Engineer' : 'Design Associate',
+        colorIndex: index % AVATAR_COLORS.length
+      };
     });
 
     // Sort by calculations score descending
     designerList.sort((a, b) => b.score - a.score);
 
-    // 2. Team Leaders ranking (reviewed drawing counts)
-    const leaderList = [
-      { name: 'Sarah Connor', email: 'sarahc@plytec.com', score: 112, badge: 'Lead Auditor', colorIndex: 4 },
-      { name: 'Marcus Aurelius', email: 'marcus@plytec.com', score: 86, badge: 'Quality Checker', colorIndex: 5 },
-      { name: 'Helena Rostova', email: 'helenar@plytec.com', score: 54, badge: 'Reviewer', colorIndex: 0 },
-      { name: 'Elena Fisher', email: 'elenaf@plytec.com', score: 32, badge: 'Associate Lead', colorIndex: 1 },
-    ];
+    // 2. Team Leaders ranking (group by creator / updater, summing drawing counts)
+    const dbLeaderStats = {};
+    projects.forEach(p => {
+      const email = p.updater_email || p.updater_id || 'system@plytec.com';
+      if (!dbLeaderStats[email]) {
+        dbLeaderStats[email] = { email, count: 0 };
+      }
+      dbLeaderStats[email].count += (p.drawing_count || 0);
+    });
 
-    // Adjust scores based on actual database drawing count to keep it dynamic
-    const totalDbDrawings = projects.reduce((sum, p) => sum + (p.drawing_count || 0), 0);
-    if (leaderList[0]) {
-      leaderList[0].score += totalDbDrawings;
-    }
+    const leaderList = Object.values(dbLeaderStats)
+      .filter(l => l.count > 0)
+      .map((dbUser, index) => {
+        const parsedName = dbUser.email.split('@')[0]
+          .replace(/[^a-zA-Z]/g, ' ')
+          .replace(/\b\w/g, c => c.toUpperCase());
+
+        return {
+          name: parsedName,
+          email: dbUser.email,
+          score: dbUser.count,
+          badge: 'Design Auditor',
+          colorIndex: index % AVATAR_COLORS.length
+        };
+      });
+
     leaderList.sort((a, b) => b.score - a.score);
 
-    // 3. Managers ranking (milestone approvals)
-    const managerList = [
-      { name: 'David Miller', email: 'davidm@plytec.com', score: 14, badge: 'Portfolio Director', colorIndex: 2 },
-      { name: 'Diana Prince', email: 'dianap@plytec.com', score: 9, badge: 'Senior Manager', colorIndex: 3 },
-      { name: 'Tony Stark', email: 'tonys@plytec.com', score: 8, badge: 'Site Supervisor', colorIndex: 4 },
-    ];
+    // 3. Managers ranking (group by creator / updater, counting project volumes managed)
+    const dbManagerStats = {};
+    projects.forEach(p => {
+      const email = p.updater_email || p.updater_id || 'system@plytec.com';
+      if (!dbManagerStats[email]) {
+        dbManagerStats[email] = { email, count: 0 };
+      }
+      dbManagerStats[email].count += 1; // Projects volume managed
+    });
 
-    // Add completed project counts dynamically
-    const completedProjectsCount = projects.filter(p => p.status === 'archived').length;
-    if (managerList[0]) {
-      managerList[0].score += completedProjectsCount;
-    }
+    const managerList = Object.values(dbManagerStats).map((dbUser, index) => {
+      const parsedName = dbUser.email.split('@')[0]
+        .replace(/[^a-zA-Z]/g, ' ')
+        .replace(/\b\w/g, c => c.toUpperCase());
+
+      return {
+        name: parsedName,
+        email: dbUser.email,
+        score: dbUser.count,
+        badge: 'Project Manager',
+        colorIndex: index % AVATAR_COLORS.length
+      };
+    });
+
     managerList.sort((a, b) => b.score - a.score);
 
     return {
@@ -190,40 +198,6 @@ export default function Overview() {
         });
       });
     });
-
-    // Add mock initial events if the database has none, so the screen feels fully designed
-    if (events.length === 0) {
-      const now = new Date();
-      events.push(
-        {
-          id: 'mock-1',
-          projectId: '',
-          projectName: 'KL Tower Reinforcement',
-          zoneName: 'Level 2 slab',
-          milestoneLabel: 'Issued to client',
-          doneAt: new Date(now.getTime() - 1000 * 60 * 45), // 45 mins ago
-          updater: 'alext@plytec.com'
-        },
-        {
-          id: 'mock-2',
-          projectId: '',
-          projectName: 'Bayview Condominiums',
-          zoneName: 'Typical floor shoring',
-          milestoneLabel: 'Internal check approved',
-          doneAt: new Date(now.getTime() - 1000 * 60 * 180), // 3 hours ago
-          updater: 'sarahc@plytec.com'
-        },
-        {
-          id: 'mock-3',
-          projectId: '',
-          projectName: 'Damansara Mall Subway Link',
-          zoneName: 'Retaining Wall Panel 4',
-          milestoneLabel: 'Design start',
-          doneAt: new Date(now.getTime() - 1000 * 60 * 600), // 10 hours ago
-          updater: 'helenar@plytec.com'
-        }
-      );
-    }
 
     // Sort by timestamp descending
     return events.sort((a, b) => b.doneAt - a.doneAt);
@@ -400,61 +374,68 @@ export default function Overview() {
           
           <div className={styles.cardContent}>
             <div className={styles.leaderboardList}>
-              {activeLeaderboard.map((member, idx) => {
-                const isFirst = idx === 0;
-                const isSecond = idx === 1;
-                const isThird = idx === 2;
-                const initials = member.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
-                const avatarColor = AVATAR_COLORS[member.colorIndex || 0];
+              {activeLeaderboard.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '2.5rem 1rem', color: 'var(--text-muted)' }}>
+                  <User size={32} style={{ marginBottom: '8px', opacity: 0.5, display: 'block', margin: '0 auto 8px' }} />
+                  <div style={{ fontSize: '13px', fontWeight: 600 }}>No entries recorded yet</div>
+                </div>
+              ) : (
+                activeLeaderboard.map((member, idx) => {
+                  const isFirst = idx === 0;
+                  const isSecond = idx === 1;
+                  const isThird = idx === 2;
+                  const initials = member.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+                  const avatarColor = AVATAR_COLORS[member.colorIndex || 0];
 
-                // Calculate progress bar percent (max score relative reference)
-                const maxScore = activeLeaderboard[0]?.score || 100;
-                const progressPct = maxScore > 0 ? (member.score / maxScore) * 100 : 0;
+                  // Calculate progress bar percent (max score relative reference)
+                  const maxScore = activeLeaderboard[0]?.score || 100;
+                  const progressPct = maxScore > 0 ? (member.score / maxScore) * 100 : 0;
 
-                return (
-                  <div key={member.email} className={styles.leaderboardRow}>
-                    {/* Rank Number Badge */}
-                    <div className={`${styles.rankBadge} ${isFirst ? styles.rank1 : isSecond ? styles.rank2 : isThird ? styles.rank3 : ''}`}>
-                      {idx + 1}
-                    </div>
+                  return (
+                    <div key={member.email} className={styles.leaderboardRow}>
+                      {/* Rank Number Badge */}
+                      <div className={`${styles.rankBadge} ${isFirst ? styles.rank1 : isSecond ? styles.rank2 : isThird ? styles.rank3 : ''}`}>
+                        {idx + 1}
+                      </div>
 
-                    {/* Designer Initials Avatar */}
-                    <div className={styles.avatar} style={{ backgroundColor: avatarColor }}>
-                      {initials}
-                    </div>
+                      {/* Designer Initials Avatar */}
+                      <div className={styles.avatar} style={{ backgroundColor: avatarColor }}>
+                        {initials}
+                      </div>
 
-                    {/* Member Details */}
-                    <div className={styles.rowDetails}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span className={styles.rowName}>{member.name}</span>
-                        <span className={`${styles.badge} ${activeTab === 'leaders' ? styles.badgeLeader : activeTab === 'managers' ? styles.badgeManager : ''}`}>
-                          {member.badge}
+                      {/* Member Details */}
+                      <div className={styles.rowDetails}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span className={styles.rowName}>{member.name}</span>
+                          <span className={`${styles.badge} ${activeTab === 'leaders' ? styles.badgeLeader : activeTab === 'managers' ? styles.badgeManager : ''}`}>
+                            {member.badge}
+                          </span>
+                        </div>
+                        <span className={styles.rowEmail}>{member.email}</span>
+                        
+                        {/* Bar indicator */}
+                        <div className={styles.rowProgress}>
+                          <div 
+                            className={styles.rowProgressBar} 
+                            style={{ 
+                              width: `${progressPct}%`,
+                              backgroundColor: isFirst ? 'var(--primary)' : 'var(--text-muted)'
+                            }} 
+                          />
+                        </div>
+                      </div>
+
+                      {/* Calculations count score */}
+                      <div className={styles.rowScore}>
+                        <span className={styles.scoreValue}>{member.score}</span>
+                        <span className={styles.scoreLabel}>
+                          {activeTab === 'designers' ? 'calcs' : activeTab === 'leaders' ? 'checks' : 'milestones'}
                         </span>
                       </div>
-                      <span className={styles.rowEmail}>{member.email}</span>
-                      
-                      {/* Bar indicator */}
-                      <div className={styles.rowProgress}>
-                        <div 
-                          className={styles.rowProgressBar} 
-                          style={{ 
-                            width: `${progressPct}%`,
-                            backgroundColor: isFirst ? 'var(--primary)' : 'var(--text-muted)'
-                          }} 
-                        />
-                      </div>
                     </div>
-
-                    {/* Calculations count score */}
-                    <div className={styles.rowScore}>
-                      <span className={styles.scoreValue}>{member.score}</span>
-                      <span className={styles.scoreLabel}>
-                        {activeTab === 'designers' ? 'calcs' : activeTab === 'leaders' ? 'checks' : 'milestones'}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })
+              )}
             </div>
           </div>
         </div>
