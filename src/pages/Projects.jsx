@@ -1,14 +1,17 @@
 import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import {
-  FolderOpen, History, Map, Plus, RefreshCw, Trash2, Undo2, LayoutTemplate, Calculator,
-  Image as ImageIcon, X, LayoutGrid, List as ListIcon, Search,
+  AlertTriangle, FolderOpen, History, Map, Plus, RefreshCw, Trash2, Undo2, LayoutTemplate,
+  Calculator, Image as ImageIcon, X, LayoutGrid, List as ListIcon, Search,
 } from 'lucide-react';
 import {
   deleteFromTrash, listProjects, listVersions, purgeExpiredTrash,
   restoreFromTrash, restoreVersion, setProjectStatus, trashProject, TRASH_DAYS,
 } from '../services/projectFiles';
 import { canChangeProjectStatus, PROJECT_STATUSES, statusLabel } from '../services/projectStatus';
+import {
+  currentMilestone, daysToTarget, projectIsSlipping, readTimeline, timelineProgress,
+} from '../services/projectTimeline';
 import {
   closeProject, createProject, exportLocalDraftAsTw, getOpenFilename,
   openProject, promoteLocalDraftToCloud, UnsavedDraftError,
@@ -27,6 +30,23 @@ const formatSize = (bytes) => {
 const formatWhen = (ts) => (ts
   ? new Date(ts).toLocaleString('en-GB', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
   : '—');
+
+const formatDay = (d) => (d
+  ? new Date(d).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' })
+  : '—');
+
+/** Compact age for a scan-heavy list — "3 days ago" beats a full timestamp. */
+const formatAgo = (ts) => {
+  if (!ts) return '—';
+  const mins = Math.round((Date.now() - new Date(ts).getTime()) / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins} min ago`;
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+  const days = Math.round(hours / 24);
+  if (days <= 30) return `${days} day${days === 1 ? '' : 's'} ago`;
+  return new Date(ts).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+};
 
 function CreateProjectModal({ onClose, onSubmit, busy }) {
   const [name, setName] = useState('New Project');
@@ -236,6 +256,100 @@ function StatusControl({ project, canEdit, busy, onChange }) {
         <option key={s} value={s}>{statusLabel(s)}</option>
       ))}
     </select>
+  );
+}
+
+/**
+ * Progress / waiting-on / target for one row.
+ *
+ * A Fragment, not a wrapper element, so the three cells land as direct
+ * children of the row's grid rather than collapsing into one column.
+ */
+function TimelineCells({ project }) {
+  const timeline = readTimeline(project);
+  const { done, total } = timelineProgress(timeline);
+  const current = currentMilestone(timeline);
+  const slipping = projectIsSlipping(project);
+  const toTarget = daysToTarget(timeline);
+  const pct = total ? (done / total) * 100 : 0;
+
+  return (
+    <>
+      <span className={styles.listCell} data-label="Progress">
+        <span className={styles.miniProgress} title={`${done} of ${total} milestones done`}>
+          <span className={styles.miniTrack}>
+            <span
+              className={`${styles.miniFill} ${slipping ? styles.miniFillLate : ''}`}
+              style={{ width: `${pct}%` }}
+            />
+          </span>
+          <span className={styles.miniCount}>{done}/{total}</span>
+        </span>
+      </span>
+
+      <span className={styles.listCell} data-label="Waiting on" title={current ? `Waiting on ${current.label}` : 'All milestones complete'}>
+        {current ? current.label : <span className={styles.doneText}>Complete</span>}
+      </span>
+
+      <span className={styles.listCell} data-label="Target">
+        {timeline.targetDate ? (
+          <span className={styles.targetCell}>
+            <span className={slipping ? styles.lateText : ''}>{formatDay(timeline.targetDate)}</span>
+            {slipping && <AlertTriangle size={12} className={styles.lateIcon} />}
+            {/* Only count down to a target still ahead of us. `toTarget <= 7`
+                alone also matches a target long past (e.g. -17), which on a
+                finished project reads as a countdown to nothing. */}
+            {toTarget !== null && !slipping && toTarget >= 0 && toTarget <= 7 && (
+              <span className={styles.soonText}>{toTarget}d</span>
+            )}
+          </span>
+        ) : '—'}
+      </span>
+    </>
+  );
+}
+
+/**
+ * The same timeline signal as the list, laid out for a card: one bar, the
+ * milestone the job is waiting on, and the target date.
+ *
+ * A project nobody has set any dates on renders nothing at all rather than a
+ * row of em-dashes — most projects will look like that until the timeline is
+ * actually used, and empty placeholders would make every card noisier for no
+ * information.
+ */
+function CardTimeline({ project }) {
+  const timeline = readTimeline(project);
+  const { done, total } = timelineProgress(timeline);
+  const current = currentMilestone(timeline);
+  const slipping = projectIsSlipping(project);
+  const hasAnyDates = timeline.targetDate || timeline.milestones.some((m) => m.due || m.doneAt);
+  if (!hasAnyDates) return null;
+
+  return (
+    <div className={styles.cardTimeline}>
+      <div className={styles.miniProgress}>
+        <span className={styles.miniTrack}>
+          <span
+            className={`${styles.miniFill} ${slipping ? styles.miniFillLate : ''}`}
+            style={{ width: `${total ? (done / total) * 100 : 0}%` }}
+          />
+        </span>
+        <span className={styles.miniCount}>{done}/{total}</span>
+      </div>
+      <p className={styles.cardTimelineMeta}>
+        {current ? current.label : <span className={styles.doneText}>All milestones complete</span>}
+        {timeline.targetDate && (
+          <>
+            {' · '}
+            <span className={slipping ? styles.lateText : ''}>
+              {slipping && <AlertTriangle size={11} className={styles.lateIcon} />}
+              {formatDay(timeline.targetDate)}
+            </span>
+          </>
+        )}
+      </p>
+    </div>
   );
 }
 
@@ -601,24 +715,38 @@ export default function Projects() {
 
       <div className={view === 'list' ? styles.list : styles.grid}>
         {view === 'list' && visible.length > 0 && (
-          <div className={styles.listHeader}>
+          <div className={showTrash ? styles.listHeaderTrash : styles.listHeader}>
             <span>Name</span>
             <span>Status</span>
-            <span>Modified</span>
-            <span>{showTrash ? 'Expires' : 'By'}</span>
-            <span>Size</span>
+            {showTrash ? (
+              <span>Expires</span>
+            ) : (
+              <>
+                <span>Progress</span>
+                <span>Waiting on</span>
+                <span>Target</span>
+              </>
+            )}
             <span className={styles.listActionsHead}>Actions</span>
           </div>
         )}
 
         {visible.map((project) => (view === 'list' ? (
-          <div key={project.filename} className={styles.listRow}>
+          <div key={project.filename} className={showTrash ? styles.listRowTrash : styles.listRow}>
             {showTrash ? (
               <span className={styles.listName} title={project.name}>{project.name}</span>
             ) : (
-              <Link to={`/projects/${project.filename}`} className={styles.listNameLink} title={`${project.name} — open project overview`}>
-                {project.name}
-              </Link>
+              <span className={styles.listNameCell}>
+                <Link to={`/projects/${project.filename}`} className={styles.listNameLink} title={`${project.name} — open project overview`}>
+                  {project.name}
+                </Link>
+                {/* The full timestamp and who touched it last are on the
+                    project overview; the list only needs "is this stale". */}
+                <span className={styles.listSubline} title={`Updated ${formatWhen(project.last_modified_at)}${project.updater_email ? ` by ${project.updater_email}` : ''}`}>
+                  {formatAgo(project.last_modified_at)}
+                  {isManagerLevel && project.updater_email ? ` · ${project.updater_email}` : ''}
+                </span>
+              </span>
             )}
 
             <span className={styles.listCell}>
@@ -627,15 +755,13 @@ export default function Projects() {
                 : <StatusControl project={project} canEdit={canSetStatus} busy={!!busy} onChange={handleStatusChange} />}
             </span>
 
-            <span className={styles.listCell}>{formatWhen(project.last_modified_at)}</span>
-
-            <span className={styles.listCell} title={project.updater_email || ''}>
-              {showTrash
-                ? `${daysLeft(project)} day${daysLeft(project) === 1 ? '' : 's'}`
-                : (isManagerLevel && project.updater_email) || '—'}
-            </span>
-
-            <span className={styles.listCell}>{formatSize(project.file_size)}</span>
+            {showTrash ? (
+              <span className={styles.listCell}>
+                {daysLeft(project)} day{daysLeft(project) === 1 ? '' : 's'}
+              </span>
+            ) : (
+              <TimelineCells project={project} />
+            )}
 
             <span className={styles.listActions}>
               {!showTrash ? (
@@ -719,6 +845,7 @@ export default function Projects() {
                     <StatusControl project={project} canEdit={canSetStatus} busy={!!busy} onChange={handleStatusChange} />
                   </div>
                 )}
+                {!showTrash && <CardTimeline project={project} />}
                 <div className={styles.cardStats}>
                   {project.calculation_count > 0 && <span title="Calculations"><Calculator size={14} />{project.calculation_count}</span>}
                   {project.drawing_count > 0 && <span title="Drawings"><Map size={14} />{project.drawing_count}</span>}

@@ -333,16 +333,31 @@
   overflow: hidden;
 }
 
+/* Name · Status · Progress · Waiting on · Target · Actions.
+   Modified/by moved under the name, and file size dropped entirely — neither
+   is what a manager scans a portfolio for, and both are still on the card and
+   the project overview. */
 .listHeader,
 .listRow {
   display: grid;
-  grid-template-columns: minmax(160px, 2.2fr) 120px 170px minmax(120px, 1.2fr) 80px auto;
+  grid-template-columns: minmax(170px, 2.2fr) 118px 96px minmax(110px, 1.3fr) 92px auto;
   align-items: center;
   gap: 1rem;
   padding: 0.75rem 1.25rem;
 }
 
-.listHeader {
+/* Trash has no timeline to speak of: Name · Status · Expires · Actions. */
+.listHeaderTrash,
+.listRowTrash {
+  display: grid;
+  grid-template-columns: minmax(170px, 2.6fr) 118px 110px auto;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+}
+
+.listHeader,
+.listHeaderTrash {
   background: var(--bg-app);
   border-bottom: 1px solid var(--border-color);
   font-size: 0.72rem;
@@ -356,17 +371,36 @@
   text-align: right;
 }
 
-.listRow {
+.listRow,
+.listRowTrash {
   border-bottom: 1px solid var(--border-color-light);
   transition: background-color 0.15s var(--ease-out);
 }
 
-.listRow:last-child {
+.listRow:last-child,
+.listRowTrash:last-child {
   border-bottom: none;
 }
 
-.listRow:hover {
+.listRow:hover,
+.listRowTrash:hover {
   background: var(--bg-app);
+}
+
+.listNameCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.listSubline {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .listName,
@@ -404,6 +438,89 @@
   text-overflow: ellipsis;
 }
 
+/* ── Timeline signal (shared by list rows and cards) ── */
+.miniProgress {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.miniTrack {
+  flex: 1;
+  min-width: 36px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--border-color-light);
+  overflow: hidden;
+}
+
+.miniFill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: var(--success);
+  transition: width 300ms var(--ease-out);
+}
+
+/* Amber, not red: behind schedule is a warning to act on, not a failure.
+   Red is reserved for the overdue date itself. */
+.miniFillLate {
+  background: var(--warning);
+}
+
+.miniCount {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.targetCell {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.lateText {
+  color: var(--danger);
+  font-weight: 700;
+}
+
+.lateIcon {
+  color: var(--danger);
+  flex-shrink: 0;
+}
+
+.soonText {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--warning);
+}
+
+.doneText {
+  color: var(--success);
+  font-weight: 600;
+}
+
+.cardTimeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.cardTimelineMeta {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.2rem;
+  flex-wrap: wrap;
+}
+
 .listActions {
   display: flex;
   align-items: center;
@@ -425,20 +542,40 @@
 /* The list is a table in spirit — below this it stops being readable as
    columns, so each row folds into a stacked block instead. */
 @media (max-width: 900px) {
-  .listHeader {
+  .listHeader,
+  .listHeaderTrash {
     display: none;
   }
 
-  .listRow {
+  .listRow,
+  .listRowTrash {
     grid-template-columns: 1fr auto;
     gap: 0.4rem 1rem;
     padding: 1rem 1.25rem;
   }
 
+  .listNameCell,
   .listName,
   .listNameLink {
     grid-column: 1 / -1;
     white-space: normal;
+  }
+
+  .listNameCell .listNameLink {
+    white-space: normal;
+  }
+
+  /* Without the header row there is nothing to say which column is which, so
+     the timeline cells get their own labels once stacked. */
+  .listCell::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin-bottom: 0.15rem;
   }
 
   .listActions {

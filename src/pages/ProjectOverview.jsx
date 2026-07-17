@@ -7,7 +7,7 @@ import {
 import { readProject, saveTimeline, setProjectStatus } from '../services/projectFiles';
 import { canChangeProjectStatus, PROJECT_STATUSES, statusLabel } from '../services/projectStatus';
 import {
-  canEditTimeline, currentMilestone, daysToTarget, isSlipping, readTimeline,
+  canEditTimeline, currentMilestone, daysToTarget, projectIsSlipping, readTimeline,
   setMilestoneDone, setMilestoneDue, setTargetDate, timelineProgress,
 } from '../services/projectTimeline';
 import { openProject, getOpenFilename, UnsavedDraftError } from '../services/projectSession';
@@ -142,7 +142,8 @@ export default function ProjectOverview() {
 
   const progress = timelineProgress(timeline);
   const current = currentMilestone(timeline);
-  const slipping = isSlipping(timeline);
+  // Status-aware: an archived or completed job is not "behind schedule".
+  const slipping = projectIsSlipping(project);
   const toTarget = daysToTarget(timeline);
   const status = project.status || 'active';
 

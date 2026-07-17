@@ -143,6 +143,20 @@ export function isSlipping(timeline, now = new Date()) {
 }
 
 /**
+ * Whether to FLAG a project as behind schedule, given its status.
+ *
+ * Only a live project can be behind. A completed or archived job with a past
+ * target — or milestones nobody ever ticked — is history, not a problem, and
+ * painting it red would train everyone to ignore the colour on the jobs that
+ * do need chasing. isSlipping() above stays purely about the dates; this is
+ * the question the UI actually wants to ask.
+ */
+export function projectIsSlipping(project, now = new Date()) {
+  if ((project?.status || 'active') !== 'active') return false;
+  return isSlipping(readTimeline(project), now);
+}
+
+/**
  * Days until the target date. Negative when it has passed, null when no
  * target is set. Whole days, counted by calendar day.
  */

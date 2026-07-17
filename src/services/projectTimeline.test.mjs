@@ -13,8 +13,8 @@ import assert from 'node:assert/strict';
 
 import {
   MILESTONES, canEditTimeline, currentMilestone, daysToTarget, isSlipping,
-  readTimeline, serialiseTimeline, setMilestoneDone, setMilestoneDue,
-  setTargetDate, timelineProgress,
+  projectIsSlipping, readTimeline, serialiseTimeline, setMilestoneDone,
+  setMilestoneDue, setTargetDate, timelineProgress,
 } from './projectTimeline.js';
 
 const KEYS = MILESTONES.map((m) => m.key);
@@ -153,6 +153,34 @@ test('slipping: target date passed with work outstanding', () => {
 
 test('slipping: no dates set at all is not slipping', () => {
   assert.equal(isSlipping(readTimeline({ timeline: null }), day('2026-07-17')), false);
+});
+
+// --- projectIsSlipping: the status-aware question the UI actually asks ---
+
+// An overdue timeline: internal_check due a week ago and still open.
+const OVERDUE = {
+  targetDate: '2026-07-10',
+  milestones: [{ key: 'internal_check', due: '2026-07-10', doneAt: null }],
+};
+
+test('projectIsSlipping: an active project with a passed date is flagged', () => {
+  assert.equal(projectIsSlipping({ status: 'active', timeline: OVERDUE }, day('2026-07-17')), true);
+});
+
+test('projectIsSlipping: archived and completed projects are never flagged', () => {
+  // The bug this exists to prevent: an archived job with a long-past target
+  // rendering red on the portfolio, training everyone to ignore the colour.
+  assert.equal(projectIsSlipping({ status: 'archive', timeline: OVERDUE }, day('2026-07-17')), false);
+  assert.equal(projectIsSlipping({ status: 'completed', timeline: OVERDUE }, day('2026-07-17')), false);
+});
+
+test('projectIsSlipping: a project with no status defaults to active and can be flagged', () => {
+  assert.equal(projectIsSlipping({ timeline: OVERDUE }, day('2026-07-17')), true);
+  assert.equal(projectIsSlipping({ status: null, timeline: OVERDUE }, day('2026-07-17')), true);
+});
+
+test('projectIsSlipping: an active project with no dates is not flagged', () => {
+  assert.equal(projectIsSlipping({ status: 'active', timeline: null }, day('2026-07-17')), false);
 });
 
 // --- daysToTarget ---
