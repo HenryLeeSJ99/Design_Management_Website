@@ -55,13 +55,13 @@
     "semantic_hash": ""
   },
   "src/App.jsx": {
-    "mtime": 1784279690.454762,
-    "ast_hash": "76c57daee841bf30c92c0b4d98856c59",
+    "mtime": 1784296068.2500613,
+    "ast_hash": "87654251cdfa56d0ba98c45685ab05ac",
     "semantic_hash": ""
   },
   "src/components/Layout.jsx": {
-    "mtime": 1784279718.4494953,
-    "ast_hash": "052c26ee9bd66cf52b38d9ba4ddd6601",
+    "mtime": 1784296076.4073584,
+    "ast_hash": "9631e2566287ab8f874f6c4bb26a669a",
     "semantic_hash": ""
   },
   "src/components/Logo.jsx": {
@@ -100,9 +100,9 @@
     "semantic_hash": "0c12079daa445b4edbdb9dfcb21281aa"
   },
   "src/engine/formwork/index.js": {
-    "mtime": 1783829018.790656,
-    "ast_hash": "0f3ac95a730020b7f0f910721d3d1cd3",
-    "semantic_hash": "0f3ac95a730020b7f0f910721d3d1cd3"
+    "mtime": 1784296028.915995,
+    "ast_hash": "bdf8ab52eaa11d013b12c59393d276c9",
+    "semantic_hash": ""
   },
   "src/engine/formwork/slabFormwork.js": {
     "mtime": 1783875341.9496095,
@@ -185,8 +185,8 @@
     "semantic_hash": ""
   },
   "src/pages/Projects.jsx": {
-    "mtime": 1784278832.123348,
-    "ast_hash": "a0e078c6224cc30b31c9afa4c5fee5d7",
+    "mtime": 1784293091.7998567,
+    "ast_hash": "5a72fc11109b30f91800de240c55bcc1",
     "semantic_hash": ""
   },
   "src/pages/SlabFormworkCalculator.jsx": {
@@ -400,8 +400,8 @@
     "semantic_hash": "53e393834f9b8e56ffc2ae1460c77c52"
   },
   "src/pages/Home.jsx": {
-    "mtime": 1784277237.9502501,
-    "ast_hash": "77c9b9373f174676fa3d7263e5727a39",
+    "mtime": 1784296084.2853515,
+    "ast_hash": "bb3566689cc6d570089f5231fbf9bc91",
     "semantic_hash": ""
   },
   "src/engine/formwork/shoringTower.js": {
@@ -425,13 +425,13 @@
     "semantic_hash": ""
   },
   "src/components/SavedDesigns.jsx": {
-    "mtime": 1784189582.2425547,
-    "ast_hash": "bbaf21d3a37bd35e50c49ddb16ef8f08",
+    "mtime": 1784284202.3644898,
+    "ast_hash": "7668dec87b2cf420ae4bbdabe84e1c84",
     "semantic_hash": ""
   },
   "src/pages/ProjectDashboard.jsx": {
-    "mtime": 1784219655.3503704,
-    "ast_hash": "84731b6edc6397d90b8b7af8f71a639d",
+    "mtime": 1784284193.3331544,
+    "ast_hash": "673dabf72776e3c62d28ce575c03d3b2",
     "semantic_hash": ""
   },
   "src/services/pdfCompile.js": {
@@ -445,8 +445,8 @@
     "semantic_hash": ""
   },
   "src/services/projectStore.js": {
-    "mtime": 1784279690.5091274,
-    "ast_hash": "e62cf0278e2661a9570a01b084dab87f",
+    "mtime": 1784296056.3772728,
+    "ast_hash": "855fd70d381ac26ca435010662b3641a",
     "semantic_hash": ""
   },
   "src/components/CoverPageEditor.jsx": {
@@ -460,8 +460,8 @@
     "semantic_hash": "2bf10b6200487abe4877028f97a84900"
   },
   "src/components/ReportAutoRenderer.jsx": {
-    "mtime": 1784279690.4718912,
-    "ast_hash": "11720ebe32371cf6c6e8f3d3dfcc4b84",
+    "mtime": 1784296092.049543,
+    "ast_hash": "6b3ea3e3cd10a6cdce5d9e75c68c9c92",
     "semantic_hash": ""
   },
   "src/pages/DrawingViewer.jsx": {
@@ -485,8 +485,8 @@
     "semantic_hash": ""
   },
   "src/services/projectFiles.js": {
-    "mtime": 1784277237.9711413,
-    "ast_hash": "f6ec8412a580f5a7eeaf159003789d09",
+    "mtime": 1784291157.4090726,
+    "ast_hash": "8fbf58ec24a17e105e3afc346380853e",
     "semantic_hash": ""
   },
   "src/services/twFile.js": {
@@ -510,8 +510,8 @@
     "semantic_hash": ""
   },
   "src/services/projectSession.js": {
-    "mtime": 1784213475.026346,
-    "ast_hash": "d120d12f53e99f216815da343752b7d1",
+    "mtime": 1784291098.2592914,
+    "ast_hash": "dc60ead3231b7b1e63935f52955b0942",
     "semantic_hash": ""
   },
   "src/services/undo.js": {
@@ -535,8 +535,8 @@
     "semantic_hash": ""
   },
   "src/pages/Login.jsx": {
-    "mtime": 1784216468.0096998,
-    "ast_hash": "f126d9a61b49e03f158456171857199e",
+    "mtime": 1784295644.6777508,
+    "ast_hash": "a44bbfbe7912773a8cdb16cf0566a0d7",
     "semantic_hash": ""
   },
   "src/pages/Settings.jsx": {
@@ -545,13 +545,13 @@
     "semantic_hash": ""
   },
   "src/services/projectFiles.test.mjs": {
-    "mtime": 1784277384.1938007,
-    "ast_hash": "8f58ca94d17334b6dc5bc8eaab4dc18a",
+    "mtime": 1784291414.858818,
+    "ast_hash": "cdf982c03b4ffff3943fb6b45cd4960e",
     "semantic_hash": ""
   },
   "src/services/supabaseAuth.js": {
-    "mtime": 1784207415.6677692,
-    "ast_hash": "80d06921c5d987dd70629ac266672a1e",
+    "mtime": 1784295644.7144911,
+    "ast_hash": "42dd0ddf8b43a2c37ca29935feca8015",
     "semantic_hash": ""
   },
   "src/services/supabaseClient.js": {
@@ -600,8 +600,8 @@
     "semantic_hash": ""
   },
   "src/pages/ProjectOverview.jsx": {
-    "mtime": 1784278851.5149438,
-    "ast_hash": "9f8a7a545860068ae1ea01ecdb41ab36",
+    "mtime": 1784291551.6392572,
+    "ast_hash": "d64567bf869e6ae78b197e5a439ad72e",
     "semantic_hash": ""
   },
   "src/pages/SteelPropCalculator.jsx": {
@@ -610,8 +610,8 @@
     "semantic_hash": ""
   },
   "src/services/projectTimeline.js": {
-    "mtime": 1784278817.1224644,
-    "ast_hash": "41213fca5a7aa809126c62e1bfe98cb7",
+    "mtime": 1784291139.7860658,
+    "ast_hash": "89718c15559129866c231b9978824dbb",
     "semantic_hash": ""
   },
   "src/engine/formwork/wallFormworkDesign.js": {
@@ -625,13 +625,58 @@
     "semantic_hash": ""
   },
   "src/services/projectTimeline.test.mjs": {
-    "mtime": 1784278873.3755167,
-    "ast_hash": "8a244477f652eac7bfc04c302c39bf88",
+    "mtime": 1784291202.9352152,
+    "ast_hash": "c0285d98d83a0ff41e833ac9689ce372",
     "semantic_hash": ""
   },
   "supabase/migrations/20260717_profiles_for_assignee.sql": {
     "mtime": 1784277237.984012,
     "ast_hash": "09d9673e6fc6405e3de90756acba69af",
+    "semantic_hash": ""
+  },
+  "src/services/autosaveWiring.test.mjs": {
+    "mtime": 1784283598.7452025,
+    "ast_hash": "35529676ed2b6ed7476e7956590e8257",
+    "semantic_hash": ""
+  },
+  "src/components/ProjectContextBar.jsx": {
+    "mtime": 1784283775.3043478,
+    "ast_hash": "aa13b65e75f70ec776795a651c15c1c7",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260718_timeline_rbac.sql": {
+    "mtime": 1784284368.8049076,
+    "ast_hash": "ea876c30e186ed484092d2e3f869ed84",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260718_zones_column.sql": {
+    "mtime": 1784291083.5494065,
+    "ast_hash": "915ff8636eee35cfd852d9006c4a4c7f",
+    "semantic_hash": ""
+  },
+  "src/components/AuthPanel.jsx": {
+    "mtime": 1784295644.6663032,
+    "ast_hash": "caf05437994ecbbe6e77345e58eb81ba",
+    "semantic_hash": ""
+  },
+  "src/pages/ForgotPassword.jsx": {
+    "mtime": 1784295644.6728222,
+    "ast_hash": "54d72f4d82105bb5348ad06a7e20e21c",
+    "semantic_hash": ""
+  },
+  "src/pages/ResetPassword.jsx": {
+    "mtime": 1784295644.7020328,
+    "ast_hash": "6d5dfc85c0aab6048bbc4575d1974669",
+    "semantic_hash": ""
+  },
+  "src/engine/formwork/backprop.js": {
+    "mtime": 1784297580.5419354,
+    "ast_hash": "e3338c3ac893f6cac00f9c096b723b21",
+    "semantic_hash": ""
+  },
+  "src/pages/BackpropCalculator.jsx": {
+    "mtime": 1784297741.83522,
+    "ast_hash": "156ad123592179d27b1ef785b9f26e47",
     "semantic_hash": ""
   }
 }

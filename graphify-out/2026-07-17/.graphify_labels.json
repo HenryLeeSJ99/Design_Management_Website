@@ -7,9 +7,9 @@
   "5": "Dependencies",
   "6": "Multi-Span Beam UI",
   "7": "Graphics Layout Core",
-  "8": "projectTimeline.js",
   "9": "Slab Formwork Load Path",
   "10": "HTML App Shell",
+  "12": "dialog.js",
   "13": "Automatic Report Rendering",
   "14": "Project Readme",
   "15": "404 Page",
@@ -17,7 +17,8 @@
   "17": "ESLint Config",
   "18": "Beam Types",
   "20": "CLAUDE.md",
-  "21": "Home.jsx",
+  "25": "autosaveWiring.test.mjs",
   "29": "projectFiles.test.mjs",
+  "30": "MultiBeamCalculator.jsx",
   "31": "MultiBeamCalculator.jsx"
 }

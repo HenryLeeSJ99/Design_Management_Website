@@ -17,6 +17,7 @@ const PAGE_TITLES = [
   { path: '/calculators/wall-formwork', title: 'Wall Formwork' },
   { path: '/calculators/shoring-tower', title: 'Shoring Tower' },
   { path: '/calculators/steel-prop', title: 'Steel Prop' },
+  { path: '/calculators/backprop', title: 'Backpropping' },
   { path: '/dashboard', title: 'Design Workbook' },
   { path: '/projects', title: 'Projects' },
 ];
@@ -37,6 +38,7 @@ const CALCULATOR_NAV = [
   },
   { name: 'Shoring Tower', path: '/calculators/shoring-tower', icon: ChevronsUp, active: true },
   { name: 'Steel Prop', path: '/calculators/steel-prop', icon: ChevronsUp, active: true },
+  { name: 'Backpropping', path: '/calculators/backprop', icon: ChevronsUp, active: true },
   { name: 'Column Formwork', path: '#', icon: Columns, active: false },
   { name: 'Beam Formwork', path: '#', icon: Cuboid, active: false },
 ];

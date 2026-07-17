@@ -23,6 +23,7 @@ const CALCULATOR_COMPONENTS = {
   'wall-formwork-design': lazy(() => import('../pages/WallPanelDesignCalculator')),
   'shoring-tower': lazy(() => import('../pages/ShoringTowerCalculator')),
   'steel-prop': lazy(() => import('../pages/SteelPropCalculator')),
+  'backprop': lazy(() => import('../pages/BackpropCalculator')),
 };
 
 const READY_TIMEOUT = 40000;
