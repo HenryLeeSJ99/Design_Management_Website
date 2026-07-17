@@ -85,11 +85,17 @@ export default function Overview() {
     };
   }, [projects]);
 
-  // Aggregate user statistics dynamically from database
+  // Aggregate user statistics dynamically from database (filtered to past 14 days)
   const leaderboardData = useMemo(() => {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - 14);
+
+    // Filter projects updated in the last 14 days
+    const recentProjects = projects.filter(p => p.last_modified_at && new Date(p.last_modified_at) >= cutoffDate);
+
     // 1. Group calculations by updater_email to get Designer rankings
     const dbDesignerStats = {};
-    projects.forEach(p => {
+    recentProjects.forEach(p => {
       const email = p.updater_email || p.updater_id || 'system@plytec.com';
       if (!dbDesignerStats[email]) {
         dbDesignerStats[email] = { email, count: 0, projectsCount: 0 };
@@ -117,7 +123,7 @@ export default function Overview() {
 
     // 2. Team Leaders ranking (group by creator / updater, summing drawing counts)
     const dbLeaderStats = {};
-    projects.forEach(p => {
+    recentProjects.forEach(p => {
       const email = p.updater_email || p.updater_id || 'system@plytec.com';
       if (!dbLeaderStats[email]) {
         dbLeaderStats[email] = { email, count: 0 };
@@ -145,7 +151,7 @@ export default function Overview() {
 
     // 3. Managers ranking (group by creator / updater, counting project volumes managed)
     const dbManagerStats = {};
-    projects.forEach(p => {
+    recentProjects.forEach(p => {
       const email = p.updater_email || p.updater_id || 'system@plytec.com';
       if (!dbManagerStats[email]) {
         dbManagerStats[email] = { email, count: 0 };
@@ -348,9 +354,12 @@ export default function Overview() {
             <span className={styles.cardTitle}>
               <Trophy size={18} /> Team Leaderboard
             </span>
-            
+            <span style={{ fontSize: '11px', color: 'var(--text-muted)', fontWeight: 800 }}>PAST 14 DAYS</span>
+          </div>
+          
+          <div className={styles.cardContent}>
             {/* Filter tab selector */}
-            <div className={styles.tabGroup}>
+            <div className={styles.tabGroup} style={{ marginBottom: '1.25rem' }}>
               <button 
                 onClick={() => setActiveTab('designers')}
                 className={`${styles.tabBtn} ${activeTab === 'designers' ? styles.tabBtnActive : ''}`}
@@ -370,9 +379,6 @@ export default function Overview() {
                 Managers
               </button>
             </div>
-          </div>
-          
-          <div className={styles.cardContent}>
             <div className={styles.leaderboardList}>
               {activeLeaderboard.length === 0 ? (
                 <div style={{ textAlign: 'center', padding: '2.5rem 1rem', color: 'var(--text-muted)' }}>
