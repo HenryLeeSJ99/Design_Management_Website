@@ -21,12 +21,18 @@
  * @param {number[]} params.spans - Array of span lengths in mm
  * @param {Array<{type: 'pin'|'roller'|'fixed'|'free'}>} params.supports - Support conditions
  * @param {number[]} params.nodalLoads - Downward point loads at each node (kN)
- * @param {Array<{w1: number, w2: number}>} params.elementLoads - Start and end UDL on each element (kN/m)
+ * @param {Array<{w1: number, w2: number}|number>} params.elementLoads - Start and
+ *   end UDL on each element (kN/m). A plain number means a uniform load
+ *   (w1 = w2) — the format every formwork engine passes.
  * @param {number} params.E - Modulus of elasticity in MPa (N/mm²)
  * @param {number} params.I - Moment of inertia in cm⁴
  * @returns {BeamResults} Analysis results
  */
-export function solveBeam({ spans, supports, nodalLoads, elementLoads, E, I }) {
+export function solveBeam({ spans, supports, nodalLoads, elementLoads: rawElementLoads, E, I }) {
+  // Uniform loads may arrive as plain numbers; normalize to trapezoidal form
+  const elementLoads = rawElementLoads.map((l) =>
+    typeof l === 'number' ? { w1: l, w2: l } : l
+  );
   const numSpans = spans.length;
   const numNodes = numSpans + 1;
   const totalDOFs = numNodes * 2;
