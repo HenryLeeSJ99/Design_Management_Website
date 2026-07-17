@@ -171,7 +171,7 @@ export default function BackpropCalculator({ initialTab }) {
             ))}
           </g>
         )}
-        <text x={120} y={y + 4} fill="#ffffff" fontSize="12px" fontWeight="900" textAnchor="middle">
+        <text x={120} y={y + 3.5} fill="#ffffff" fontSize="10.5px" fontWeight="800" textAnchor="middle">
           {labelText}
         </text>
         {!isPour && renderStatusRing(233, y, pass)}
@@ -193,7 +193,7 @@ export default function BackpropCalculator({ initialTab }) {
           strokeWidth={1.5}
           rx={1.5}
         />
-        <text x={120} y={y + 4} fill="#ffffff" fontSize="12px" fontWeight="900" textAnchor="middle">
+        <text x={120} y={y + 3.5} fill="#ffffff" fontSize="10.5px" fontWeight="800" textAnchor="middle">
           GROUND SLAB / FOUNDATION
         </text>
       </g>
@@ -235,7 +235,7 @@ export default function BackpropCalculator({ initialTab }) {
           </g>
         )}
         {renderStatusRing(120, (yTop + yBottom) / 2, pass)}
-        <text x={136} y={(yTop + yBottom) / 2 + 4} fill={pass ? '#16a34a' : '#dc2626'} fontSize="11.5px" fontWeight="900">
+        <text x={134} y={(yTop + yBottom) / 2 + 3} fill={pass ? '#16a34a' : '#dc2626'} fontSize="9px" fontWeight="800">
           P{numFloors - index}
         </text>
       </g>
