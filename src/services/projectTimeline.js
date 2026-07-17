@@ -170,8 +170,11 @@ export function daysToTarget(timeline, now = new Date()) {
  * change its status. Sales reads it and cannot write — that is the whole
  * point of the role existing here.
  *
- * As with canChangeProjectStatus(), this is the UI gate only. The database
- * is the real boundary — see supabase/migrations/ for the trigger.
+ * As with canChangeProjectStatus(), this is the UI gate only. The database is
+ * the real boundary: supabase/migrations/20260718_timeline_rbac.sql refuses a
+ * timeline write from anyone else. Until that migration is applied this
+ * function is decoration — a designer can still set dates by calling Supabase
+ * from the browser console. Keep the two role lists in step.
  */
 export function canEditTimeline(role) {
   return role === 'admin' || role === 'manager' || role === 'team_leader';
