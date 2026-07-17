@@ -22,18 +22,34 @@ const versionMeta = new Map(); // path -> {created_at}
 
 const nowIso = () => new Date().toISOString();
 
+// The real project_status enum, confirmed 2026-07-17 by probing the live
+// database with the anon key (no schema access available). draft /
+// pending_approval / approved are a prior workflow's leftovers — Postgres
+// cannot drop an enum value, so they still exist even though nothing writes
+// them anymore. A previous version of this mock accepted ANY string here,
+// which is exactly how a commit that wrote 'active'/'completed' before that
+// value existed in the real enum passed every test and would still have
+// failed in production — see chat history. This mock now rejects what
+// Postgres would reject, the same way it does.
+const REAL_PROJECT_STATUS_ENUM = new Set([
+  'draft', 'pending_approval', 'approved', 'trashed', 'active', 'completed', 'archive',
+]);
+
 mock.module('./supabaseDb', {
   namedExports: {
     fetchProjects: async () => [...db.values()],
     fetchTrashedProjects: async () => [...db.values()].filter((r) => r.status === 'trashed'),
     createProjectRecord: async (p) => {
-      const record = { id: p.id, name: p.name, status: 'draft', last_modified_at: nowIso(), file_size: 0 };
+      const record = { id: p.id, name: p.name, status: 'active', last_modified_at: nowIso(), file_size: 0 };
       db.set(p.id, record);
       return record;
     },
     // Mirrors the real function's shape: it operates on a record that already
     // has an id (set at creation), it does not invent one.
     updateProjectRecord: async (id, updates) => {
+      if ('status' in updates && !REAL_PROJECT_STATUS_ENUM.has(updates.status)) {
+        throw new Error(`invalid input value for enum project_status: "${updates.status}"`);
+      }
       const record = { ...db.get(id), id, ...updates, last_modified_at: nowIso() };
       db.set(id, record);
       return record;
@@ -44,7 +60,7 @@ mock.module('./supabaseDb', {
 
 /** Seed a project the way createProjectRecord would, id included. */
 const seedProject = (id, content) => {
-  db.set(id, { id, name: id, status: 'draft', last_modified_at: nowIso(), file_size: 0 });
+  db.set(id, { id, name: id, status: 'active', last_modified_at: nowIso(), file_size: 0 });
   return pf.writeProjectFile(id, bytesOf(content));
 };
 
@@ -214,17 +230,23 @@ test('delete from trash also removes its version history (no orphans)', async ()
 });
 
 // --- Project status ---
+// Vocabulary confirmed with the user 2026-07-17: active / completed /
+// archive, no draft phase — a project is active from creation. The database
+// enum keeps legacy draft/pending_approval/approved values (Postgres cannot
+// drop them), which is exactly why REAL_PROJECT_STATUS_ENUM above lists all
+// seven: these tests must fail the same way production would if the app
+// ever wrote a status outside the real enum.
 
 test('status: moves a project through the lifecycle', async () => {
   db.clear(); blobs.clear();
   await seedProject('s1', 'content');
-  assert.equal(db.get('s1').status, 'draft', 'starts as a draft');
-
-  await pf.setProjectStatus('s1', 'active');
-  assert.equal(db.get('s1').status, 'active');
+  assert.equal(db.get('s1').status, 'active', 'starts active — no draft phase');
 
   await pf.setProjectStatus('s1', 'completed');
   assert.equal(db.get('s1').status, 'completed');
+
+  await pf.setProjectStatus('s1', 'archive');
+  assert.equal(db.get('s1').status, 'archive');
 });
 
 test('status: refuses to bin a project through the status setter', async () => {
@@ -236,15 +258,25 @@ test('status: refuses to bin a project through the status setter', async () => {
     /not a project status that can be set here/,
     'trashing has to go through trashProject(), which starts the 30-day purge clock',
   );
-  assert.equal(db.get('s2').status, 'draft', 'the project was left exactly as it was');
+  assert.equal(db.get('s2').status, 'active', 'the project was left exactly as it was');
 });
 
-test('status: refuses a value that is not a status at all', async () => {
+test('status: refuses a value that is not a real status at all', async () => {
   db.clear(); blobs.clear();
   await seedProject('s3', 'content');
 
   await assert.rejects(() => pf.setProjectStatus('s3', 'banana'), /not a project status/);
-  assert.equal(db.get('s3').status, 'draft');
+  assert.equal(db.get('s3').status, 'active');
+});
+
+test('status: refuses the old draft/completed vocabulary — proves the enum-mismatch bug cannot silently reappear', async () => {
+  db.clear(); blobs.clear();
+  await seedProject('s4', 'content');
+
+  // 'draft' IS a real (legacy) enum value, but PROJECT_STATUSES no longer
+  // offers it — setProjectStatus must still reject it as "not settable here",
+  // the same way it already rejects 'trashed'.
+  await assert.rejects(() => pf.setProjectStatus('s4', 'draft'), /not a project status that can be set here/);
 });
 
 test('status: only manager-level roles may change it', async () => {
@@ -260,6 +292,14 @@ test('status: only manager-level roles may change it', async () => {
 
 test('status: trashed is not offered as a pickable status', async () => {
   const { PROJECT_STATUSES } = await import('./projectStatus.js');
-  assert.deepEqual(PROJECT_STATUSES, ['draft', 'active', 'completed']);
+  assert.deepEqual(PROJECT_STATUSES, ['active', 'completed', 'archive']);
   assert.equal(PROJECT_STATUSES.includes('trashed'), false);
+  assert.equal(PROJECT_STATUSES.includes('draft'), false);
+});
+
+test('status: every pickable status is a real enum value (would not 22P02 in production)', async () => {
+  const { PROJECT_STATUSES } = await import('./projectStatus.js');
+  for (const s of PROJECT_STATUSES) {
+    assert.ok(REAL_PROJECT_STATUS_ENUM.has(s), `"${s}" must exist in the live project_status enum`);
+  }
 });

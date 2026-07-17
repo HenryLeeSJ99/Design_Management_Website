@@ -288,12 +288,6 @@
   cursor: not-allowed;
 }
 
-.status_draft {
-  background: var(--border-color-light);
-  border-color: var(--border-color);
-  color: var(--text-muted);
-}
-
 .status_active {
   background: var(--primary-light);
   border-color: rgba(37, 99, 235, 0.25);
@@ -304,6 +298,16 @@
   background: var(--success-light);
   border-color: rgba(16, 185, 129, 0.25);
   color: #047857;
+}
+
+/* archive and the legacy 'draft' enum value (kept only so an old row never
+   renders unstyled — see statusLabel() in projectStatus.js) share the same
+   muted, inactive-looking treatment. */
+.status_archive,
+.status_draft {
+  background: var(--border-color-light);
+  border-color: var(--border-color);
+  color: var(--text-muted);
 }
 
 .cardStatusRow {

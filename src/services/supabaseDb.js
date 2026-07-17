@@ -33,6 +33,10 @@ export async function createProjectRecord(projectData) {
     last_modified_at: new Date().toISOString(),
     updater_email: user.email,
     cover_image: projectData.cover_image || null,
+    // Set explicitly rather than left to the column default: there is no
+    // draft phase in this app's lifecycle, a project is working/active the
+    // moment it exists. See src/services/projectStatus.js.
+    status: 'active',
     ...projectData.metadata // calculation_count, drawing_count, file_size
   };
 

@@ -130,7 +130,7 @@ export async function listTrash() {
 
 export async function restoreFromTrash(projectId) {
   try {
-    await updateProjectRecord(projectId, { status: 'draft' });
+    await updateProjectRecord(projectId, { status: 'active' });
   } catch {
     throw new TwFileError('Could not restore project.');
   }

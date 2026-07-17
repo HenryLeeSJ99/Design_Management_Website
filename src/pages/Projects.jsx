@@ -219,7 +219,7 @@ function DraftGuardModal({ draft, onSave, onExport, onDiscard, onClose, busy }) 
  * the ability to move it is privileged.
  */
 function StatusControl({ project, canEdit, busy, onChange }) {
-  const status = project.status || 'draft';
+  const status = project.status || 'active';
   if (!canEdit) {
     return <span className={`${styles.badge} ${styles[`status_${status}`] || ''}`}>{statusLabel(status)}</span>;
   }
@@ -311,7 +311,7 @@ export default function Projects() {
     if (showTrash) return trash;
     const q = query.trim().toLowerCase();
     return projects.filter((p) => {
-      if (statusFilter !== 'all' && (p.status || 'draft') !== statusFilter) return false;
+      if (statusFilter !== 'all' && (p.status || 'active') !== statusFilter) return false;
       if (!q) return true;
       return p.name?.toLowerCase().includes(q) || p.updater_email?.toLowerCase().includes(q);
     });
