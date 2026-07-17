@@ -110,7 +110,7 @@ export default function SavedDesigns({ calculator, title, sessionKeys }) {
       const parsed = parseCalculationFile(await readJsonFile(file));
       if (parsed.calculator !== calculator) {
         const owner = CALCULATORS[parsed.calculator]?.title || parsed.calculator;
-        throw new Error(`This file belongs to the ${owner} calculator — open it there or import it on the Project Dashboard.`);
+        throw new Error(`This file belongs to the ${owner} calculator — open it there or import it in the Design Workbook.`);
       }
       applySnapshot(calculator, parsed.data);
       setOpen(false);

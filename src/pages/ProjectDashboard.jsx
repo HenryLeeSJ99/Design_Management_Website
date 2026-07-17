@@ -672,7 +672,7 @@ export default function ProjectDashboard() {
           </div>
           <p>
             {items.length === 0
-              ? 'Project dashboard — saved calculations will appear here'
+              ? 'Design workbook — saved calculations will appear here'
               : 'Group items into zones; the compiled PDF follows the zone order'}
           </p>
         </div>

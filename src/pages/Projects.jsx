@@ -354,6 +354,39 @@ function CardTimeline({ project }) {
 }
 
 const VIEW_KEY = 'tempworks_projects_view';
+const SORT_KEY = 'tempworks_projects_sort';
+
+/**
+ * Order the portfolio.
+ *
+ * 'target' exists because it is the question a manager or salesperson actually
+ * opens this page with — what is due next — and the default order (most
+ * recently touched, from the DB query) cannot answer it. A project with no
+ * target sorts last rather than first: an unset date is not "due at the
+ * beginning of time", and letting nulls head the list would bury the jobs that
+ * genuinely are next.
+ */
+const SORTS = {
+  modified: {
+    label: 'Recently updated',
+    compare: (a, b) => new Date(b.last_modified_at) - new Date(a.last_modified_at),
+  },
+  target: {
+    label: 'Target date',
+    compare: (a, b) => {
+      const at = readTimeline(a).targetDate;
+      const bt = readTimeline(b).targetDate;
+      if (!at && !bt) return a.name.localeCompare(b.name);
+      if (!at) return 1;
+      if (!bt) return -1;
+      return new Date(at) - new Date(bt);
+    },
+  },
+  name: {
+    label: 'Name (A–Z)',
+    compare: (a, b) => a.name.localeCompare(b.name),
+  },
+};
 
 export default function Projects() {
   const navigate = useNavigate();
@@ -382,8 +415,13 @@ export default function Projects() {
   const [view, setView] = useState(() => localStorage.getItem(VIEW_KEY) || 'cards');
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [sort, setSort] = useState(() => {
+    const saved = localStorage.getItem(SORT_KEY);
+    return saved && SORTS[saved] ? saved : 'modified';
+  });
 
   useEffect(() => { localStorage.setItem(VIEW_KEY, view); }, [view]);
+  useEffect(() => { localStorage.setItem(SORT_KEY, sort); }, [sort]);
 
   const [historyFor, setHistoryFor] = useState(null); // the project whose versions are shown
   const [draftGuard, setDraftGuard] = useState(null); // { calculations, resume } while the guard dialog is up
@@ -417,19 +455,21 @@ export default function Projects() {
   useEffect(() => { refresh(); }, [refresh]);
 
   /**
-   * What the list actually shows: the trash ignores the search/filter bar
+   * What the list actually shows: the trash ignores the search/filter/sort bar
    * (it has its own, much shorter, life), everything else is narrowed by the
-   * name search and the status filter together.
+   * name search and the status filter together, then ordered.
    */
   const visible = useMemo(() => {
     if (showTrash) return trash;
     const q = query.trim().toLowerCase();
-    return projects.filter((p) => {
+    const filtered = projects.filter((p) => {
       if (statusFilter !== 'all' && (p.status || 'active') !== statusFilter) return false;
       if (!q) return true;
       return p.name?.toLowerCase().includes(q) || p.updater_email?.toLowerCase().includes(q);
     });
-  }, [showTrash, trash, projects, query, statusFilter]);
+    // Copy before sorting: `projects` is state, and sort() mutates in place.
+    return [...filtered].sort((SORTS[sort] || SORTS.modified).compare);
+  }, [showTrash, trash, projects, query, statusFilter, sort]);
 
   const filtersApplied = !showTrash && (query.trim() !== '' || statusFilter !== 'all');
 
@@ -675,6 +715,17 @@ export default function Projects() {
             <option value="all">All statuses</option>
             {PROJECT_STATUSES.map((s) => (
               <option key={s} value={s}>{statusLabel(s)}</option>
+            ))}
+          </select>
+
+          <select
+            className={styles.filterSelect}
+            value={sort}
+            onChange={(e) => setSort(e.target.value)}
+            aria-label="Sort projects"
+          >
+            {Object.entries(SORTS).map(([key, { label }]) => (
+              <option key={key} value={key}>{label}</option>
             ))}
           </select>
 

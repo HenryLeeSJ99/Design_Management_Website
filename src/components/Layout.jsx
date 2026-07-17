@@ -17,7 +17,7 @@ const PAGE_TITLES = [
   { path: '/calculators/wall-formwork', title: 'Wall Formwork' },
   { path: '/calculators/shoring-tower', title: 'Shoring Tower' },
   { path: '/calculators/steel-prop', title: 'Steel Prop' },
-  { path: '/dashboard', title: 'Dashboard' },
+  { path: '/dashboard', title: 'Design Workbook' },
   { path: '/projects', title: 'Projects' },
 ];
 
@@ -113,7 +113,12 @@ export default function Layout() {
 
   const navItems = [
     { name: 'Projects', path: '/projects', icon: FolderOpen },
-    { name: 'Project Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    // "Project Dashboard" sat directly under "Projects" and read as a sibling
+    // of it — two names for what sounded like the same thing. It is not a
+    // dashboard: it is where a designer assembles calculations, drawings and
+    // the compiled report. The route stays /dashboard so existing links and
+    // bookmarks keep working.
+    { name: 'Design Workbook', path: '/dashboard', icon: LayoutDashboard },
     { name: 'Settings', path: '/settings', icon: SettingsIcon },
   ];
 
