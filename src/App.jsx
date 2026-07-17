@@ -10,6 +10,16 @@ import { useState, useEffect, lazy, Suspense } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './pages/Login';
 
+// Autosave. projectSession registers `onProjectChange(() => touch())` when the
+// module first loads, so autosave only exists on routes whose chunk pulls it
+// in. That used to be Projects.jsx and ProjectOverview.jsx alone — meaning a
+// designer landing straight on /dashboard or a calculator (refresh, bookmark,
+// new tab, or Clear Cache & Reload) wrote to localStorage and NOTHING ever
+// reached the cloud. Importing it here, from the entry chunk, makes autosave a
+// property of the app rather than of which page you happened to arrive from.
+// Side-effect import: it must not be tree-shaken away.
+import './services/projectSession';
+
 // Route-level code splitting: each of these (and their dependencies -
 // Chart.js, jsPDF, html2canvas) ships in its own chunk and only
 // loads when the user actually navigates there.
