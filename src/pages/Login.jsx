@@ -117,7 +117,10 @@ export default function Login() {
             </div>
 
             <div className={styles.inputGroup} style={{ '--i': 1 }}>
-              <label htmlFor="password">Password</label>
+              <div className={styles.labelRow}>
+                <label htmlFor="password">Password</label>
+                <Link to="/forgot-password" className={styles.forgotLink}>Forgot password?</Link>
+              </div>
               <div className={styles.inputWrap}>
                 <Lock size={16} className={styles.inputIcon} />
                 <input

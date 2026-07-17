@@ -9,6 +9,8 @@ import DialogHost from './components/DialogHost';
 import { useState, useEffect, lazy, Suspense } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
+import ResetPassword from './pages/ResetPassword';
 
 // Autosave. projectSession registers `onProjectChange(() => touch())` when the
 // module first loads, so autosave only exists on routes whose chunk pulls it
@@ -65,6 +67,14 @@ function App() {
             <Routes>
               {/* Login Page */}
               <Route path="/login" element={<Login />} />
+
+              {/* Password recovery. Both deliberately outside AuthGuard and
+                  outside Layout: /reset-password is where the emailed link
+                  lands, and supabase-js turns that link into a live session —
+                  so an AuthGuard here would bounce the arriving user to
+                  /projects before they could set a password. */}
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
 
               {/* Main layout with nested routes */}
               <Route path="/" element={<Layout />}>

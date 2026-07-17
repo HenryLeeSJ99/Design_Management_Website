@@ -23,6 +23,39 @@ export async function signOut() {
   if (error) throw error;
 }
 
+/**
+ * Email someone a link to set a new password.
+ *
+ * `redirectTo` must be listed under Auth → URL Configuration → Redirect URLs
+ * in the Supabase dashboard, or the link in the email silently refuses to
+ * land. Built from window.location.origin so it works on localhost and on
+ * the deployed host without a per-environment constant.
+ *
+ * Deliberately does NOT report whether the address has an account: that would
+ * turn this form into a way to test which of your colleagues' emails are
+ * registered. Supabase does not distinguish either — the caller shows the
+ * same "check your inbox" message regardless.
+ */
+export async function requestPasswordReset(email) {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${window.location.origin}/reset-password`,
+  });
+  if (error) throw error;
+}
+
+/**
+ * Set a new password for whoever the current recovery session belongs to.
+ *
+ * Only works while the session established by the emailed link is live —
+ * supabase-js picks that up from the URL when the page loads. Without it this
+ * throws rather than silently doing nothing, which is what the reset page
+ * relies on to tell a stale or reused link from a good one.
+ */
+export async function updatePassword(newPassword) {
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+  if (error) throw error;
+}
+
 export async function getUserProfile() {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
