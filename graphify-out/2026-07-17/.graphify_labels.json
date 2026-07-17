@@ -1,6 +1,7 @@
 {
   "0": "Project Dashboard & Documents",
   "1": "Beam Solver Engine",
+  "2": "checks.js",
   "3": "App Routing & Shell",
   "4": "Markup Geometry",
   "5": "Dependencies",
@@ -8,7 +9,6 @@
   "7": "Graphics Layout Core",
   "9": "Slab Formwork Load Path",
   "10": "HTML App Shell",
-  "12": "Cover Page Editor",
   "13": "Automatic Report Rendering",
   "14": "Project Readme",
   "15": "404 Page",

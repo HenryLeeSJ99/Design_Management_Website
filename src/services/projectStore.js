@@ -368,9 +368,16 @@ export function setCurrentDesign(calculator, { id, name }) {
 
 export function renameItem(id, name) {
   const project = getProject();
-  project.calculations = project.calculations.map((c) =>
-    c.id === id ? { ...c, name, updatedAt: Date.now() } : c,
-  );
+  project.calculations = project.calculations.map((c) => {
+    if (c.id !== id) return c;
+    const updated = { ...c, name, updatedAt: Date.now() };
+    if (updated.pdfId && itemType(c) === 'calculation') {
+      delete updated.pdfId;
+      delete updated.pdfName;
+      delete updated.pdfSize;
+    }
+    return updated;
+  });
   setProject(project);
 }
 

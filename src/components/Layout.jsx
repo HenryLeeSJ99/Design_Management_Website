@@ -4,7 +4,8 @@ import styles from './Layout.module.css';
 import Logo from './Logo';
 import RouteLoader from './RouteLoader';
 import { useAuth } from '../contexts/AuthContext';
-import { Menu, X, SquareMenu, Layers, Building, ChevronsUp, Columns, Cuboid, RefreshCw, LayoutDashboard, FolderOpen, Settings as SettingsIcon, LogOut } from 'lucide-react';
+import { Menu, X, SquareMenu, Layers, Building, ChevronsUp, Columns, Cuboid, RefreshCw, LayoutDashboard, FolderOpen, Settings as SettingsIcon, LogOut, ShieldCheck } from 'lucide-react';
+import TermsModal from './TermsModal';
 
 // Page titles shown beside the hamburger in the mobile top header
 // (pages hide their own title blocks on small viewports)
@@ -28,6 +29,7 @@ export default function Layout() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isTermsOpen, setIsTermsOpen] = useState(false);
 
   // Close sidebar on route change (mobile nav tap)
   useEffect(() => {
@@ -83,6 +85,7 @@ export default function Layout() {
 
   return (
     <div className={styles.layoutContainer}>
+      <TermsModal isOpen={isTermsOpen} onClose={() => setIsTermsOpen(false)} />
       {/* Mobile overlay backdrop */}
       {sidebarOpen && (
         <div
@@ -160,6 +163,14 @@ export default function Layout() {
 
           {/* Clear Cache & Reload */}
           <div className={styles.navSection}>
+            <button
+              className={styles.sidebarActionBtn}
+              onClick={() => setIsTermsOpen(true)}
+              title="View Terms & Conditions"
+            >
+              <ShieldCheck size={15} />
+              Terms & Conditions
+            </button>
             <button
               className={styles.clearCacheBtn}
               onClick={handleClearCache}

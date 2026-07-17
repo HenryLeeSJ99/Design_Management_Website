@@ -75,19 +75,19 @@
     "semantic_hash": "5d265a3ace63a8533a239465a84d53e7"
   },
   "src/engine/beam/mesher.js": {
-    "mtime": 1783872149.9511185,
-    "ast_hash": "b902f93035fcc196cc050019ff5ccf3f",
-    "semantic_hash": "b902f93035fcc196cc050019ff5ccf3f"
+    "mtime": 1784213868.5227816,
+    "ast_hash": "b30de123d5d88ba8c120a5442adf1e2e",
+    "semantic_hash": ""
   },
   "src/engine/beam/solver.js": {
-    "mtime": 1783791318.7789152,
-    "ast_hash": "cfc42cb283f8b347da0e72690322bf9c",
-    "semantic_hash": "cfc42cb283f8b347da0e72690322bf9c"
+    "mtime": 1784213884.6601038,
+    "ast_hash": "8e23e1300b760d6ca375f7ad24529ed9",
+    "semantic_hash": ""
   },
   "src/engine/beam/types.js": {
-    "mtime": 1783500786.823808,
-    "ast_hash": "3b2803dad379c90b780165950792e778",
-    "semantic_hash": "3b2803dad379c90b780165950792e778"
+    "mtime": 1784213858.274942,
+    "ast_hash": "5bb97e61861eba1474d8aaaa1586fe6d",
+    "semantic_hash": ""
   },
   "src/engine/design/ec3/checks.js": {
     "mtime": 1783874228.2235732,
@@ -160,9 +160,9 @@
     "semantic_hash": "e8c7be72e5796e1c3bb82b7c1f8c05bc"
   },
   "src/engine/materials/formworkBeams.js": {
-    "mtime": 1783875067.146064,
-    "ast_hash": "08e83cc368c06d257913f3c319b24bfe",
-    "semantic_hash": "08e83cc368c06d257913f3c319b24bfe"
+    "mtime": 1784214791.669485,
+    "ast_hash": "d8dc96d682c6ec8ad78f1db05cc58a30",
+    "semantic_hash": ""
   },
   "src/engine/materials/index.js": {
     "mtime": 1783506403.983509,
@@ -180,18 +180,18 @@
     "semantic_hash": "51fd21c378330142b61bf8d1ef3795ef"
   },
   "src/pages/MultiBeamCalculator.jsx": {
-    "mtime": 1784186076.7733097,
-    "ast_hash": "de324cebcd1eca94a757b8174f40575a",
+    "mtime": 1784215247.787331,
+    "ast_hash": "41dcbeed43ece3158b47bcda4598a46e",
     "semantic_hash": ""
   },
   "src/pages/Projects.jsx": {
-    "mtime": 1784212558.7870815,
-    "ast_hash": "9437086f2083b74122a6e156fb040701",
+    "mtime": 1784213798.5205417,
+    "ast_hash": "5dffb90c605d02cb449d8c6113aac4fa",
     "semantic_hash": ""
   },
   "src/pages/SlabFormworkCalculator.jsx": {
-    "mtime": 1784186078.3625886,
-    "ast_hash": "61d926a59621b929c9e6b5d2edfb5e65",
+    "mtime": 1784215255.2118192,
+    "ast_hash": "ba4405f204fb6eaed02449b443f2c4fa",
     "semantic_hash": ""
   },
   "vite.config.js": {
@@ -345,14 +345,14 @@
     "semantic_hash": "d2194f46f16bfbe576eb96cbb9fead30"
   },
   "src/engine/formwork/wallFormwork.js": {
-    "mtime": 1783665661.4269505,
-    "ast_hash": "2b2854642372e06187580ce4d32f45c2",
-    "semantic_hash": "2b2854642372e06187580ce4d32f45c2"
+    "mtime": 1784214791.6644742,
+    "ast_hash": "c88aae0dc8e9d5f82622b53985397b6f",
+    "semantic_hash": ""
   },
   "src/pages/WallFormworkCalculator.jsx": {
-    "mtime": 1784135382.415444,
-    "ast_hash": "67f0e8145f4eb314438b78ef1184be03",
-    "semantic_hash": "67f0e8145f4eb314438b78ef1184be03"
+    "mtime": 1784215261.3644981,
+    "ast_hash": "1bdb82da398084769e8ea35368e8c2b9",
+    "semantic_hash": ""
   },
   "src/assets/slab-diagram.png": {
     "mtime": 1783664332.9124758,
@@ -410,9 +410,9 @@
     "semantic_hash": "8178d30907f76f2e451dfa07df17fbec"
   },
   "src/pages/ShoringTowerCalculator.jsx": {
-    "mtime": 1784135382.4090805,
-    "ast_hash": "0a471895c6adcb4c0906532a3a588cd9",
-    "semantic_hash": "0a471895c6adcb4c0906532a3a588cd9"
+    "mtime": 1784215267.454463,
+    "ast_hash": "0afbb8627d11e44d64d662e8de0ab046",
+    "semantic_hash": ""
   },
   "src/utils/reportPdf.js": {
     "mtime": 1783988979.9109955,
@@ -505,13 +505,13 @@
     "semantic_hash": ""
   },
   "src/components/DynamicBeamDiagram.jsx": {
-    "mtime": 1783750077.4638853,
-    "ast_hash": "c939d758ae3f018eed57de7128d2508f",
+    "mtime": 1784213996.3297958,
+    "ast_hash": "aa319febc2adb5ec3b0c6081b39f3219",
     "semantic_hash": ""
   },
   "src/services/projectSession.js": {
-    "mtime": 1784212350.095762,
-    "ast_hash": "3e6beeff8acced74689b0bd913b233c9",
+    "mtime": 1784213475.026346,
+    "ast_hash": "d120d12f53e99f216815da343752b7d1",
     "semantic_hash": ""
   },
   "src/services/undo.js": {
@@ -567,6 +567,16 @@
   "src/services/supabaseStorage.js": {
     "mtime": 1784212326.9204462,
     "ast_hash": "68db0282f515e986f6856c813fe12aa6",
+    "semantic_hash": ""
+  },
+  "public/__t0.pdf": {
+    "mtime": 1784214255.2440414,
+    "ast_hash": "d51f856b94c9db3743dbd8348173dcd0",
+    "semantic_hash": ""
+  },
+  "public/__t90.pdf": {
+    "mtime": 1784214255.2527683,
+    "ast_hash": "6c9954f105aec1d69148af883bb896a2",
     "semantic_hash": ""
   }
 }

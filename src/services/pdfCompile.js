@@ -156,25 +156,33 @@ export async function compileProjectPdf(project) {
   const items = project.calculations;
   const warnings = [];
 
-  // Load every item's PDF up front so page counts are known for the contents
-  const loaded = [];
-  for (const item of items) {
-    let doc = null;
-    if (item.pdfId) {
-      const bytes = await getPdf(item.pdfId);
-      if (bytes) {
-        try {
-          doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
-        } catch {
-          warnings.push(`"${item.name}": the stored file could not be read as a PDF — placeholder page inserted.`);
+  // Load every item's PDF in parallel so page counts are known for the contents
+  const loadedResults = await Promise.all(
+    items.map(async (item) => {
+      let doc = null;
+      let warning = null;
+      if (item.pdfId) {
+        const bytes = await getPdf(item.pdfId);
+        if (bytes) {
+          try {
+            doc = await PDFDocument.load(bytes, { ignoreEncryption: true });
+          } catch {
+            warning = `"${item.name}": the stored file could not be read as a PDF — placeholder page inserted.`;
+          }
+        } else {
+          warning = `"${item.name}": its PDF was not found on this device — placeholder page inserted.`;
         }
-      } else {
-        warnings.push(`"${item.name}": its PDF was not found on this device — placeholder page inserted.`);
+      } else if (itemType(item) === 'calculation') {
+        warning = `"${item.name}": no report PDF attached — placeholder page inserted.`;
       }
-    } else if (itemType(item) === 'calculation') {
-      warnings.push(`"${item.name}": no report PDF attached — placeholder page inserted.`);
-    }
-    loaded.push({ item, doc });
+      return { item, doc, warning };
+    })
+  );
+
+  const loaded = [];
+  for (const res of loadedResults) {
+    if (res.warning) warnings.push(res.warning);
+    loaded.push({ item: res.item, doc: res.doc });
   }
 
   const out = await PDFDocument.create();

@@ -1,16 +1,16 @@
 # Graph Report - Design_Management_Website  (2026-07-17)
 
 ## Corpus Check
-- 77 files · ~84,273 words
+- 76 files · ~82,908 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 524 nodes · 1192 edges · 21 communities (18 shown, 3 thin omitted)
+- 523 nodes · 1238 edges · 20 communities (17 shown, 3 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 11 edges (avg confidence: 0.84)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `959b3333`
+- Built from commit: `88a81111`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -23,7 +23,6 @@
 - Dependencies
 - Multi-Span Beam UI
 - Graphics Layout Core
-- supabaseStorage.js
 - Slab Formwork Load Path
 - HTML App Shell
 - Automatic Report Rendering
@@ -36,15 +35,15 @@
 
 ## God Nodes (most connected - your core abstractions)
 1. `ProjectDashboard()` - 46 edges
-2. `getProject()` - 37 edges
-3. `setProject()` - 21 edges
-4. `SavedDesigns()` - 18 edges
-5. `itemType()` - 14 edges
-6. `solveBeam()` - 13 edges
-7. `calculateSlabFormwork()` - 13 edges
-8. `Projects()` - 12 edges
-9. `DrawingViewer()` - 12 edges
-10. `getPdf()` - 12 edges
+2. `getProject()` - 39 edges
+3. `Projects()` - 23 edges
+4. `setProject()` - 21 edges
+5. `SavedDesigns()` - 18 edges
+6. `itemType()` - 14 edges
+7. `useAuth()` - 13 edges
+8. `solveBeam()` - 13 edges
+9. `calculateSlabFormwork()` - 13 edges
+10. `DrawingViewer()` - 12 edges
 
 ## Surprising Connections (you probably didn't know these)
 - `renderReportPdf()` --references--> `jspdf`  [EXTRACTED]
@@ -53,10 +52,10 @@
   src/utils/reportPdf.js → package.json
 - `shareReportPdf()` --references--> `jspdf`  [EXTRACTED]
   src/utils/reportPdf.js → package.json
-- `createProjectFromData()` --calls--> `writeProjectFile()`  [EXTRACTED]
-  src/services/projectSession.js → src/services/projectFiles.js
-- `saveNow()` --calls--> `writeProjectFile()`  [EXTRACTED]
-  src/services/projectSession.js → src/services/projectFiles.js
+- `AuthGuard()` --calls--> `useAuth()`  [EXTRACTED]
+  src/App.jsx → src/contexts/AuthContext.jsx
+- `SavedDesigns()` --calls--> `deletePdf()`  [EXTRACTED]
+  src/components/SavedDesigns.jsx → src/services/pdfStore.js
 
 ## Import Cycles
 - None detected.
@@ -67,7 +66,7 @@
 - **Slab Formwork Vertical Load Path** — src_assets_slab_diagram_concrete_slab, src_assets_slab_diagram_plywood_decking, src_assets_slab_diagram_secondary_beam, src_assets_slab_diagram_primary_beam, src_assets_slab_diagram_shoring_prop [EXTRACTED 1.00]
 - **Four Numbered Design Inputs (Callouts 1-4)** — src_assets_slab_diagram_slab_thickness, src_assets_slab_diagram_secondary_beam_spacing, src_assets_slab_diagram_primary_beam_spacing, src_assets_slab_diagram_prop_spacing [EXTRACTED 1.00]
 
-## Communities (21 total, 3 thin omitted)
+## Communities (20 total, 3 thin omitted)
 
 ### Community 0 - "Project Dashboard & Documents"
 Cohesion: 0.08
@@ -82,8 +81,8 @@ Cohesion: 0.41
 Nodes (12): calcEpsilon(), checkBending(), checkBendingShearInteraction(), checkDeflection(), checkShear(), checkSystemBeam(), classifyHollowSection(), classifyISection() (+4 more)
 
 ### Community 3 - "App Routing & Shell"
-Cohesion: 0.12
-Nodes (25): formatSize(), formatWhen(), Projects(), StatusControl(), VersionHistoryModal(), deleteFromTrash(), deleteProjectFile(), listProjects() (+17 more)
+Cohesion: 0.10
+Nodes (34): formatSize(), formatWhen(), Projects(), StatusControl(), VersionHistoryModal(), deleteFromTrash(), deleteProjectFile(), listProjects() (+26 more)
 
 ### Community 4 - "Markup Geometry"
 Cohesion: 0.11
@@ -100,10 +99,6 @@ Nodes (48): clearAllPdfs(), deletePdf(), getPdf(), listPdfIds(), openDb(), putPd
 ### Community 7 - "Graphics Layout Core"
 Cohesion: 0.20
 Nodes (16): computeSpanDimensions(), computeSupportPositions(), computeLoadGlyph(), computeLoadGlyphs(), buildResultChartData(), buildResultChartOptions(), flattenAnalysisPoints(), RESULT_CHART_DATASETS (+8 more)
-
-### Community 8 - "supabaseStorage.js"
-Cohesion: 0.29
-Nodes (6): downloadVersionObject(), listVersionObjects(), removeVersionObjects(), uploadVersionObject(), versionsPrefix(), versionStamp()
 
 ### Community 9 - "Slab Formwork Load Path"
 Cohesion: 0.27
@@ -122,15 +117,15 @@ Cohesion: 0.06
 Nodes (44): App(), AuthGuard(), DrawingViewer, MultiBeamCalculator, NotFound, ProjectDashboard, Projects, Settings (+36 more)
 
 ### Community 29 - "projectFiles.test.mjs"
-Cohesion: 0.22
-Nodes (7): blobs, bytesOf(), db, nowIso(), REAL_PROJECT_STATUS_ENUM, seedProject(), versionMeta
+Cohesion: 0.24
+Nodes (6): blobs, bytesOf(), db, nowIso(), seedProject(), versionMeta
 
 ### Community 31 - "MultiBeamCalculator.jsx"
 Cohesion: 0.08
 Nodes (43): jspdf, DynamicBeamDiagram(), StandardChart(), buildCapacityChartData(), calculateLegLoad(), evaluateConfigurations(), getFreeStandingCapacity(), getTopHeldCapacity() (+35 more)
 
 ## Knowledge Gaps
-- **95 isolated node(s):** `db`, `blobs`, `versionMeta`, `REAL_PROJECT_STATUS_ENUM`, `STATUS_LABELS` (+90 more)
+- **94 isolated node(s):** `name`, `private`, `version`, `type`, `dev` (+89 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **3 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
@@ -140,14 +135,14 @@ _Questions this graph is uniquely positioned to answer:_
 - **Why does `jspdf` connect `MultiBeamCalculator.jsx` to `Dependencies`?**
   _High betweenness centrality (0.113) - this node is a cross-community bridge._
 - **Why does `dependencies` connect `Dependencies` to `MultiBeamCalculator.jsx`?**
-  _High betweenness centrality (0.112) - this node is a cross-community bridge._
-- **Why does `ProjectDashboard()` connect `Project Dashboard & Documents` to `Markup Geometry`, `Home.jsx`, `Multi-Span Beam UI`, `MultiBeamCalculator.jsx`?**
+  _High betweenness centrality (0.113) - this node is a cross-community bridge._
+- **Why does `shareReportPdf()` connect `MultiBeamCalculator.jsx` to `Beam Solver Engine`?**
   _High betweenness centrality (0.097) - this node is a cross-community bridge._
-- **What connects `db`, `blobs`, `versionMeta` to the rest of the system?**
-  _96 weakly-connected nodes found - possible documentation gaps or missing edges._
+- **What connects `name`, `private`, `version` to the rest of the system?**
+  _95 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Project Dashboard & Documents` be split into smaller, more focused modules?**
   _Cohesion score 0.08401084010840108 - nodes in this community are weakly interconnected._
 - **Should `Beam Solver Engine` be split into smaller, more focused modules?**
   _Cohesion score 0.06610169491525424 - nodes in this community are weakly interconnected._
 - **Should `App Routing & Shell` be split into smaller, more focused modules?**
-  _Cohesion score 0.11948790896159317 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.09948979591836735 - nodes in this community are weakly interconnected._

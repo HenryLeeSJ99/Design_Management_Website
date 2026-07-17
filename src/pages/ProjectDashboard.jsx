@@ -483,21 +483,22 @@ export default function ProjectDashboard() {
     try {
       for (let i = 0; i < calculations.length; i += 1) {
         const calc = calculations[i];
+        if (calc.pdfId) {
+          // Already has a compiled report, skip regenerating it
+          continue;
+        }
         setProgress({ index: i + 1, total: calculations.length, name: calc.name });
         try {
           // The calculator hydrates from sessionStorage, so the snapshot has
           // to be in place before the harness mounts it
           applySnapshot(calc.calculator, calc.data);
           const bytes = await renderReportFor(calc);
-          if (calc.pdfId) await deletePdf(calc.pdfId).catch(() => {});
           const pdfId = generatePdfId();
           await putPdf(pdfId, bytes);
           setItemPdf(calc.id, { pdfId, pdfName: `${calc.name}.pdf`, pdfSize: bytes.byteLength });
         } catch (e) {
           // One bad report must not cost the whole package
-          notes.push(calc.pdfId
-            ? `"${calc.name}": could not regenerate its report (${e.message}) — the report attached earlier was used instead.`
-            : `"${calc.name}": could not generate its report (${e.message}) — placeholder page inserted.`);
+          notes.push(`"${calc.name}": could not generate its report (${e.message}) — placeholder page inserted.`);
         } finally {
           setReportJob(null);
           reportJobRef.current = null;

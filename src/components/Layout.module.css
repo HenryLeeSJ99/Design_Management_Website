@@ -437,6 +437,33 @@
   border-color: var(--text-muted);
 }
 
+.sidebarActionBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid var(--border-color-dark);
+  color: var(--text-sidebar);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  letter-spacing: 0.01em;
+}
+
+.sidebarActionBtn:hover {
+  background: var(--bg-sidebar-hover);
+  color: var(--text-sidebar-active);
+  border-color: var(--text-muted);
+}
+
+.sidebarActionBtn:active {
+  transform: scale(0.97);
+}
+
 .clearCacheBtn {
   display: flex;
   align-items: center;

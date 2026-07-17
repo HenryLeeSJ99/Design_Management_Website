@@ -185,8 +185,8 @@
     "semantic_hash": ""
   },
   "src/pages/Projects.jsx": {
-    "mtime": 1784259753.2119305,
-    "ast_hash": "d22d570fe6a2e62f9e38b3605fdadd53",
+    "mtime": 1784218033.2260098,
+    "ast_hash": "249f13ee959089065790a38e765158e5",
     "semantic_hash": ""
   },
   "src/pages/SlabFormworkCalculator.jsx": {
@@ -485,8 +485,8 @@
     "semantic_hash": ""
   },
   "src/services/projectFiles.js": {
-    "mtime": 1784259770.333869,
-    "ast_hash": "05853600e2d116d05938261510365e27",
+    "mtime": 1784217934.3204095,
+    "ast_hash": "1046dbf8b2e96dc28c42e02767e2fa35",
     "semantic_hash": ""
   },
   "src/services/twFile.js": {
@@ -545,8 +545,8 @@
     "semantic_hash": ""
   },
   "src/services/projectFiles.test.mjs": {
-    "mtime": 1784259883.7557793,
-    "ast_hash": "ae139a68fa28e8e4619a30540ce02179",
+    "mtime": 1784218138.8906462,
+    "ast_hash": "dc4762b44c0da9b6b0030832891a0029",
     "semantic_hash": ""
   },
   "src/services/supabaseAuth.js": {
@@ -560,8 +560,8 @@
     "semantic_hash": ""
   },
   "src/services/supabaseDb.js": {
-    "mtime": 1784259810.5016365,
-    "ast_hash": "14e41fab01d82603c66a1af00abf5b14",
+    "mtime": 1784212250.3810172,
+    "ast_hash": "f41d9b8547b63c7d7b389ed8e848bd2c",
     "semantic_hash": ""
   },
   "src/services/supabaseStorage.js": {
@@ -585,13 +585,8 @@
     "semantic_hash": ""
   },
   "src/services/projectStatus.js": {
-    "mtime": 1784259765.5104866,
-    "ast_hash": "8be0a338202a88021c62571fd07ef6bf",
-    "semantic_hash": ""
-  },
-  "supabase/migrations/20260717_project_status_rbac.sql": {
-    "mtime": 1784259840.401036,
-    "ast_hash": "51c90eba5187c0f861c047989dafd229",
+    "mtime": 1784217909.9967062,
+    "ast_hash": "cd611076570663512884201316fc1783",
     "semantic_hash": ""
   }
 }

@@ -9,15 +9,23 @@
 const DB_NAME = 'tempworks-files';
 const STORE = 'pdfs';
 
+let dbPromise = null;
+
 function openDb() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB_NAME, 1);
-    request.onupgradeneeded = () => {
-      request.result.createObjectStore(STORE);
-    };
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error || new Error('Could not open local file storage.'));
-  });
+  if (!dbPromise) {
+    dbPromise = new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, 1);
+      request.onupgradeneeded = () => {
+        request.result.createObjectStore(STORE);
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = (e) => {
+        dbPromise = null;
+        reject(request.error || e || new Error('Could not open local file storage.'));
+      };
+    });
+  }
+  return dbPromise;
 }
 
 function run(mode, operation) {
@@ -26,8 +34,8 @@ function run(mode, operation) {
       new Promise((resolve, reject) => {
         const tx = db.transaction(STORE, mode);
         const request = operation(tx.objectStore(STORE));
-        tx.oncomplete = () => { db.close(); resolve(request.result); };
-        tx.onerror = () => { db.close(); reject(tx.error); };
+        tx.oncomplete = () => { resolve(request.result); };
+        tx.onerror = () => { reject(tx.error); };
       }),
   );
 }

@@ -1,4 +1,5 @@
-import { Fragment, createContext, useCallback, useContext, useState } from 'react';
+import { Fragment, createContext, useCallback, useContext, useState, useEffect } from 'react';
+import TermsModal from './TermsModal';
 
 /**
  * Calculators hydrate their state from sessionStorage in useState
@@ -13,8 +14,22 @@ export const useCalcReset = () => useContext(CalcResetContext);
 export default function CalcInstance({ children }) {
   const [generation, setGeneration] = useState(0);
   const reset = useCallback(() => setGeneration((g) => g + 1), []);
+  const [hasAccepted, setHasAccepted] = useState(true); // Default to true to prevent hydration flash
+
+  useEffect(() => {
+    const accepted = localStorage.getItem('tw_terms_accepted') === 'true';
+    setHasAccepted(accepted);
+  }, []);
+
   return (
     <CalcResetContext.Provider value={reset}>
+      {!hasAccepted && (
+        <TermsModal 
+          isOpen={true} 
+          requireAcceptance={true} 
+          onAccept={() => setHasAccepted(true)} 
+        />
+      )}
       <Fragment key={generation}>{children}</Fragment>
     </CalcResetContext.Provider>
   );
