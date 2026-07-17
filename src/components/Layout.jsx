@@ -5,7 +5,7 @@ import Logo from './Logo';
 import RouteLoader from './RouteLoader';
 import ProjectContextBar from './ProjectContextBar';
 import { useAuth } from '../contexts/AuthContext';
-import { Menu, X, SquareMenu, Layers, Building, ChevronsUp, ChevronDown, Columns, Cuboid, RefreshCw, LayoutDashboard, FolderOpen, Settings as SettingsIcon, LogOut, ShieldCheck } from 'lucide-react';
+import { Menu, X, SquareMenu, Layers, Building, ChevronsUp, ChevronDown, Columns, Cuboid, RefreshCw, LayoutDashboard, FolderOpen, Settings as SettingsIcon, LogIn, LogOut, ShieldCheck } from 'lucide-react';
 import TermsModal from './TermsModal';
 
 // Page titles shown beside the hamburger in the mobile top header
@@ -57,7 +57,7 @@ function getPageTitle(pathname) {
 export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, role, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
 
@@ -111,16 +111,35 @@ export default function Layout() {
     window.location.reload(true);
   };
 
+  /**
+   * The sidebar used to show every item to everyone, so it advertised places
+   * people cannot go. Projects/Workbook/Settings all sit behind AuthGuard, so
+   * to a signed-out visitor — who is deliberately supported here, via "Use
+   * calculators online" on the login page — all three were links that bounced
+   * straight to /login.
+   *
+   * Sales is the sharper case: handleOpen() in Projects.jsx refuses outright
+   * for sales, so they can never open a project. The Design Workbook is a
+   * guaranteed dead end for them, and showing it implies otherwise.
+   *
+   * Calculators stay visible to everyone, including sales and signed-out
+   * visitors: a salesperson sizing up a quote has a real reason to run one,
+   * and guests are explicitly invited to.
+   */
+  const signedIn = !!user;
+  const isSales = role === 'sales';
+
   const navItems = [
-    { name: 'Projects', path: '/projects', icon: FolderOpen },
+    { name: 'Sign in', path: '/login', icon: LogIn, show: !signedIn },
+    { name: 'Projects', path: '/projects', icon: FolderOpen, show: signedIn },
     // "Project Dashboard" sat directly under "Projects" and read as a sibling
     // of it — two names for what sounded like the same thing. It is not a
     // dashboard: it is where a designer assembles calculations, drawings and
     // the compiled report. The route stays /dashboard so existing links and
     // bookmarks keep working.
-    { name: 'Design Workbook', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Settings', path: '/settings', icon: SettingsIcon },
-  ];
+    { name: 'Design Workbook', path: '/dashboard', icon: LayoutDashboard, show: signedIn && !isSales },
+    { name: 'Settings', path: '/settings', icon: SettingsIcon, show: signedIn },
+  ].filter((item) => item.show);
 
   const calculators = CALCULATOR_NAV;
 

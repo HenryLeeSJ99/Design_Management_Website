@@ -876,7 +876,10 @@ export default function Projects() {
                 </div>
               )}
 
-              {!showTrash && (role === 'admin' || role === 'manager') && (
+              {/* isManagerLevel, not a hand-rolled admin||manager: this gate
+                  had drifted and left a team leader able to trash a project
+                  but not change its cover image. */}
+              {!showTrash && isManagerLevel && (
                 <button
                   type="button"
                   className={styles.editCoverBtn}
