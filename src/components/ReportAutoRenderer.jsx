@@ -20,6 +20,7 @@ const CALCULATOR_COMPONENTS = {
   'multi-beam': lazy(() => import('../pages/MultiBeamCalculator')),
   'slab-formwork': lazy(() => import('../pages/SlabFormworkCalculator')),
   'wall-formwork': lazy(() => import('../pages/WallFormworkCalculator')),
+  'wall-formwork-design': lazy(() => import('../pages/WallPanelDesignCalculator')),
   'shoring-tower': lazy(() => import('../pages/ShoringTowerCalculator')),
   'steel-prop': lazy(() => import('../pages/SteelPropCalculator')),
 };

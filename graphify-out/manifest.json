@@ -50,18 +50,18 @@
     "semantic_hash": ""
   },
   "solver.test.mjs": {
-    "mtime": 1783500786.7822115,
-    "ast_hash": "8566360453d46795feabf60a5f65a049",
-    "semantic_hash": "8566360453d46795feabf60a5f65a049"
+    "mtime": 1784279690.441707,
+    "ast_hash": "648abb034d7285d5942f8df250d42d87",
+    "semantic_hash": ""
   },
   "src/App.jsx": {
-    "mtime": 1784268565.190619,
-    "ast_hash": "2f35153ec1cf9ef5f0649551507c89bf",
+    "mtime": 1784279690.454762,
+    "ast_hash": "76c57daee841bf30c92c0b4d98856c59",
     "semantic_hash": ""
   },
   "src/components/Layout.jsx": {
-    "mtime": 1784268584.317008,
-    "ast_hash": "bdb7c372a121030c209cfdf225305237",
+    "mtime": 1784279718.4494953,
+    "ast_hash": "052c26ee9bd66cf52b38d9ba4ddd6601",
     "semantic_hash": ""
   },
   "src/components/Logo.jsx": {
@@ -80,8 +80,8 @@
     "semantic_hash": ""
   },
   "src/engine/beam/solver.js": {
-    "mtime": 1784213884.6601038,
-    "ast_hash": "8e23e1300b760d6ca375f7ad24529ed9",
+    "mtime": 1784279690.4858718,
+    "ast_hash": "b35840a8f17b596e30623ab5ea000633",
     "semantic_hash": ""
   },
   "src/engine/beam/types.js": {
@@ -160,8 +160,8 @@
     "semantic_hash": "e8c7be72e5796e1c3bb82b7c1f8c05bc"
   },
   "src/engine/materials/formworkBeams.js": {
-    "mtime": 1784214791.669485,
-    "ast_hash": "d8dc96d682c6ec8ad78f1db05cc58a30",
+    "mtime": 1784279690.4937282,
+    "ast_hash": "e5ae47fbb938f3f70c9190b449430c9b",
     "semantic_hash": ""
   },
   "src/engine/materials/index.js": {
@@ -185,8 +185,8 @@
     "semantic_hash": ""
   },
   "src/pages/Projects.jsx": {
-    "mtime": 1784266733.6745505,
-    "ast_hash": "f1456c1a4db5828c7c10bb8ff2da651d",
+    "mtime": 1784278832.123348,
+    "ast_hash": "a0e078c6224cc30b31c9afa4c5fee5d7",
     "semantic_hash": ""
   },
   "src/pages/SlabFormworkCalculator.jsx": {
@@ -400,7 +400,7 @@
     "semantic_hash": "53e393834f9b8e56ffc2ae1460c77c52"
   },
   "src/pages/Home.jsx": {
-    "mtime": 1784268596.051195,
+    "mtime": 1784277237.9502501,
     "ast_hash": "77c9b9373f174676fa3d7263e5727a39",
     "semantic_hash": ""
   },
@@ -410,7 +410,7 @@
     "semantic_hash": "8178d30907f76f2e451dfa07df17fbec"
   },
   "src/pages/ShoringTowerCalculator.jsx": {
-    "mtime": 1784274214.2996817,
+    "mtime": 1784277237.9604247,
     "ast_hash": "aae5926699a8e84f81e5b4a333939008",
     "semantic_hash": ""
   },
@@ -445,8 +445,8 @@
     "semantic_hash": ""
   },
   "src/services/projectStore.js": {
-    "mtime": 1784268553.8698685,
-    "ast_hash": "ef57526ec31603d5c6fe54456ee79665",
+    "mtime": 1784279690.5091274,
+    "ast_hash": "e62cf0278e2661a9570a01b084dab87f",
     "semantic_hash": ""
   },
   "src/components/CoverPageEditor.jsx": {
@@ -460,8 +460,8 @@
     "semantic_hash": "2bf10b6200487abe4877028f97a84900"
   },
   "src/components/ReportAutoRenderer.jsx": {
-    "mtime": 1784268606.489807,
-    "ast_hash": "bee8725bc65dc98e70eb177cae2d2018",
+    "mtime": 1784279690.4718912,
+    "ast_hash": "11720ebe32371cf6c6e8f3d3dfcc4b84",
     "semantic_hash": ""
   },
   "src/pages/DrawingViewer.jsx": {
@@ -485,8 +485,8 @@
     "semantic_hash": ""
   },
   "src/services/projectFiles.js": {
-    "mtime": 1784266609.6566577,
-    "ast_hash": "993a4f5d2dfe8a0dfcfee5b3b1614e44",
+    "mtime": 1784277237.9711413,
+    "ast_hash": "f6ec8412a580f5a7eeaf159003789d09",
     "semantic_hash": ""
   },
   "src/services/twFile.js": {
@@ -545,8 +545,8 @@
     "semantic_hash": ""
   },
   "src/services/projectFiles.test.mjs": {
-    "mtime": 1784259883.7557793,
-    "ast_hash": "ae139a68fa28e8e4619a30540ce02179",
+    "mtime": 1784277384.1938007,
+    "ast_hash": "8f58ca94d17334b6dc5bc8eaab4dc18a",
     "semantic_hash": ""
   },
   "src/services/supabaseAuth.js": {
@@ -560,8 +560,8 @@
     "semantic_hash": ""
   },
   "src/services/supabaseDb.js": {
-    "mtime": 1784266595.0210981,
-    "ast_hash": "8eb9138fdabc42eb9261203437972dd7",
+    "mtime": 1784277237.9826481,
+    "ast_hash": "6fef33da6b3f2d0b56e0f0fd3c621b93",
     "semantic_hash": ""
   },
   "src/services/supabaseStorage.js": {
@@ -595,23 +595,43 @@
     "semantic_hash": ""
   },
   "src/engine/formwork/steelProp.js": {
-    "mtime": 1784268490.8626022,
-    "ast_hash": "c0dec6a054c1dfa28a711b7876884971",
+    "mtime": 1784277237.9470613,
+    "ast_hash": "4eb345ee0f8541d955f18bc443ed370b",
     "semantic_hash": ""
   },
   "src/pages/ProjectOverview.jsx": {
-    "mtime": 1784266651.076571,
-    "ast_hash": "a78ce3ff9258a65f9768b00ed3223c26",
+    "mtime": 1784278851.5149438,
+    "ast_hash": "9f8a7a545860068ae1ea01ecdb41ab36",
     "semantic_hash": ""
   },
   "src/pages/SteelPropCalculator.jsx": {
-    "mtime": 1784274223.0982082,
-    "ast_hash": "48391777aa1ad3d9bcaeaa7bb01472b7",
+    "mtime": 1784277237.964964,
+    "ast_hash": "e7e01af836411eb72e58335019193d2d",
     "semantic_hash": ""
   },
   "src/services/projectTimeline.js": {
-    "mtime": 1784266585.3936615,
-    "ast_hash": "e52fe94b1576a911979f87b5a0334530",
+    "mtime": 1784278817.1224644,
+    "ast_hash": "41213fca5a7aa809126c62e1bfe98cb7",
+    "semantic_hash": ""
+  },
+  "src/engine/formwork/wallFormworkDesign.js": {
+    "mtime": 1784279690.4888601,
+    "ast_hash": "cb5e5117808860cb217f449194e01349",
+    "semantic_hash": ""
+  },
+  "src/pages/WallPanelDesignCalculator.jsx": {
+    "mtime": 1784279690.4991686,
+    "ast_hash": "12ac1c12dcbe21a804cb8502651d4a8c",
+    "semantic_hash": ""
+  },
+  "src/services/projectTimeline.test.mjs": {
+    "mtime": 1784278873.3755167,
+    "ast_hash": "8a244477f652eac7bfc04c302c39bf88",
+    "semantic_hash": ""
+  },
+  "supabase/migrations/20260717_profiles_for_assignee.sql": {
+    "mtime": 1784277237.984012,
+    "ast_hash": "09d9673e6fc6405e3de90756acba69af",
     "semantic_hash": ""
   }
 }

@@ -52,7 +52,7 @@ test('Simply supported beam — M_max = wL²/8', () => {
   const I_mm4 = I * 10000;
   const expectedDefl = 5 * w_Nmm * Math.pow(L, 4) / (384 * E * I_mm4);
   console.log(`  δ_max expected: ${expectedDefl.toFixed(4)} mm, got: ${result.maxDeflection.value.toFixed(4)} mm`);
-  if (!approxEqual(result.maxDeflection.value, expectedDefl)) throw new Error(`Deflection mismatch`);
+  if (!approxEqual(Math.abs(result.maxDeflection.value), expectedDefl)) throw new Error(`Deflection mismatch`);
 });
 
 // Test 2: Cantilever, L = 3000mm

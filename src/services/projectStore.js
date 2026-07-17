@@ -34,6 +34,11 @@ export const CALCULATORS = {
     route: '/calculators/wall-formwork',
     prefix: 'tempworks_wallformwork_',
   },
+  'wall-formwork-design': {
+    title: 'Panel & Tie Design',
+    route: '/calculators/wall-formwork/design',
+    prefix: 'tempworks_wallfwdesign_',
+  },
   'shoring-tower': {
     title: 'Shoring Tower',
     route: '/calculators/shoring-tower',
