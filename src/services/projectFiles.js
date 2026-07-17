@@ -7,7 +7,7 @@ import {
 } from './supabaseDb';
 import { TwFileError } from './twFile';
 import { PROJECT_STATUSES } from './projectStatus';
-import { serialiseTimeline } from './projectTimeline';
+import { serialiseSubmissions } from './projectTimeline';
 
 export const TRASH_DAYS = 30;
 
@@ -90,18 +90,19 @@ export async function readProject(projectId) {
 }
 
 /**
- * Save a project's timeline (target date + milestone due/done state).
+ * Save a project's submission dates (per-zone target + milestone due/done).
  *
  * Only ever writes the timeline column, so it cannot collide with a designer
- * saving the .tw contents at the same moment — the two touch different
- * columns of the same row.
+ * saving the .tw contents at the same moment — that save writes `zones`,
+ * `name` and the counts, and the two never touch the same column. Which also
+ * means the manager-only trigger on `timeline` never sees a designer's save.
  */
-export async function saveTimeline(projectId, timeline) {
+export async function saveSubmissions(projectId, submissions) {
   try {
-    await updateProjectRecord(projectId, { timeline: serialiseTimeline(timeline) });
+    await updateProjectRecord(projectId, { timeline: serialiseSubmissions(submissions) });
     return projectId;
   } catch (e) {
-    throw new TwFileError(`Could not save the timeline: ${e.message}`);
+    throw new TwFileError(`Could not save the submission dates: ${e.message}`);
   }
 }
 

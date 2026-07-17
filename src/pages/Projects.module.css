@@ -503,6 +503,13 @@
   font-weight: 600;
 }
 
+/* "Internal check" alone says nothing when three zones are each at a
+   different milestone — the zone is the load-bearing half of the answer. */
+.zoneChip {
+  color: var(--text-main);
+  font-weight: 700;
+}
+
 .cardTimeline {
   display: flex;
   flex-direction: column;

@@ -89,7 +89,15 @@ export async function saveNow() {
     await snapshotVersion(filename);
     await writeProjectFile(filename, encodeTw(project, pdfs), {
       name: project.name,
-      calculation_count: project.calculations?.length || 0
+      calculation_count: project.calculations?.length || 0,
+      drawing_count: project.calculations?.filter((c) => c.type === 'drawing').length || 0,
+      // Zones only exist inside the .tw, so the database cannot see them —
+      // which is why per-zone submission dates had nowhere to hang. Copy them
+      // up on every save. Deliberately NOT into `timeline`: that column is
+      // gated to managers by a trigger, and this write happens on a designer's
+      // ordinary save, which would then be refused. See
+      // supabase/migrations/20260718_zones_column.sql.
+      zones: (project.zones || []).map(({ id, name, order }) => ({ id, name, order })),
     });
     emit('saved', { at: Date.now() });
 

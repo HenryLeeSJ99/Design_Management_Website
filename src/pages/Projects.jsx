@@ -10,7 +10,8 @@ import {
 } from '../services/projectFiles';
 import { canChangeProjectStatus, PROJECT_STATUSES, statusLabel } from '../services/projectStatus';
 import {
-  currentMilestone, daysToTarget, projectIsSlipping, readTimeline, timelineProgress,
+  currentMilestone, daysToDate, nextSubmission, projectIsSlipping, projectProgress,
+  projectTarget, readSubmissions,
 } from '../services/projectTimeline';
 import {
   closeProject, createProject, exportLocalDraftAsTw, getOpenFilename,
@@ -266,17 +267,21 @@ function StatusControl({ project, canEdit, busy, onChange }) {
  * children of the row's grid rather than collapsing into one column.
  */
 function TimelineCells({ project }) {
-  const timeline = readTimeline(project);
-  const { done, total } = timelineProgress(timeline);
-  const current = currentMilestone(timeline);
+  const submissions = readSubmissions(project);
+  const { done, total, pct } = projectProgress(submissions);
+  const next = nextSubmission(submissions);
   const slipping = projectIsSlipping(project);
-  const toTarget = daysToTarget(timeline);
-  const pct = total ? (done / total) * 100 : 0;
+  const target = projectTarget(submissions);
+  const toTarget = daysToDate(target);
+
+  // What the job is actually waiting on is a zone AND a milestone — "Internal
+  // check" alone is meaningless when three zones are each at a different one.
+  const waiting = next ? currentMilestone(next) : null;
 
   return (
     <>
       <span className={styles.listCell} data-label="Progress">
-        <span className={styles.miniProgress} title={`${done} of ${total} milestones done`}>
+        <span className={styles.miniProgress} title={total ? `${done} of ${total} submissions approved` : 'No zones yet'}>
           <span className={styles.miniTrack}>
             <span
               className={`${styles.miniFill} ${slipping ? styles.miniFillLate : ''}`}
@@ -287,14 +292,22 @@ function TimelineCells({ project }) {
         </span>
       </span>
 
-      <span className={styles.listCell} data-label="Waiting on" title={current ? `Waiting on ${current.label}` : 'All milestones complete'}>
-        {current ? current.label : <span className={styles.doneText}>Complete</span>}
+      <span
+        className={styles.listCell}
+        data-label="Waiting on"
+        title={next ? `${next.zoneName} — waiting on ${waiting?.label}` : 'Every submission approved'}
+      >
+        {total === 0
+          ? <span className={styles.hint}>No zones</span>
+          : next
+            ? <><strong className={styles.zoneChip}>{next.zoneName}</strong> {waiting?.label}</>
+            : <span className={styles.doneText}>Complete</span>}
       </span>
 
       <span className={styles.listCell} data-label="Target">
-        {timeline.targetDate ? (
+        {target ? (
           <span className={styles.targetCell}>
-            <span className={slipping ? styles.lateText : ''}>{formatDay(timeline.targetDate)}</span>
+            <span className={slipping ? styles.lateText : ''}>{formatDay(target)}</span>
             {slipping && <AlertTriangle size={12} className={styles.lateIcon} />}
             {/* Only count down to a target still ahead of us. `toTarget <= 7`
                 alone also matches a target long past (e.g. -17), which on a
@@ -310,20 +323,25 @@ function TimelineCells({ project }) {
 }
 
 /**
- * The same timeline signal as the list, laid out for a card: one bar, the
- * milestone the job is waiting on, and the target date.
+ * The same submission signal as the list, laid out for a card: submissions
+ * approved, the zone the job is waiting on, and the derived project target.
  *
- * A project nobody has set any dates on renders nothing at all rather than a
- * row of em-dashes — most projects will look like that until the timeline is
- * actually used, and empty placeholders would make every card noisier for no
- * information.
+ * A project with no zones, or with zones nobody has dated, renders nothing at
+ * all rather than a row of em-dashes — plenty will look like that until the
+ * timeline is actually used, and empty placeholders would make every card
+ * noisier for no information.
  */
 function CardTimeline({ project }) {
-  const timeline = readTimeline(project);
-  const { done, total } = timelineProgress(timeline);
-  const current = currentMilestone(timeline);
+  const submissions = readSubmissions(project);
+  if (!submissions.length) return null;
+
+  const { done, total, pct } = projectProgress(submissions);
+  const next = nextSubmission(submissions);
   const slipping = projectIsSlipping(project);
-  const hasAnyDates = timeline.targetDate || timeline.milestones.some((m) => m.due || m.doneAt);
+  const target = projectTarget(submissions);
+  const waiting = next ? currentMilestone(next) : null;
+
+  const hasAnyDates = target || submissions.some((s) => s.milestones.some((m) => m.due || m.doneAt));
   if (!hasAnyDates) return null;
 
   return (
@@ -332,19 +350,21 @@ function CardTimeline({ project }) {
         <span className={styles.miniTrack}>
           <span
             className={`${styles.miniFill} ${slipping ? styles.miniFillLate : ''}`}
-            style={{ width: `${total ? (done / total) * 100 : 0}%` }}
+            style={{ width: `${pct}%` }}
           />
         </span>
         <span className={styles.miniCount}>{done}/{total}</span>
       </div>
       <p className={styles.cardTimelineMeta}>
-        {current ? current.label : <span className={styles.doneText}>All milestones complete</span>}
-        {timeline.targetDate && (
+        {next
+          ? <><strong className={styles.zoneChip}>{next.zoneName}</strong> {waiting?.label}</>
+          : <span className={styles.doneText}>Every submission approved</span>}
+        {target && (
           <>
             {' · '}
             <span className={slipping ? styles.lateText : ''}>
               {slipping && <AlertTriangle size={11} className={styles.lateIcon} />}
-              {formatDay(timeline.targetDate)}
+              {formatDay(target)}
             </span>
           </>
         )}
@@ -374,8 +394,8 @@ const SORTS = {
   target: {
     label: 'Target date',
     compare: (a, b) => {
-      const at = readTimeline(a).targetDate;
-      const bt = readTimeline(b).targetDate;
+      const at = projectTarget(readSubmissions(a));
+      const bt = projectTarget(readSubmissions(b));
       if (!at && !bt) return a.name.localeCompare(b.name);
       if (!at) return 1;
       if (!bt) return -1;

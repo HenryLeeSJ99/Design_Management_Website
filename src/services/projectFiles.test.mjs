@@ -321,35 +321,61 @@ test('readProject: returns the record, and null for one that is not visible', as
   assert.equal(await pf.readProject('does-not-exist'), null);
 });
 
-test('saveTimeline: writes only the timeline column, leaving the rest of the row alone', async () => {
+const ZONES = [{ id: 'z1', name: 'Level 2', order: 0 }, { id: 'z2', name: 'Roof', order: 1 }];
+
+test('saveSubmissions: writes only the timeline column, leaving the rest of the row alone', async () => {
   db.clear(); blobs.clear();
   await seedProject('t1', 'content');
-  db.set('t1', { ...db.get('t1'), name: 'Keep me', status: 'active', file_size: 4242 });
+  // A row as a designer's save leaves it: their zones, their counts, their size.
+  db.set('t1', { ...db.get('t1'), name: 'Keep me', status: 'active', file_size: 4242, zones: ZONES });
 
-  const { readTimeline, setMilestoneDone, setTargetDate } = await import('./projectTimeline.js');
-  let timeline = readTimeline({ timeline: null });
-  timeline = setTargetDate(timeline, '2026-08-30');
-  timeline = setMilestoneDone(timeline, 'design_start', true);
+  const { readSubmissions, setMilestoneDone, setSubmissionTarget } = await import('./projectTimeline.js');
+  let subs = readSubmissions(db.get('t1'));
+  subs = setSubmissionTarget(subs, 'z1', '2026-08-30');
+  subs = setMilestoneDone(subs, 'z1', 'design_start', true);
 
-  await pf.saveTimeline('t1', timeline);
+  await pf.saveSubmissions('t1', subs);
 
   const row = db.get('t1');
   assert.equal(row.name, 'Keep me', 'name untouched');
   assert.equal(row.status, 'active', 'status untouched');
-  assert.equal(row.file_size, 4242, "the designer's file_size is not clobbered by a manager's timeline edit");
-  assert.equal(row.timeline.targetDate, '2026-08-30');
-  assert.equal(row.timeline.milestones.find((m) => m.key === 'design_start').doneAt !== null, true);
+  assert.equal(row.file_size, 4242, "the designer's file_size is not clobbered by a manager's date edit");
+  assert.deepEqual(row.zones, ZONES, 'and neither are their zones — that column belongs to the designer');
+  assert.equal(row.timeline.submissions.z1.targetDate, '2026-08-30');
+  assert.ok(row.timeline.submissions.z1.milestones.find((m) => m.key === 'design_start').doneAt);
 });
 
-test('saveTimeline: round-trips through the store back into a usable timeline', async () => {
+test('saveSubmissions: round-trips through the store back into usable submissions', async () => {
   db.clear(); blobs.clear();
   await seedProject('t2', 'content');
+  db.set('t2', { ...db.get('t2'), zones: ZONES });
 
-  const { readTimeline, setMilestoneDue, timelineProgress } = await import('./projectTimeline.js');
-  const timeline = setMilestoneDue(readTimeline({ timeline: null }), 'issued', '2026-08-01');
-  await pf.saveTimeline('t2', timeline);
+  const { readSubmissions, setMilestoneDue, projectProgress } = await import('./projectTimeline.js');
+  const subs = setMilestoneDue(readSubmissions(db.get('t2')), 'z2', 'issued', '2026-08-01');
+  await pf.saveSubmissions('t2', subs);
 
-  const back = readTimeline(await pf.readProject('t2'));
-  assert.equal(back.milestones.find((m) => m.key === 'issued').due, '2026-08-01');
-  assert.deepEqual(timelineProgress(back), { done: 0, total: 5, pct: 0 });
+  const back = readSubmissions(await pf.readProject('t2'));
+  assert.equal(back.length, 2, 'one submission per zone');
+  assert.equal(back.find((s) => s.zoneId === 'z2').milestones.find((m) => m.key === 'issued').due, '2026-08-01');
+  assert.deepEqual(projectProgress(back), { done: 0, total: 2, pct: 0 });
+});
+
+test('saveSubmissions: dates survive a designer renaming the zone underneath them', async () => {
+  // The reason names live in `zones` and dates in `timeline`: a rename is a
+  // designer's write, and the timeline trigger forbids designers from touching
+  // that column. Keyed by id, so the join still lands.
+  db.clear(); blobs.clear();
+  await seedProject('t3', 'content');
+  db.set('t3', { ...db.get('t3'), zones: ZONES });
+
+  const { readSubmissions, setSubmissionTarget } = await import('./projectTimeline.js');
+  await pf.saveSubmissions('t3', setSubmissionTarget(readSubmissions(db.get('t3')), 'z1', '2026-08-30'));
+
+  // The designer renames the zone and saves — writing `zones`, never `timeline`.
+  db.set('t3', { ...db.get('t3'), zones: [{ id: 'z1', name: 'Level 2 — REV B', order: 0 }, ZONES[1]] });
+
+  const back = readSubmissions(await pf.readProject('t3'));
+  const renamed = back.find((s) => s.zoneId === 'z1');
+  assert.equal(renamed.zoneName, 'Level 2 — REV B', 'the new name shows through');
+  assert.equal(renamed.targetDate, '2026-08-30', 'and its date is still attached');
 });
