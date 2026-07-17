@@ -3,6 +3,7 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import styles from './Layout.module.css';
 import Logo from './Logo';
 import RouteLoader from './RouteLoader';
+import ProjectContextBar from './ProjectContextBar';
 import { useAuth } from '../contexts/AuthContext';
 import { Menu, X, SquareMenu, Layers, Building, ChevronsUp, ChevronDown, Columns, Cuboid, RefreshCw, LayoutDashboard, FolderOpen, Settings as SettingsIcon, LogOut, ShieldCheck } from 'lucide-react';
 import TermsModal from './TermsModal';
@@ -260,6 +261,10 @@ export default function Layout() {
         </header>
 
         <main className={styles.mainContent}>
+          {/* Outside the keyed wrapper below: that div remounts on every
+              navigation to replay the page-enter animation, which would reset
+              the save state and flash the bar on each route change. */}
+          <ProjectContextBar />
           <div key={location.pathname} className={styles.pageEnter}>
             <Suspense fallback={<RouteLoader />}>
               <Outlet />

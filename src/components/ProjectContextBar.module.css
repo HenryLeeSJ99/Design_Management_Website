@@ -1,0 +1,141 @@
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+  font-size: 0.82rem;
+}
+
+.barWarn {
+  background: var(--warning-light);
+  border-color: rgba(245, 158, 11, 0.3);
+}
+
+.barError {
+  background: var(--danger-light);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.left {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.left svg {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.barWarn .left svg {
+  color: var(--warning);
+}
+
+.name {
+  font-weight: 700;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: var(--transition-fast);
+}
+
+a.name:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+
+a.name:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.hint {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.barError .status {
+  color: var(--danger);
+}
+
+.ok {
+  color: var(--success);
+}
+
+/* An unsaved change is a fact, not a problem — the app is about to save it.
+   A quiet amber dot says "pending" without implying anything is wrong. */
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--warning);
+}
+
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.action,
+.retry {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  white-space: nowrap;
+}
+
+.action:hover,
+.retry:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.action:focus-visible,
+.retry:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+@media (max-width: 640px) {
+  .bar {
+    border-radius: var(--radius-md);
+    padding: 0.6rem 0.85rem;
+  }
+
+  /* The reassurance is the save state; the browser-only caveat can go. */
+  .hint {
+    display: none;
+  }
+}
