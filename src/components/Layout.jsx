@@ -4,7 +4,7 @@ import styles from './Layout.module.css';
 import Logo from './Logo';
 import RouteLoader from './RouteLoader';
 import { useAuth } from '../contexts/AuthContext';
-import { Menu, X, SquareMenu, Layers, Building, ChevronsUp, Columns, Cuboid, RefreshCw, LayoutDashboard, FolderOpen, Settings as SettingsIcon, LogOut, ShieldCheck } from 'lucide-react';
+import { Menu, X, SquareMenu, Layers, Building, ChevronsUp, ChevronDown, Columns, Cuboid, RefreshCw, LayoutDashboard, FolderOpen, Settings as SettingsIcon, LogOut, ShieldCheck } from 'lucide-react';
 import TermsModal from './TermsModal';
 
 // Page titles shown beside the hamburger in the mobile top header
@@ -12,11 +12,38 @@ import TermsModal from './TermsModal';
 const PAGE_TITLES = [
   { path: '/calculators/multi-beam', title: 'Multi Beam Span' },
   { path: '/calculators/slab-formwork', title: 'Slab Formwork' },
+  { path: '/calculators/wall-formwork/design', title: 'Wall Formwork Design' },
   { path: '/calculators/wall-formwork', title: 'Wall Formwork' },
   { path: '/calculators/shoring-tower', title: 'Shoring Tower' },
   { path: '/dashboard', title: 'Dashboard' },
   { path: '/projects', title: 'Projects' },
 ];
+
+// Static sidebar catalogue — groups with subItems render as expandable
+// sections so the calculator list stays compact.
+const CALCULATOR_NAV = [
+  { name: 'Multi Beam Span', path: '/calculators/multi-beam', icon: SquareMenu, active: true },
+  { name: 'Slab Formwork', path: '/calculators/slab-formwork', icon: Layers, active: true },
+  {
+    name: 'Wall Formwork',
+    icon: Building,
+    active: true,
+    subItems: [
+      { name: 'Concrete Pressure', path: '/calculators/wall-formwork' },
+      { name: 'Panel & Tie Design', path: '/calculators/wall-formwork/design' },
+    ]
+  },
+  { name: 'Shoring Tower', path: '/calculators/shoring-tower', icon: ChevronsUp, active: true },
+  { name: 'Column Formwork', path: '#', icon: Columns, active: false },
+  { name: 'Beam Formwork', path: '#', icon: Cuboid, active: false },
+];
+
+/** Names of the groups whose sub-items contain the given route. */
+function groupsContaining(pathname) {
+  return CALCULATOR_NAV
+    .filter((c) => c.subItems?.some((s) => pathname === s.path))
+    .map((c) => c.name);
+}
 
 function getPageTitle(pathname) {
   if (pathname === '/') return 'Home';
@@ -30,6 +57,26 @@ export default function Layout() {
   const { user, logout } = useAuth();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
+
+  // Expandable calculator groups — start open when the current route is
+  // inside them, and auto-expand when navigating into one.
+  const [openGroups, setOpenGroups] = useState(() =>
+    Object.fromEntries(groupsContaining(location.pathname).map((name) => [name, true]))
+  );
+
+  const toggleGroup = (name) =>
+    setOpenGroups((prev) => ({ ...prev, [name]: !prev[name] }));
+
+  useEffect(() => {
+    const active = groupsContaining(location.pathname);
+    if (active.length === 0) return;
+    setOpenGroups((prev) => {
+      if (active.every((name) => prev[name])) return prev;
+      const next = { ...prev };
+      active.forEach((name) => { next[name] = true; });
+      return next;
+    });
+  }, [location.pathname]);
 
   // Close sidebar on route change (mobile nav tap)
   useEffect(() => {
@@ -67,21 +114,7 @@ export default function Layout() {
     { name: 'Settings', path: '/settings', icon: SettingsIcon },
   ];
 
-  const calculators = [
-    { name: 'Multi Beam Span', path: '/calculators/multi-beam', icon: SquareMenu, active: true },
-    { name: 'Slab Formwork', path: '/calculators/slab-formwork', icon: Layers, active: true },
-    { 
-      name: 'Wall Formwork', 
-      icon: Building, 
-      active: true,
-      subItems: [
-        { name: 'Concrete Pressure', path: '/calculators/wall-formwork' }
-      ]
-    },
-    { name: 'Shoring Tower', path: '/calculators/shoring-tower', icon: ChevronsUp, active: true },
-    { name: 'Column Formwork', path: '#', icon: Columns, active: false },
-    { name: 'Beam Formwork', path: '#', icon: Cuboid, active: false },
-  ];
+  const calculators = CALCULATOR_NAV;
 
   return (
     <div className={styles.layoutContainer}>
@@ -126,20 +159,32 @@ export default function Layout() {
               calc.active ? (
                 calc.subItems ? (
                   <div key={calc.name} className={styles.navGroup}>
-                    <div className={styles.navGroupHeader}>
+                    <button
+                      type="button"
+                      className={`${styles.navGroupHeader} ${calc.subItems.some((s) => location.pathname === s.path) ? styles.groupActive : ''}`}
+                      onClick={() => toggleGroup(calc.name)}
+                      aria-expanded={!!openGroups[calc.name]}
+                    >
                       <calc.icon className={styles.navIcon} size={20} />
                       {calc.name}
-                    </div>
-                    <div className={styles.navSubItems}>
-                      {calc.subItems.map(sub => (
-                        <Link 
-                          key={sub.name} 
-                          to={sub.path} 
-                          className={`${styles.navSubLink} ${location.pathname === sub.path ? styles.active : ''}`}
-                        >
-                          {sub.name}
-                        </Link>
-                      ))}
+                      <ChevronDown
+                        size={16}
+                        className={`${styles.groupChevron} ${openGroups[calc.name] ? styles.groupChevronOpen : ''}`}
+                      />
+                    </button>
+                    <div className={`${styles.navSubItemsWrap} ${openGroups[calc.name] ? styles.navSubItemsWrapOpen : ''}`}>
+                      <div className={styles.navSubItems}>
+                        {calc.subItems.map(sub => (
+                          <Link
+                            key={sub.name}
+                            to={sub.path}
+                            className={`${styles.navSubLink} ${location.pathname === sub.path ? styles.active : ''}`}
+                            tabIndex={openGroups[calc.name] ? 0 : -1}
+                          >
+                            {sub.name}
+                          </Link>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 ) : (

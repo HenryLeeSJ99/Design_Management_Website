@@ -107,6 +107,36 @@ export const FORMWORK_PANELS = {
 };
 
 // ────────────────────────────────────────────────────────────────────────────
+// Tie rod catalogue (wall formwork)
+// ────────────────────────────────────────────────────────────────────────────
+
+/**
+ * @typedef {Object} TieRod
+ * @property {string} name
+ * @property {number} diameter - Nominal bar diameter (mm)
+ * @property {number} capacity - Safe working load in tension (kN)
+ */
+
+/** @type {Object<string, TieRod>} */
+export const TIE_RODS = {
+  'DW15 Tie Rod (Ø15 mm)': {
+    name: 'DW15 Tie Rod (Ø15 mm)',
+    diameter: 15,
+    capacity: 90,
+  },
+  'DW20 Tie Rod (Ø20 mm)': {
+    name: 'DW20 Tie Rod (Ø20 mm)',
+    diameter: 20,
+    capacity: 150,
+  },
+  'DW26 Tie Rod (Ø26 mm)': {
+    name: 'DW26 Tie Rod (Ø26 mm)',
+    diameter: 26,
+    capacity: 250,
+  },
+};
+
+// ────────────────────────────────────────────────────────────────────────────
 // Shoring tower catalogue
 // ────────────────────────────────────────────────────────────────────────────
 
@@ -177,4 +207,13 @@ export function getFormworkPanel(panelType, thickness) {
  */
 export function getShoringTower(name) {
   return SHORING_TOWERS[name];
+}
+
+/**
+ * Look up a tie rod by name.
+ * @param {string} name
+ * @returns {TieRod|undefined}
+ */
+export function getTieRod(name) {
+  return TIE_RODS[name];
 }

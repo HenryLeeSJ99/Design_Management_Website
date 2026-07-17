@@ -21,6 +21,7 @@ const Settings = lazy(() => import('./pages/Settings'));
 const MultiBeamCalculator = lazy(() => import('./pages/MultiBeamCalculator'));
 const SlabFormworkCalculator = lazy(() => import('./pages/SlabFormworkCalculator'));
 const WallFormworkCalculator = lazy(() => import('./pages/WallFormworkCalculator'));
+const WallPanelDesignCalculator = lazy(() => import('./pages/WallPanelDesignCalculator'));
 const ShoringTowerCalculator = lazy(() => import('./pages/ShoringTowerCalculator'));
 
 function AuthGuard({ children }) {
@@ -74,6 +75,7 @@ function App() {
                 <Route path="calculators/multi-beam" element={<CalcInstance><MultiBeamCalculator /></CalcInstance>} />
                 <Route path="calculators/slab-formwork" element={<CalcInstance><SlabFormworkCalculator /></CalcInstance>} />
                 <Route path="calculators/wall-formwork" element={<CalcInstance><WallFormworkCalculator /></CalcInstance>} />
+                <Route path="calculators/wall-formwork/design" element={<CalcInstance><WallPanelDesignCalculator /></CalcInstance>} />
                 <Route path="calculators/shoring-tower" element={<CalcInstance><ShoringTowerCalculator /></CalcInstance>} />
 
                 {/* 404 — catch-all nested under layout */}
