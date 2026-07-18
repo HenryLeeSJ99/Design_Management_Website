@@ -57,17 +57,26 @@ const pdfIdFromEntry = (name) => decodeURIComponent(name.slice(PDF_DIR.length, -
  * @param {Map<string, ArrayBuffer|Uint8Array>} pdfs  pdfId -> bytes
  * @returns {Uint8Array} the complete file
  */
+/**
+ * The manifest JSON as bytes. Shared by the zip (below) and the split cloud
+ * layout ({projectId}/manifest.json in Storage), which stores exactly this —
+ * one shape, so a manifest pulled from either place decodes the same way.
+ */
+export function twManifestBytes(project) {
+  return strToU8(JSON.stringify({
+    app: 'tempworks',
+    kind: 'project',
+    version: TW_VERSION,
+    savedAt: Date.now(),
+    project,
+  }, null, 2));
+}
+
 export function encodeTw(project, pdfs) {
   const entries = [...(pdfs instanceof Map ? pdfs : new Map(Object.entries(pdfs || {})))];
 
   const files = {
-    [MANIFEST]: strToU8(JSON.stringify({
-      app: 'tempworks',
-      kind: 'project',
-      version: TW_VERSION,
-      savedAt: Date.now(),
-      project,
-    }, null, 2)),
+    [MANIFEST]: twManifestBytes(project),
   };
   for (const [id, raw] of entries) {
     // level 0: a PDF is already deflated; recompressing costs time for ~nothing

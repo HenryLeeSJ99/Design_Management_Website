@@ -5,6 +5,7 @@ import {
   clearItemPdf,
   deleteCalculation,
   exportCalculationFile,
+  getProject,
   listCalculations,
   parseCalculationFile,
   readJsonFile,
@@ -13,6 +14,7 @@ import {
   CALCULATORS,
 } from '../services/projectStore';
 import { deletePdf } from '../services/pdfStore';
+import { getOpenFilename } from '../services/projectSession';
 import { confirmDialog } from '../services/dialog';
 import { useCalcReset } from './CalcInstance';
 import styles from './SavedDesigns.module.css';
@@ -42,11 +44,20 @@ export default function SavedDesigns({ calculator, title, sessionKeys }) {
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
 
+  // "Save to project" never said WHICH project — with a cloud project open it
+  // writes into that project, with none it writes into a browser-local draft.
+  // Those are very different destinies for an hour of work, so the button
+  // names the destination. Computed when the panel opens, not on render:
+  // getProject() JSON-parses the whole working copy, and this component sits
+  // in a calculator header that re-renders on every input keystroke.
+  const [openProjectName, setOpenProjectName] = useState(null);
+
   const refresh = () => setDesigns(listCalculations(calculator));
 
   const openPanel = () => {
     setError('');
     setNotice('');
+    setOpenProjectName(getOpenFilename() ? (getProject().name || 'the open project') : null);
     refresh();
     setOpen(true);
   };
@@ -170,8 +181,15 @@ export default function SavedDesigns({ calculator, title, sessionKeys }) {
                 onChange={(e) => setName(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') handleSaveToProject(null); }}
               />
-              <button type="button" className={styles.saveBtn} onClick={() => handleSaveToProject(null)}>
-                <FolderPlus size={15} /> Save to project
+              <button
+                type="button"
+                className={styles.saveBtn}
+                onClick={() => handleSaveToProject(null)}
+                title={openProjectName
+                  ? `Saves into "${openProjectName}"`
+                  : 'No cloud project is open — saves to a draft that lives only in this browser'}
+              >
+                <FolderPlus size={15} /> {openProjectName ? `Save to “${openProjectName}”` : 'Save to local draft'}
               </button>
             </div>
 

@@ -20,7 +20,11 @@ const db = new Map(); // id -> record
 const blobs = new Map(); // path -> Uint8Array
 const versionMeta = new Map(); // path -> {created_at}
 
-const nowIso = () => new Date().toISOString();
+// Monotonic: two writes in the same millisecond must still get DIFFERENT
+// timestamps, or the optimistic-concurrency tests can't tell "nobody saved"
+// from "someone saved so fast the clock didn't move".
+let clock = Date.now();
+const nowIso = () => new Date(clock++).toISOString();
 
 // The real project_status enum, confirmed 2026-07-17 by probing the live
 // database with the anon key (no schema access available). draft /
@@ -54,6 +58,15 @@ mock.module('./supabaseDb', {
         throw new Error(`invalid input value for enum project_status: "${updates.status}"`);
       }
       const record = { ...db.get(id), id, ...updates, last_modified_at: nowIso() };
+      db.set(id, record);
+      return record;
+    },
+    // The conditional claim: same shape as Postgres — zero rows on a rev
+    // mismatch is null, not an error.
+    updateProjectRecordIf: async (id, updates, expected) => {
+      const current = db.get(id);
+      if (!current || current.last_modified_at !== expected) return null;
+      const record = { ...current, id, ...updates, last_modified_at: nowIso() };
       db.set(id, record);
       return record;
     },
@@ -99,6 +112,27 @@ mock.module('./supabaseStorage', {
       const b = blobs.get(`versions/${id}/${name}`);
       if (!b) throw new Error('version not found');
       return b;
+    },
+    // --- split layout, same one-map store keyed by path ---
+    uploadManifestObject: async (id, bytes) => { blobs.set(`${id}/manifest.json`, bytes); },
+    downloadManifestObject: async (id) => blobs.get(`${id}/manifest.json`) || null,
+    uploadPdfObject: async (id, pdfId, bytes) => { blobs.set(`${id}/pdfs/${encodeURIComponent(pdfId)}.pdf`, bytes); },
+    downloadPdfObject: async (id, pdfId) => {
+      const b = blobs.get(`${id}/pdfs/${encodeURIComponent(pdfId)}.pdf`);
+      if (!b) throw new Error('pdf not found');
+      return b;
+    },
+    listPdfObjectIds: async (id) => {
+      const prefix = `${id}/pdfs/`;
+      return [...blobs.keys()]
+        .filter((p) => p.startsWith(prefix) && p.endsWith('.pdf'))
+        .map((p) => decodeURIComponent(p.slice(prefix.length, -4)));
+    },
+    removePdfObjects: async (id, pdfIds) => {
+      pdfIds.forEach((pdfId) => blobs.delete(`${id}/pdfs/${encodeURIComponent(pdfId)}.pdf`));
+    },
+    removeSplitObjects: async (id) => {
+      [...blobs.keys()].filter((p) => p.startsWith(`${id}/`)).forEach((p) => blobs.delete(p));
     },
     removeVersionObjects: async (id, names) => {
       const prefix = `versions/${id}/`;
@@ -200,26 +234,126 @@ test('version history: prunes beyond the retention cap', async () => {
 
 test('restore: brings back the selected version even with another in between', async () => {
   db.clear(); blobs.clear(); versionMeta.clear();
-  await pf.writeProjectFile('v', bytesOf('version 1'));
+  // Versions are whole .tw files and restore now DECODES them to explode into
+  // the split layout — so the fixtures must be real zips, not stand-in text.
+  const { encodeTw, decodeTw } = await import('./twFile.js');
+  const twOf = (name) => encodeTw({ name, coverPage: false, cover: {}, zones: [], calculations: [] },
+    new Map([['pdfA', bytesOf(`pdf-of-${name}`)]]));
+  const nameOfTw = (bytes) => decodeTw(bytes.buffer ? bytes.buffer.slice(0) : bytes).project.name;
+
+  db.set('v', { id: 'v', name: 'v', status: 'active', last_modified_at: nowIso(), file_size: 0 });
+  await pf.writeProjectFile('v', twOf('version 1'));
   await pf.snapshotVersion('v'); // snapshot of "version 1"
   bypassThrottle();
 
-  await pf.writeProjectFile('v', bytesOf('version 2 - the mistake'));
+  await pf.writeProjectFile('v', twOf('version 2 - the mistake'));
   await pf.snapshotVersion('v'); // snapshot of "version 2"
   bypassThrottle(); // otherwise restoreVersion's own snapshot below gets throttled
-  await pf.writeProjectFile('v', bytesOf('version 3 - current'));
+  await pf.writeProjectFile('v', twOf('version 3 - current'));
 
   const versions = await pf.listVersions('v');
-  const versionOne = versions.find((ver) => textOf(blobs.get(`versions/v/${ver.filename}`)) === 'version 1');
+  const versionOne = versions.find((ver) => nameOfTw(blobs.get(`versions/v/${ver.filename}`)) === 'version 1');
   assert.ok(versionOne, 'the first version is findable in history');
 
   await pf.restoreVersion('v', versionOne.filename);
-  const live = await pf.readProjectFile('v');
-  assert.equal(textOf(live), 'version 1', 'restoring brings back exactly the selected version');
+
+  // Restore writes the SPLIT layout now, and retires the legacy blob.
+  const split = await pf.readSplitProject('v');
+  assert.equal(split.project.name, 'version 1', 'restoring brings back exactly the selected version');
+  assert.deepEqual(split.pdfIds, ['pdfA'], 'its PDFs came along');
+  assert.equal(blobs.has('v.tw'), false, 'the legacy blob is gone — storage is not doubled');
+  assert.equal(db.get('v').name, 'version 1', 'metadata follows the restored contents');
 
   const afterRestore = await pf.listVersions('v');
-  assert.ok(afterRestore.some((ver) => textOf(blobs.get(`versions/v/${ver.filename}`)) === 'version 3 - current'),
+  assert.ok(afterRestore.some((ver) => nameOfTw(blobs.get(`versions/v/${ver.filename}`)) === 'version 3 - current'),
     'restoring snapshots what was live first, so that is recoverable too');
+});
+
+// --- Split layout + optimistic concurrency ---
+
+test('split: readSplitProject is null for a legacy project, round-trips for a split one', async () => {
+  db.clear(); blobs.clear(); versionMeta.clear();
+  await pf.writeProjectFile('legacy', bytesOf('old-blob'));
+  assert.equal(await pf.readSplitProject('legacy'), null, 'legacy blob does not masquerade as split');
+
+  await pf.uploadSplitManifest('s1', { name: 'Split One', coverPage: false, cover: {}, zones: [], calculations: [] });
+  await pf.uploadSplitPdf('s1', 'pdf 1', bytesOf('%PDF-1'));
+  const split = await pf.readSplitProject('s1');
+  assert.equal(split.project.name, 'Split One');
+  assert.deepEqual(split.pdfIds, ['pdf 1'], 'pdfIds decode back through the URI encoding');
+});
+
+test('split: assembleCloudTw builds one .tw from the pieces, and falls back to the legacy blob', async () => {
+  db.clear(); blobs.clear(); versionMeta.clear();
+  const { decodeTw } = await import('./twFile.js');
+
+  await pf.uploadSplitManifest('s2', { name: 'Assembled', coverPage: false, cover: {}, zones: [], calculations: [] });
+  await pf.uploadSplitPdf('s2', 'p1', bytesOf('%PDF-x'));
+  const tw = await pf.assembleCloudTw('s2');
+  const decoded = decodeTw(tw.buffer ? tw.buffer.slice(0) : tw);
+  assert.equal(decoded.project.name, 'Assembled');
+  assert.equal(textOf(decoded.pdfs.get('p1')), '%PDF-x');
+
+  await pf.writeProjectFile('leg', bytesOf('raw-legacy-bytes'));
+  assert.equal(textOf(await pf.assembleCloudTw('leg')), 'raw-legacy-bytes', 'legacy fallback returns the blob untouched');
+
+  assert.equal(await pf.assembleCloudTw('nothing-there'), null, 'no layout at all is null, not a throw');
+});
+
+test('concurrency: claimProjectSave succeeds on the seen rev, refuses after someone else saves', async () => {
+  db.clear(); blobs.clear();
+  db.set('c1', { id: 'c1', name: 'Job', status: 'active', last_modified_at: nowIso(), file_size: 0 });
+  const seenRev = db.get('c1').last_modified_at;
+
+  const first = await pf.claimProjectSave('c1', { name: 'Job', file_size: 10 }, seenRev);
+  assert.ok(first, 'the claim on the rev we loaded succeeds');
+  assert.notEqual(first.last_modified_at, seenRev, 'and moves the rev forward');
+
+  // A second client saves with the OLD rev — must be refused, not merged.
+  const second = await pf.claimProjectSave('c1', { name: 'Job CLOBBERED' }, seenRev);
+  assert.equal(second, null, 'a stale rev cannot claim the save');
+  assert.equal(db.get('c1').name, 'Job', 'and nothing was written');
+});
+
+test('split: writeSplitFromTw explodes a zip and removes PDFs the zip does not contain', async () => {
+  db.clear(); blobs.clear();
+  const { encodeTw } = await import('./twFile.js');
+  db.set('x1', { id: 'x1', name: 'x1', status: 'active', last_modified_at: nowIso(), file_size: 0 });
+
+  // Pre-existing split object that the incoming .tw does NOT reference.
+  await pf.uploadSplitPdf('x1', 'orphan', bytesOf('old'));
+
+  const tw = encodeTw(
+    { name: 'Exploded', coverPage: false, cover: {}, zones: [{ id: 'z1', name: 'L2', order: 0 }], calculations: [] },
+    new Map([['keep', bytesOf('%PDF-keep')]]),
+  );
+  await pf.writeSplitFromTw('x1', tw);
+
+  const split = await pf.readSplitProject('x1');
+  assert.equal(split.project.name, 'Exploded');
+  assert.deepEqual(split.pdfIds, ['keep'], 'the orphan PDF was removed, the referenced one kept');
+  assert.equal(db.get('x1').name, 'Exploded');
+  assert.deepEqual(db.get('x1').zones, [{ id: 'z1', name: 'L2', order: 0 }], 'zones column follows');
+});
+
+test('versions: snapshotVersionBytes throttles, force overrides, and big files keep fewer', async () => {
+  db.clear(); blobs.clear(); versionMeta.clear();
+
+  assert.equal(await pf.snapshotVersionBytes('vb', bytesOf('a')), true, 'first snapshot lands');
+  assert.equal(await pf.snapshotVersionBytes('vb', bytesOf('b')), null, 'a second moments later is throttled');
+  assert.equal(await pf.snapshotVersionBytes('vb', bytesOf('c'), { force: true }), true, 'force bypasses the throttle');
+
+  // Size-aware pruning: seed 10 versions, then snapshot a >25 MB payload —
+  // the keep-count drops to 4.
+  db.clear(); blobs.clear(); versionMeta.clear();
+  for (let i = 0; i < 10; i += 1) {
+    const path = `versions/big/seed-${i}.tw`;
+    blobs.set(path, bytesOf(`seed ${i}`));
+    versionMeta.set(path, { created_at: new Date(Date.now() - (20 - i) * 60000).toISOString() });
+  }
+  const huge = new Uint8Array(26 * 1024 * 1024);
+  await pf.snapshotVersionBytes('big', huge, { force: true });
+  assert.equal((await pf.listVersions('big')).length, 4, 'a 26 MB project keeps 4 versions, not 12');
 });
 
 test('delete from trash also removes its version history (no orphans)', async () => {

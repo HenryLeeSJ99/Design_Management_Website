@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { AlertTriangle, Check, CloudOff, FolderOpen, Loader2, RotateCw } from 'lucide-react';
-import { getOpenFilename, onSaveState, saveNow } from '../services/projectSession';
+import { getOpenFilename, onSaveState, resolveConflict, saveNow } from '../services/projectSession';
 import { getProject, onProjectChange } from '../services/projectStore';
 import styles from './ProjectContextBar.module.css';
 
@@ -43,6 +43,7 @@ export default function ProjectContextBar() {
   const [state, setState] = useState('idle'); // idle | dirty | saving | saved | error
   const [savedAt, setSavedAt] = useState(null);
   const [error, setError] = useState('');
+  const [conflict, setConflict] = useState(false);
   const [, setTick] = useState(0);
 
   // The project name can change (rename), and which file is open changes on
@@ -55,9 +56,21 @@ export default function ProjectContextBar() {
   // The whole point: give the save signal somewhere to land.
   useEffect(() => onSaveState((next, detail) => {
     setState(next);
-    if (next === 'saved') { setSavedAt(detail?.at || Date.now()); setError(''); }
-    if (next === 'error') setError(detail?.message || 'The project could not be saved.');
+    if (next === 'saved') { setSavedAt(detail?.at || Date.now()); setError(''); setConflict(false); }
+    if (next === 'error') {
+      setError(detail?.message || 'The project could not be saved.');
+      setConflict(!!detail?.conflict);
+    }
   }), []);
+
+  // localStorage quota exhaustion comes from projectStore, not the save loop —
+  // an edit that could not even reach the working copy. Same slot in the UI:
+  // it is still "your work is not safe".
+  useEffect(() => {
+    const onFull = (e) => { setState('error'); setError(e.detail?.message || 'This project is too large for local storage.'); };
+    window.addEventListener('tempworks:storage-full', onFull);
+    return () => window.removeEventListener('tempworks:storage-full', onFull);
+  }, []);
 
   // Route changes can open/close a project without any project change firing.
   useEffect(() => { setOpenFilename(getOpenFilename()); }, [location.pathname]);
@@ -115,7 +128,22 @@ export default function ProjectContextBar() {
         {state === 'saved' && (
           <><Check size={13} className={styles.ok} /> Saved {formatAgo(savedAt)}</>
         )}
-        {state === 'error' && (
+        {state === 'error' && conflict && (
+          <>
+            <AlertTriangle size={13} />
+            <span title={error}>Someone else saved this project</span>
+            {/* Two explicit outcomes, no default. "Keep mine" first rescues
+                their version into history, so neither choice destroys work
+                irrecoverably. */}
+            <button type="button" className={styles.retry} onClick={() => resolveConflict('keepMine').catch(() => {})}>
+              Keep mine
+            </button>
+            <button type="button" className={styles.retry} onClick={() => resolveConflict('takeTheirs').then(() => window.location.reload()).catch(() => {})}>
+              Take theirs
+            </button>
+          </>
+        )}
+        {state === 'error' && !conflict && (
           <>
             <AlertTriangle size={13} />
             <span title={error}>Save failed</span>

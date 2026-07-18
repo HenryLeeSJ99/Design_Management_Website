@@ -140,7 +140,22 @@ export function onProjectChange(listener) {
 }
 
 function setProject(project) {
-  localStorage.setItem(PROJECT_STORAGE_KEY, JSON.stringify(project));
+  try {
+    localStorage.setItem(PROJECT_STORAGE_KEY, JSON.stringify(project));
+  } catch (e) {
+    // localStorage is ~5 MB; a very large project (roughly a thousand-plus
+    // calculations) hits the quota and setItem throws. Without this catch the
+    // edit fails INVISIBLY — the click handler dies, nothing is stored, and
+    // the user believes their change was saved. Announce it where the save
+    // indicator lives, then still throw so the caller does not carry on as if
+    // the write happened.
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('tempworks:storage-full', {
+        detail: { message: 'This project is too large for the browser’s local storage. Export it as a .tw file, then remove old items or split it into two projects.' },
+      }));
+    }
+    throw new Error('The project has outgrown the browser’s local storage — this change was NOT saved.', { cause: e });
+  }
   // A listener must never be able to break a save that already succeeded
   changeListeners.forEach((listener) => {
     try {

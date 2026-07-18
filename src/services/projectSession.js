@@ -16,14 +16,38 @@
 
 import { PROJECT_STORAGE_KEY, coverHasContent, getProject, onProjectChange } from './projectStore';
 import { clearAllPdfs, deletePdf, getPdf, listPdfIds, putPdf } from './pdfStore';
-import { readProjectFile, snapshotVersion, writeProjectFile } from './projectFiles';
+import {
+  claimProjectSave, downloadSplitPdf, readProject, readProjectFile, readSplitProject,
+  removeSplitPdfs, snapshotVersion, snapshotVersionBytes, uploadSplitManifest, uploadSplitPdf,
+} from './projectFiles';
 import { decodeTw, encodeTw, twFilename } from './twFile';
 import { clearUndo } from './undo';
 
 // Which file the working copy came from. Kept out of the project itself so the
 // same project copied to another name doesn't drag its old filename along.
 const OPEN_FILE_KEY = 'tempworks_open_file';
+// The last_modified_at of the copy we are editing — the RAW string PostgREST
+// returned, never parsed through Date (Postgres keeps microseconds; Date does
+// not, and a truncated value would never match on the conditional save).
+const OPEN_REV_KEY = 'tempworks_open_rev';
 const SAVE_DEBOUNCE_MS = 900;
+
+// Which PDFs the cloud already holds for the open project, so a save uploads
+// only what is new. Session-scoped: rebuilt on open, updated on save.
+let cloudPdfIds = new Set();
+// True when the project was opened from a legacy single-blob .tw — the first
+// split save then deletes the blob to finish the migration.
+let hadLegacyBlob = false;
+
+const getOpenRev = () => {
+  try { return localStorage.getItem(OPEN_REV_KEY) || null; } catch { return null; }
+};
+const setOpenRev = (rev) => {
+  try {
+    if (rev) localStorage.setItem(OPEN_REV_KEY, rev);
+    else localStorage.removeItem(OPEN_REV_KEY);
+  } catch { /* storage unavailable — conflict detection just degrades */ }
+};
 
 let saveTimer = null;
 let savingPromise = null;
@@ -83,34 +107,98 @@ export async function saveNow() {
 
   emit('saving');
   try {
-    // Keep what is on the cloud before overwriting it. Throttled inside, so
-    // this is a trail of sessions rather than one version per keystroke, and
-    // it never throws — history must not be able to block a save.
-    await snapshotVersion(filename);
-    await writeProjectFile(filename, encodeTw(project, pdfs), {
+    // 1. CLAIM FIRST, WRITE AFTER. The conditional update succeeds only if
+    //    nobody has saved since we opened; the stored objects are touched
+    //    only once the claim holds. The reverse order would overwrite the
+    //    other person's work and then discover the conflict.
+    const totalSize = [...pdfs.values()].reduce((n, b) => n + (b.byteLength || 0), 0);
+    const claimed = await claimProjectSave(filename, {
       name: project.name,
       calculation_count: project.calculations?.length || 0,
       drawing_count: project.calculations?.filter((c) => c.type === 'drawing').length || 0,
-      // Zones only exist inside the .tw, so the database cannot see them —
-      // which is why per-zone submission dates had nowhere to hang. Copy them
-      // up on every save. Deliberately NOT into `timeline`: that column is
-      // gated to managers by a trigger, and this write happens on a designer's
-      // ordinary save, which would then be refused. See
-      // supabase/migrations/20260718_zones_column.sql.
+      file_size: totalSize,
+      // Zones only exist inside the working copy, so the database cannot see
+      // them without this. Deliberately NOT written into `timeline`: that
+      // column is gated to managers by a trigger, and this runs on a
+      // designer's ordinary save. See 20260718_zones_column.sql.
       zones: (project.zones || []).map(({ id, name, order }) => ({ id, name, order })),
-    });
+    }, getOpenRev());
+
+    if (!claimed) {
+      emit('error', {
+        conflict: true,
+        message: 'Someone else saved this project after you opened it. Saving now would overwrite their work.',
+      });
+      return null;
+    }
+    setOpenRev(claimed.last_modified_at);
+
+    // 2. The manifest — a few KB, the thing that actually changed.
+    await uploadSplitManifest(filename, project);
+
+    // 3. PDFs — only the ones the cloud does not already hold. PDFs are
+    //    immutable once attached (a regenerated report gets a new pdfId), so
+    //    "not in cloudPdfIds" is the complete definition of "needs uploading".
+    for (const [pdfId, bytes] of pdfs) {
+      if (!cloudPdfIds.has(pdfId)) {
+        await uploadSplitPdf(filename, pdfId, bytes);
+        cloudPdfIds.add(pdfId);
+      }
+    }
+    const wanted = new Set(pdfs.keys());
+    const stale = [...cloudPdfIds].filter((id) => !wanted.has(id));
+    if (stale.length) {
+      await removeSplitPdfs(filename, stale).catch(() => {});
+      stale.forEach((id) => cloudPdfIds.delete(id));
+    }
+
+    // 4. First split save of a legacy project retires its single blob.
+    if (hadLegacyBlob) {
+      hadLegacyBlob = false;
+      const { deleteStorageFile } = await import('./supabaseStorage');
+      await deleteStorageFile(filename).catch(() => { hadLegacyBlob = true; });
+    }
+
     emit('saved', { at: Date.now() });
+
+    // 5. A periodic full checkpoint for the version history, assembled from
+    //    the bytes already in memory — no download. Throttled inside.
+    snapshotVersionBytes(filename, encodeTw(project, pdfs)).catch(() => {});
 
     // Sweep PDF blobs no live item references. Deleting an item no longer
     // deletes its bytes (so undo can bring it back), which leaves orphans in
-    // the cache; they were just excluded from the file above, so dropping them
-    // here loses nothing. Best-effort — a failed sweep never fails the save.
+    // the cache; they were just excluded above, so dropping them loses
+    // nothing. Best-effort — a failed sweep never fails the save.
     sweepOrphanPdfs(project).catch(() => {});
     return filename;
   } catch (e) {
     emit('error', { message: e?.message || 'The project could not be saved.' });
     throw e;
   }
+}
+
+/**
+ * Resolve a save conflict, explicitly, the way the person chooses:
+ *
+ *  'keepMine'   — the OTHER person's current cloud state is captured into the
+ *                 version history first (force, no throttle), then my copy
+ *                 saves over it. Their work is recoverable, mine is live.
+ *  'takeTheirs' — my local copy is replaced by the cloud state. My unsaved
+ *                 edits are gone; that is what was chosen.
+ */
+export async function resolveConflict(strategy) {
+  const filename = getOpenFilename();
+  if (!filename) return null;
+
+  if (strategy === 'takeTheirs') {
+    return openProject(filename, { force: true });
+  }
+
+  // keepMine: rescue theirs into history, re-arm the rev, save mine.
+  await snapshotVersion(filename, { force: true });
+  const record = await readProject(filename);
+  if (record) setOpenRev(record.last_modified_at);
+  return saveNow();
 }
 
 /** Drop cached PDF blobs that no item in the project points at. */
@@ -201,8 +289,31 @@ export function hasUnsavedLocalDraft() {
 export async function openProject(filename, { force = false } = {}) {
   if (!force && hasUnsavedLocalDraft()) throw new UnsavedDraftError();
 
-  const bytes = await readProjectFile(filename);
-  const { project, pdfs } = decodeTw(bytes); // throws TwFileError on a bad file
+  // The record first: its last_modified_at is the rev every later save's
+  // conflict check compares against, so it must be from BEFORE we read the
+  // contents — a stale-but-honest rev only makes the check stricter.
+  const record = await readProject(filename);
+
+  let project;
+  const pdfs = new Map();
+  const split = await readSplitProject(filename);
+  if (split) {
+    project = split.project;
+    for (const pdfId of split.pdfIds) {
+      const bytes = await downloadSplitPdf(filename, pdfId).catch(() => null);
+      if (bytes) pdfs.set(pdfId, bytes);
+    }
+    cloudPdfIds = new Set(split.pdfIds);
+    hadLegacyBlob = false;
+  } else {
+    // Legacy single-blob project — migrated to the split layout on first save.
+    const bytes = await readProjectFile(filename);
+    const decoded = decodeTw(bytes); // throws TwFileError on a bad file
+    project = decoded.project;
+    for (const [id, blob] of decoded.pdfs) pdfs.set(id, blob);
+    cloudPdfIds = new Set(); // nothing in the split layout yet
+    hadLegacyBlob = true;
+  }
 
   await clearAllPdfs();
   for (const [id, blob] of pdfs) {
@@ -210,8 +321,14 @@ export async function openProject(filename, { force = false } = {}) {
   }
   localStorage.setItem(PROJECT_STORAGE_KEY, JSON.stringify(project));
   setOpenFilename(filename);
+  setOpenRev(record?.last_modified_at || null);
   clearUndo(); // the previous project's undo history is meaningless here
   emit('saved', { at: Date.now() });
+
+  // Baseline checkpoint of the state as opened, from bytes already in hand.
+  // Without it, the first history entry after opening would be the state
+  // five minutes AFTER any early mistake, not the state before it.
+  snapshotVersionBytes(filename, encodeTw(project, pdfs)).catch(() => {});
   return project;
 }
 
@@ -239,18 +356,26 @@ async function createProjectFromData(name, project, pdfs, coverImageFile) {
     metadata: {
       calculation_count: project.calculations.length,
       drawing_count: project.calculations.filter((c) => c.type === 'drawing').length,
-      file_size: 0,
+      file_size: [...pdfs.values()].reduce((n, b) => n + (b.byteLength || 0), 0),
     },
   });
 
-  // The database ID becomes the storage filename/id
-  await writeProjectFile(record.id, encodeTw(project, pdfs));
+  // The database ID becomes the storage id. Born straight into the split
+  // layout — only legacy projects ever have a single blob.
+  await uploadSplitManifest(record.id, project);
+  for (const [pdfId, bytes] of pdfs) {
+    await uploadSplitPdf(record.id, pdfId, bytes);
+  }
+  cloudPdfIds = new Set(pdfs.keys());
+  hadLegacyBlob = false;
+
   await clearAllPdfs();
   for (const [id, blob] of pdfs) {
     await putPdf(id, blob);
   }
   localStorage.setItem(PROJECT_STORAGE_KEY, JSON.stringify(project));
   setOpenFilename(record.id);
+  setOpenRev(record.last_modified_at || null);
   clearUndo(); // the previous project's undo history is meaningless here
   emit('saved', { at: Date.now() });
   return project;
@@ -308,6 +433,9 @@ export async function exportLocalDraftAsTw() {
 export async function closeProject() {
   await flush();
   setOpenFilename(null);
+  setOpenRev(null);
+  cloudPdfIds = new Set();
+  hadLegacyBlob = false;
   clearUndo();
 }
 

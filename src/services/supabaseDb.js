@@ -2,9 +2,13 @@ import { supabase } from './supabaseClient';
 
 /**
  * Fetch all visible projects for the current user.
- * RLS policies in Postgres handle filtering:
- * - Admin/Manager/Sales see all projects.
- * - Designers see only their assigned projects.
+ *
+ * RLS in Postgres decides visibility. As of the 2026-07-18 policy change,
+ * EVERY signed-in role — designers included — reads all projects; assignment
+ * is a future filter, not a permission. (The original designer policy keyed
+ * on assigned_to, which nothing ever wrote, so designers saw zero projects
+ * and could save none. This comment used to describe that broken intent as
+ * if it worked.)
  */
 export async function fetchProjects() {
   const { data, error } = await supabase
@@ -92,6 +96,41 @@ export async function updateProjectRecord(projectId, updates) {
     throw new Error(`Failed to update project record: ${error.message}`);
   }
   return data;
+}
+
+/**
+ * Update a project's metadata ONLY IF nobody else has saved since we last
+ * read it. Returns the updated row, or null when the row has moved on —
+ * i.e. another person (or another tab) saved after `expectedLastModified`
+ * was read.
+ *
+ * This is the whole concurrency story: saves are last-write-wins on a whole
+ * blob, so without this check two people editing the same project silently
+ * destroy each other's work. The .eq on last_modified_at makes the claim
+ * atomic in Postgres; the blob upload happens only after the claim succeeds.
+ *
+ * `expectedLastModified` must be the RAW string previously returned by
+ * PostgREST, never round-tripped through a JS Date — Postgres keeps
+ * microseconds and `new Date()` truncates to milliseconds, which would make
+ * every comparison miss.
+ */
+export async function updateProjectRecordIf(projectId, updates, expectedLastModified) {
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data, error } = await supabase
+    .from('projects')
+    .update({
+      ...updates,
+      last_modified_at: new Date().toISOString(),
+      updater_email: user?.email || null,
+    })
+    .eq('id', projectId)
+    .eq('last_modified_at', expectedLastModified)
+    .select();
+
+  if (error) {
+    throw new Error(`Failed to update project record: ${error.message}`);
+  }
+  return data?.length ? data[0] : null;
 }
 
 /**
