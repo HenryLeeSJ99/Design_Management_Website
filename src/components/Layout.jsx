@@ -4,9 +4,10 @@ import styles from './Layout.module.css';
 import Logo from './Logo';
 import RouteLoader from './RouteLoader';
 import ProjectContextBar from './ProjectContextBar';
+import ThemeToggle from './ThemeToggle';
 import { useAuth } from '../contexts/AuthContext';
-import { useTheme } from '../contexts/ThemeContext';
-import { Menu, X, SquareMenu, Layers, Building, ChevronsUp, ChevronDown, Columns, Cuboid, RefreshCw, LayoutDashboard, FolderOpen, Settings as SettingsIcon, LogIn, LogOut, ShieldCheck, TrendingUp, Sun, Moon } from 'lucide-react';
+import { canUseWorkbook } from '../services/roles';
+import { Menu, X, SquareMenu, Layers, Building, ChevronsUp, ChevronDown, Columns, Cuboid, RefreshCw, LayoutDashboard, FolderOpen, Settings as SettingsIcon, LogIn, LogOut, ShieldCheck, TrendingUp } from 'lucide-react';
 import TermsModal from './TermsModal';
 
 // Page titles shown beside the hamburger in the mobile top header
@@ -62,7 +63,6 @@ export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, role, logout } = useAuth();
-  const { resolvedTheme, setTheme } = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isTermsOpen, setIsTermsOpen] = useState(false);
 
@@ -132,7 +132,6 @@ export default function Layout() {
    * and guests are explicitly invited to.
    */
   const signedIn = !!user;
-  const isSales = role === 'sales';
 
   const navItems = [
     { name: 'Sign in', path: '/login', icon: LogIn, show: !signedIn },
@@ -142,8 +141,9 @@ export default function Layout() {
     // of it — two names for what sounded like the same thing. It is not a
     // dashboard: it is where a designer assembles calculations, drawings and
     // the compiled report. The route stays /dashboard so existing links and
-    // bookmarks keep working.
-    { name: 'Design Workbook', path: '/dashboard', icon: LayoutDashboard, show: signedIn && !isSales },
+    // bookmarks keep working. Shown only to roles that can actually save into
+    // it — an allowlist, so an unknown role (a failed lookup) sees no dead end.
+    { name: 'Design Workbook', path: '/dashboard', icon: LayoutDashboard, show: signedIn && canUseWorkbook(role) },
     { name: 'Settings', path: '/settings', icon: SettingsIcon, show: signedIn },
   ].filter((item) => item.show);
 
@@ -241,15 +241,7 @@ export default function Layout() {
 
           {/* Theme Toggle & Clear Cache */}
           <div className={styles.navSection}>
-            <button
-              type="button"
-              className={styles.sidebarActionBtn}
-              onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-              title={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
-            >
-              {resolvedTheme === 'dark' ? <Sun size={15} /> : <Moon size={15} />}
-              {resolvedTheme === 'dark' ? 'Light Mode' : 'Dark Mode'}
-            </button>
+            <ThemeToggle variant="sidebar" />
             <button
               className={styles.sidebarActionBtn}
               onClick={() => setIsTermsOpen(true)}
@@ -299,15 +291,7 @@ export default function Layout() {
           <h1 className={styles.headerTitle}>{getPageTitle(location.pathname)}</h1>
           
           {/* Theme Quick Toggle (mobile header) */}
-          <button
-            type="button"
-            className={styles.mobileThemeToggle}
-            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
-            aria-label={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
-            title={`Switch to ${resolvedTheme === 'dark' ? 'light' : 'dark'} mode`}
-          >
-            {resolvedTheme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
+          <ThemeToggle variant="header" />
         </header>
 
         <main className={styles.mainContent}>

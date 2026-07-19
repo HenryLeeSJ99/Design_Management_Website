@@ -88,7 +88,20 @@ const coverSummary = (cover) => {
   return bits.length ? bits.join(' · ') : 'Not filled in yet — open it to add your project details';
 };
 
+// A comfortable ceiling for a formwork drawing or report. Above this, a file
+// is almost always a full-resolution scan that will bog the drawing viewer's
+// canvas render and bloat every cloud save — check the SIZE before reading the
+// bytes into memory, so a 500 MB "PDF" is refused at the door, not after it is
+// already loaded. Supabase's own per-file cap is 50 MB; staying under it means
+// the save is refused here with a clear message rather than by the server with
+// an opaque one.
+import { MAX_PDF_BYTES, assertPdfSize } from '../services/uploadLimits';
+
 async function readPdfFile(file) {
+  // Size FIRST, before a byte is read into memory — a 500 MB "PDF" is refused
+  // at the door, not after it has already been loaded and started bogging the
+  // tab. See services/uploadLimits.
+  assertPdfSize(file);
   const bytes = await file.arrayBuffer();
   const head = new TextDecoder().decode(new Uint8Array(bytes.slice(0, 5)));
   if (!head.startsWith('%PDF')) throw new Error(`"${file.name}" is not a PDF file.`);

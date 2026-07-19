@@ -9,6 +9,7 @@ import {
   restoreFromTrash, restoreVersion, setProjectStatus, trashProject, TRASH_DAYS,
 } from '../services/projectFiles';
 import { canChangeProjectStatus, PROJECT_STATUSES, statusLabel } from '../services/projectStatus';
+import { isManagerLevel, isReadOnly } from '../services/roles';
 import {
   currentMilestone, daysToDate, nextSubmission, projectIsSlipping, projectProgress,
   projectTarget, readSubmissions,
@@ -425,9 +426,10 @@ export default function Projects() {
 
   const openFilename = getOpenFilename();
 
-  // Updated to include team_leader
-  const isManagerLevel = role === 'admin' || role === 'manager' || role === 'team_leader';
-  const isSales = role === 'sales';
+  // From services/roles — the one place these are defined, so this page cannot
+  // drift from the sidebar (the Edit-Cover gate did exactly that before).
+  const managerLevel = isManagerLevel(role);
+  const salesRole = isReadOnly(role);
   const canSetStatus = canChangeProjectStatus(role);
 
   // Card vs list is a per-person habit, so it outlives the page but not the
@@ -557,7 +559,7 @@ export default function Projects() {
   };
 
   const handleOpen = (project) => guard(project.filename, async () => {
-    if (isSales) return;
+    if (salesRole) return;
     if (project.error) return;
     await runWithDraftGuard(
       ({ force }) => openProject(project.filename, { force }),
@@ -702,7 +704,7 @@ export default function Projects() {
             {showTrash ? <><FolderOpen size={18} /><span>Back to projects</span></> : <><Trash2 size={18} /><span>View trash</span></>}
           </button>
           
-          {!showTrash && isManagerLevel && (
+          {!showTrash && managerLevel && (
             <button type="button" className={styles.btnPrimary} onClick={() => setShowCreateModal(true)} disabled={!!busy}>
               <Plus size={18} /><span>New project</span>
             </button>
@@ -815,7 +817,7 @@ export default function Projects() {
                     project overview; the list only needs "is this stale". */}
                 <span className={styles.listSubline} title={`Updated ${formatWhen(project.last_modified_at)}${project.updater_email ? ` by ${project.updater_email}` : ''}`}>
                   {formatAgo(project.last_modified_at)}
-                  {isManagerLevel && project.updater_email ? ` · ${project.updater_email}` : ''}
+                  {managerLevel && project.updater_email ? ` · ${project.updater_email}` : ''}
                 </span>
               </span>
             )}
@@ -837,7 +839,7 @@ export default function Projects() {
             <span className={styles.listActions}>
               {!showTrash ? (
                 <>
-                  {!isSales && (
+                  {!salesRole && (
                     <button type="button" className={styles.btnSecondary} onClick={() => handleOpen(project)} disabled={!!busy || !!project.error}>
                       {openFilename === project.filename ? 'Resume' : 'Open'}
                     </button>
@@ -845,7 +847,7 @@ export default function Projects() {
                   <button type="button" className={styles.btnIconGhost} onClick={() => setHistoryFor(project)} title="Version history" disabled={!!busy}>
                     <History size={18} />
                   </button>
-                  {isManagerLevel && (
+                  {managerLevel && (
                     <button type="button" className={styles.btnIconGhost} onClick={() => handleDelete(project)} title="Move to trash" disabled={!!busy}>
                       <Trash2 size={18} />
                     </button>
@@ -856,7 +858,7 @@ export default function Projects() {
                   <button type="button" className={styles.btnSecondary} onClick={() => handleRestore(project)} disabled={!!busy}>
                     <Undo2 size={16} /> Restore
                   </button>
-                  {isManagerLevel && (
+                  {managerLevel && (
                     <button type="button" className={styles.btnIconGhost} onClick={() => handleDeleteForever(project)} title="Delete forever" disabled={!!busy}>
                       <Trash2 size={18} />
                     </button>
@@ -876,10 +878,10 @@ export default function Projects() {
                 </div>
               )}
 
-              {/* isManagerLevel, not a hand-rolled admin||manager: this gate
+              {/* managerLevel, not a hand-rolled admin||manager: this gate
                   had drifted and left a team leader able to trash a project
                   but not change its cover image. */}
-              {!showTrash && isManagerLevel && (
+              {!showTrash && managerLevel && (
                 <button
                   type="button"
                   className={styles.editCoverBtn}
@@ -904,7 +906,7 @@ export default function Projects() {
                 <p className={styles.cardMeta}>
                   Modified {formatWhen(project.last_modified_at)} &middot; {formatSize(project.file_size)}
                 </p>
-                {isManagerLevel && project.updater_email && (
+                {managerLevel && project.updater_email && (
                   <p className={styles.cardMeta} style={{ marginTop: '-4px' }}>
                     By {project.updater_email}
                   </p>
@@ -928,7 +930,7 @@ export default function Projects() {
 
               {!showTrash ? (
                 <div className={styles.cardActions}>
-                  {!isSales && (
+                  {!salesRole && (
                     <button type="button" className={styles.btnSecondary} onClick={() => handleOpen(project)} disabled={!!busy || !!project.error}>
                       {openFilename === project.filename ? 'Resume' : 'Open'}
                     </button>
@@ -936,7 +938,7 @@ export default function Projects() {
                   <button type="button" className={styles.btnIconGhost} onClick={() => setHistoryFor(project)} title="Version history" disabled={!!busy}>
                     <History size={18} />
                   </button>
-                  {isManagerLevel && (
+                  {managerLevel && (
                     <button type="button" className={styles.btnIconGhost} onClick={() => handleDelete(project)} title="Move to trash" disabled={!!busy}>
                       <Trash2 size={18} />
                     </button>
@@ -947,7 +949,7 @@ export default function Projects() {
                   <button type="button" className={styles.btnSecondary} onClick={() => handleRestore(project)} disabled={!!busy}>
                     <Undo2 size={16} /> Restore
                   </button>
-                  {isManagerLevel && (
+                  {managerLevel && (
                     <button type="button" className={styles.btnIconGhost} onClick={() => handleDeleteForever(project)} title="Delete forever" disabled={!!busy}>
                       <Trash2 size={18} />
                     </button>
@@ -978,11 +980,11 @@ export default function Projects() {
             <LayoutTemplate size={48} className={styles.emptyIcon} />
             <h2>No projects yet</h2>
             <p>
-              {isManagerLevel
+              {managerLevel
                 ? 'Create a new project to get started.'
                 : 'You have no assigned projects yet.'}
             </p>
-            {isManagerLevel && (
+            {managerLevel && (
               <button type="button" className={styles.btnPrimary} onClick={() => setShowCreateModal(true)} disabled={!!busy}>
                 <Plus size={18} /><span>New project</span>
               </button>

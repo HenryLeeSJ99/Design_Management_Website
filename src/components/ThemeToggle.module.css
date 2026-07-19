@@ -1,0 +1,187 @@
+/* ═══════════════════════════════════════════════════
+   ThemeToggle — animated sun ↔ moon switch
+   ═══════════════════════════════════════════════════ */
+
+/* ── Spring-like easing for everything ── */
+:root {
+  --toggle-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --toggle-speed: 0.55s;
+}
+
+/* ── Button shell ── */
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: transparent;
+  border: 1px solid var(--border-color-dark);
+  color: var(--text-sidebar);
+  cursor: pointer;
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.78rem;
+  letter-spacing: 0.01em;
+  transition:
+    background var(--toggle-speed) ease,
+    color var(--toggle-speed) ease,
+    border-color var(--toggle-speed) ease,
+    box-shadow var(--toggle-speed) ease;
+  position: relative;
+  overflow: visible;
+}
+
+/* Sidebar variant – full-width row */
+.sidebar {
+  width: 100%;
+}
+
+/* Header variant – compact icon-only circle */
+.header {
+  padding: 0.4rem;
+  border: none;
+  border-radius: 8px;
+  margin-left: auto;
+  gap: 0;
+}
+
+/* ── Hover & active states ── */
+.toggle:hover {
+  background: var(--bg-sidebar-hover);
+  color: var(--text-sidebar-active);
+  border-color: var(--text-muted);
+}
+
+.header:hover {
+  background: var(--border-color-light);
+  color: var(--text-main);
+  border-color: transparent;
+}
+
+.toggle:active {
+  transform: scale(0.95);
+}
+
+/* ── Ambient glow on hover ── */
+.light:hover {
+  box-shadow: 0 0 14px -3px rgba(250, 176, 5, 0.25);
+}
+
+.dark:hover {
+  box-shadow: 0 0 14px -3px rgba(147, 179, 237, 0.25);
+}
+
+.header.light:hover,
+.header.dark:hover {
+  box-shadow: none;
+}
+
+/* ── SVG icon container ── */
+.icon {
+  flex-shrink: 0;
+  transition: transform var(--toggle-speed) var(--toggle-spring);
+}
+
+/* Full rotation on every toggle */
+.light .icon {
+  transform: rotate(0deg);
+  color: var(--text-sidebar);
+}
+
+.dark .icon {
+  transform: rotate(320deg);
+  color: #93b3ed;
+}
+
+/* Sidebar button in dark mode uses blue tint */
+.sidebar.dark {
+  border-color: rgba(147, 179, 237, 0.2);
+}
+
+.sidebar.dark:hover {
+  border-color: rgba(147, 179, 237, 0.45);
+  background: rgba(147, 179, 237, 0.06);
+}
+
+/* ── SVG body (sun disc ↔ moon crescent) ── */
+.body {
+  transition:
+    r var(--toggle-speed) var(--toggle-spring),
+    fill var(--toggle-speed) ease;
+}
+
+/* ── SVG mask (crescent bite) ── */
+.maskCircle {
+  transition:
+    cx var(--toggle-speed) var(--toggle-spring),
+    cy var(--toggle-speed) var(--toggle-spring);
+}
+
+/* ── Sun rays ── */
+.rays {
+  transform-origin: center;
+  transition:
+    opacity 0.3s ease,
+    transform var(--toggle-speed) var(--toggle-spring);
+}
+
+.raysHidden {
+  opacity: 0;
+  transform: scale(0) rotate(60deg);
+}
+
+/* Each ray line inherits smooth color */
+.rays line {
+  transition: stroke var(--toggle-speed) ease;
+}
+
+/* ── Stars ── */
+.stars {
+  opacity: 0;
+  transform: scale(0.4) rotate(-15deg);
+  transform-origin: center;
+  transition:
+    opacity 0.35s ease 0.1s,
+    transform var(--toggle-speed) var(--toggle-spring) 0.1s;
+}
+
+.starsVisible {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+/* Staggered bloom per star */
+.starsVisible circle:nth-child(1) { animation: starPulse 2.5s ease-in-out infinite 0.0s; }
+.starsVisible circle:nth-child(2) { animation: starPulse 2.5s ease-in-out infinite 0.4s; }
+.starsVisible circle:nth-child(3) { animation: starPulse 2.5s ease-in-out infinite 0.8s; }
+.starsVisible circle:nth-child(4) { animation: starPulse 2.5s ease-in-out infinite 1.2s; }
+.starsVisible circle:nth-child(5) { animation: starPulse 2.5s ease-in-out infinite 1.6s; }
+
+@keyframes starPulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.6); }
+}
+
+/* ── Label text ── */
+.label {
+  transition: color var(--toggle-speed) ease;
+  user-select: none;
+  white-space: nowrap;
+}
+
+/* ═══════════════════════════════════════════════════
+   Reduced motion — collapse all animations
+   ═══════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .icon,
+  .body,
+  .maskCircle,
+  .rays,
+  .stars {
+    transition-duration: 0.01s !important;
+  }
+
+  .starsVisible circle {
+    animation: none !important;
+  }
+}

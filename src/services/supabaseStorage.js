@@ -198,9 +198,25 @@ export async function removeVersionObjects(projectId, filenames) {
  * @param {File} file - The image file to upload.
  * @returns {string} The public URL of the uploaded image.
  */
+// Cover art is a thumbnail, not a document — a few MB is generous. And it must
+// actually be an image: the type and extension come straight from the browser,
+// so validate rather than trust. An allowlist of extensions (not a denylist)
+// keeps the object key from ever carrying something like ".php" or a path
+// traversal via a crafted filename.
+const MAX_COVER_BYTES = 8 * 1024 * 1024;
+const COVER_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'webp', 'gif']);
+
 export async function uploadCoverImage(projectId, file) {
-  // Extract extension from file
-  const ext = file.name.split('.').pop();
+  if (!file.type?.startsWith('image/')) {
+    throw new Error('The cover must be an image file (PNG, JPG, WebP or GIF).');
+  }
+  if (file.size > MAX_COVER_BYTES) {
+    throw new Error(`The cover image is too large — keep it under ${MAX_COVER_BYTES / (1024 * 1024)} MB.`);
+  }
+  const ext = (file.name.split('.').pop() || '').toLowerCase();
+  if (!COVER_EXTENSIONS.has(ext)) {
+    throw new Error('Use a PNG, JPG, WebP or GIF for the cover image.');
+  }
   const path = `covers/${projectId}.${ext}`;
 
   const { error } = await supabase.storage

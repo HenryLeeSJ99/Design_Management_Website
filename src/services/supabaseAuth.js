@@ -66,12 +66,18 @@ export async function getUserProfile() {
     .eq('user_id', user.id)
     .single();
 
-  // If there's an error (e.g., table doesn't exist yet or user not found), default to 'designer'
+  // FAIL CLOSED. If the role cannot be determined — a query error, or no row —
+  // the role is null, NOT 'designer'. The old default handed anyone whose
+  // lookup hiccupped a writing role, which showed them the design workbook and
+  // let them attempt saves the database would then refuse. (Postgres RLS is
+  // the real gate and already denies writes for an unknown role, so this was
+  // never a breach — but the UI implied access that wasn't there.) A null role
+  // shows the least: no workbook, no privileged actions. See canUseWorkbook().
   if (error) {
-    console.warn('Could not fetch user role, defaulting to designer:', error.message);
+    console.warn('Could not determine user role — treating as no privileges:', error.message);
   }
 
-  return { ...user, role: roleData?.role || 'designer' };
+  return { ...user, role: roleData?.role || null };
 }
 
 export function onAuthStateChange(callback) {
