@@ -16,6 +16,7 @@ import {
 import { deletePdf } from '../services/pdfStore';
 import { getOpenFilename } from '../services/projectSession';
 import { confirmDialog } from '../services/dialog';
+import { useAuth } from '../contexts/AuthContext';
 import { useCalcReset } from './CalcInstance';
 import styles from './SavedDesigns.module.css';
 
@@ -36,6 +37,7 @@ const formatWhen = (ts) => {
  * @param sessionKeys sessionStorage keys that make up a design snapshot
  */
 export default function SavedDesigns({ calculator, title, sessionKeys }) {
+  const { user } = useAuth();
   const resetCalculator = useCalcReset();
   const fileInputRef = useRef(null);
   const [open, setOpen] = useState(false);
@@ -51,6 +53,12 @@ export default function SavedDesigns({ calculator, title, sessionKeys }) {
   // getProject() JSON-parses the whole working copy, and this component sits
   // in a calculator header that re-renders on every input keystroke.
   const [openProjectName, setOpenProjectName] = useState(null);
+
+  // Saving writes into the project dashboard (a cloud project or, with none
+  // open, a browser-local draft that promotes to one) — both are project
+  // state, so a guest with no account gets no button rather than a panel
+  // that only half-works for them.
+  if (!user) return null;
 
   const refresh = () => setDesigns(listCalculations(calculator));
 

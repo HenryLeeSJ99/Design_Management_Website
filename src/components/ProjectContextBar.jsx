@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { AlertTriangle, Check, CloudOff, FolderOpen, Loader2, RotateCw } from 'lucide-react';
 import { getOpenFilename, onSaveState, resolveConflict, saveNow } from '../services/projectSession';
 import { getProject, onProjectChange } from '../services/projectStore';
+import { useAuth } from '../contexts/AuthContext';
 import styles from './ProjectContextBar.module.css';
 
 /**
@@ -38,6 +39,7 @@ const formatAgo = (ts) => {
 
 export default function ProjectContextBar() {
   const location = useLocation();
+  const { user } = useAuth();
   const [openFilename, setOpenFilename] = useState(getOpenFilename);
   const [project, setProject] = useState(getProject);
   const [state, setState] = useState('idle'); // idle | dirty | saving | saved | error
@@ -87,6 +89,12 @@ export default function ProjectContextBar() {
       await saveNow();
     } catch { /* the failure re-emits through onSaveState; nothing to add here */ }
   }, []);
+
+  // Guests can no longer save calculations to a project (SavedDesigns hides
+  // its button for them), so this bar's "unsaved changes" / "save to a
+  // project" messaging no longer applies to them either — it would just
+  // dangle a link to the login-gated /projects page.
+  if (!user) return null;
 
   if (!WORK_ROUTES.some((r) => location.pathname.startsWith(r))) return null;
 
