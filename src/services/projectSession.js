@@ -75,7 +75,13 @@ export function onSaveState(listener) {
   listeners.add(listener);
   return () => listeners.delete(listener);
 }
-const emit = (state, detail) => listeners.forEach((l) => l(state, detail));
+// Mirrors the last emitted state so the beforeunload handler below can check
+// it synchronously — a listener can't be awaited from inside that event.
+let lastSaveState = null;
+const emit = (state, detail) => {
+  lastSaveState = state;
+  listeners.forEach((l) => l(state, detail));
+};
 
 /** Every pdfId the project references, across calculations, drawings and docs. */
 const referencedPdfIds = (project) => {
@@ -455,6 +461,18 @@ if (typeof window !== 'undefined') {
     if (saveTimer) {
       clearTimeout(saveTimer);
       saveNow().catch(() => {});
+    }
+  });
+
+  // Closing the tab is not covered by the UnsavedDraftError guard (that only
+  // fires on in-app navigation), so it gets its own check: either a bound
+  // project has a write debounced/in flight, or the working copy has real
+  // content that was never bound to a project at all.
+  window.addEventListener('beforeunload', (e) => {
+    const projectDirty = lastSaveState === 'dirty' || lastSaveState === 'saving';
+    if (projectDirty || hasUnsavedLocalDraft()) {
+      e.preventDefault();
+      e.returnValue = '';
     }
   });
 }
