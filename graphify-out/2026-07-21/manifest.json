@@ -1,13 +1,13 @@
 {
   "eslint.config.js": {
-    "mtime": 1784215647.5090146,
+    "mtime": 1783500786.7334716,
     "ast_hash": "ff75dec77e0319a0c17f17ee01f99541",
     "semantic_hash": "ff75dec77e0319a0c17f17ee01f99541"
   },
   "firebase.json": {
-    "mtime": 1784215647.5106483,
-    "ast_hash": "817c51fac9f785bf280baf9a4e6ac16e",
-    "semantic_hash": ""
+    "mtime": 1783780358.027823,
+    "ast_hash": "b30ed788cb57d28b5a8b8a1c5f078c03",
+    "semantic_hash": "b30ed788cb57d28b5a8b8a1c5f078c03"
   },
   "legacy/app.js": {
     "mtime": 1783500786.7450192,
@@ -45,157 +45,157 @@
     "semantic_hash": "6e2e7ba27ae90b0d8e7d4485cfde9e47"
   },
   "package.json": {
-    "mtime": 1784215647.80279,
+    "mtime": 1784207407.3153603,
     "ast_hash": "eee981576e490590c2d35ce2f8936e40",
     "semantic_hash": ""
   },
   "solver.test.mjs": {
-    "mtime": 1784627399.5293148,
+    "mtime": 1784279690.441707,
     "ast_hash": "648abb034d7285d5942f8df250d42d87",
     "semantic_hash": ""
   },
   "src/App.jsx": {
-    "mtime": 1784627399.5313835,
-    "ast_hash": "6eb0486fc794f67cd10a1322fa49e777",
+    "mtime": 1784304304.0671363,
+    "ast_hash": "b37f7f557af6c6916ee6bdb2cdda8235",
     "semantic_hash": ""
   },
   "src/components/Layout.jsx": {
-    "mtime": 1784627399.5384545,
-    "ast_hash": "62d5eba228f9ed8d816761869ef5be5a",
+    "mtime": 1784304317.0416322,
+    "ast_hash": "07f7b036dc6b9fb1ece015c7ba160022",
     "semantic_hash": ""
   },
   "src/components/Logo.jsx": {
-    "mtime": 1784215648.0824013,
-    "ast_hash": "5cb2370494a177296c768d6af1cf77b5",
-    "semantic_hash": ""
+    "mtime": 1783656282.2734153,
+    "ast_hash": "bc07d351c3a75c6c0c149afd8dfe8c0b",
+    "semantic_hash": "bc07d351c3a75c6c0c149afd8dfe8c0b"
   },
   "src/engine/beam/index.js": {
-    "mtime": 1784215648.1576288,
+    "mtime": 1783500786.8184087,
     "ast_hash": "5d265a3ace63a8533a239465a84d53e7",
     "semantic_hash": "5d265a3ace63a8533a239465a84d53e7"
   },
   "src/engine/beam/mesher.js": {
-    "mtime": 1784627399.5612535,
+    "mtime": 1784213868.5227816,
     "ast_hash": "b30de123d5d88ba8c120a5442adf1e2e",
     "semantic_hash": ""
   },
   "src/engine/beam/solver.js": {
-    "mtime": 1784627399.5632684,
+    "mtime": 1784279690.4858718,
     "ast_hash": "b35840a8f17b596e30623ab5ea000633",
     "semantic_hash": ""
   },
   "src/engine/beam/types.js": {
-    "mtime": 1784627399.565282,
+    "mtime": 1784213858.274942,
     "ast_hash": "5bb97e61861eba1474d8aaaa1586fe6d",
     "semantic_hash": ""
   },
   "src/engine/design/ec3/checks.js": {
-    "mtime": 1784215648.1751237,
+    "mtime": 1783874228.2235732,
     "ast_hash": "7eefe647831994d3ffbe1bc420665dc1",
     "semantic_hash": "7eefe647831994d3ffbe1bc420665dc1"
   },
   "src/engine/design/ec3/index.js": {
-    "mtime": 1784215648.179838,
+    "mtime": 1783500786.8311663,
     "ast_hash": "0c12079daa445b4edbdb9dfcb21281aa",
     "semantic_hash": "0c12079daa445b4edbdb9dfcb21281aa"
   },
   "src/engine/formwork/index.js": {
-    "mtime": 1784627399.5693283,
+    "mtime": 1784297950.0188982,
     "ast_hash": "bdf8ab52eaa11d013b12c59393d276c9",
     "semantic_hash": ""
   },
   "src/engine/formwork/slabFormwork.js": {
-    "mtime": 1784215648.2058077,
-    "ast_hash": "62e8d1a44308873374f8954fc979254e",
-    "semantic_hash": ""
+    "mtime": 1783875341.9496095,
+    "ast_hash": "032886eb1eb99d14b49bf73cbfb9cef3",
+    "semantic_hash": "032886eb1eb99d14b49bf73cbfb9cef3"
   },
   "src/engine/graphics/core/beamLayout.js": {
-    "mtime": 1784215648.2196395,
+    "mtime": 1783500786.835989,
     "ast_hash": "1e22acb9aa381d4ae91828eee043d0ee",
     "semantic_hash": "1e22acb9aa381d4ae91828eee043d0ee"
   },
   "src/engine/graphics/core/loadLayout.js": {
-    "mtime": 1784215648.2364824,
+    "mtime": 1783500786.835989,
     "ast_hash": "c0bd3db75cefc1dee0e4cef2b6285086",
     "semantic_hash": "c0bd3db75cefc1dee0e4cef2b6285086"
   },
   "src/engine/graphics/core/resultSeries.js": {
-    "mtime": 1784215648.2415528,
+    "mtime": 1783500786.8446927,
     "ast_hash": "3e3d82b8b4cd83a0e6feaeb4f2ea7df9",
     "semantic_hash": "3e3d82b8b4cd83a0e6feaeb4f2ea7df9"
   },
   "src/engine/graphics/core/scale.js": {
-    "mtime": 1784215648.2433658,
+    "mtime": 1783500786.8490355,
     "ast_hash": "9da6d7f3c1804e9e1dbe5ae471d9f0f5",
     "semantic_hash": "9da6d7f3c1804e9e1dbe5ae471d9f0f5"
   },
   "src/engine/graphics/index.js": {
-    "mtime": 1784215648.247643,
+    "mtime": 1783500786.8534203,
     "ast_hash": "81ee204c2aa3f243cf8c9d283589c4ae",
     "semantic_hash": "81ee204c2aa3f243cf8c9d283589c4ae"
   },
   "src/engine/graphics/react/BeamSchematic.jsx": {
-    "mtime": 1784215648.251736,
+    "mtime": 1783500786.8577151,
     "ast_hash": "bef495c473275b3881ec018afd9c859c",
     "semantic_hash": "bef495c473275b3881ec018afd9c859c"
   },
   "src/engine/graphics/react/ResultCharts.jsx": {
-    "mtime": 1784215648.2546487,
+    "mtime": 1783500786.8620307,
     "ast_hash": "d90c5d08ddb60f02575e1c8967ef987b",
     "semantic_hash": "d90c5d08ddb60f02575e1c8967ef987b"
   },
   "src/engine/index.js": {
-    "mtime": 1784215648.260741,
+    "mtime": 1783506490.3535202,
     "ast_hash": "4a9eaf58695e7e3682ce815bf6e2f799",
     "semantic_hash": "4a9eaf58695e7e3682ce815bf6e2f799"
   },
   "src/engine/loads/index.js": {
-    "mtime": 1784215648.2637494,
-    "ast_hash": "b580ecdd12e265cf3db87393eb83c447",
-    "semantic_hash": ""
+    "mtime": 1783506357.762253,
+    "ast_hash": "847b1bb73ed2f3fc16e99a19cf4a1d86",
+    "semantic_hash": "847b1bb73ed2f3fc16e99a19cf4a1d86"
   },
   "src/engine/loads/slabLoad.js": {
-    "mtime": 1784215648.269249,
-    "ast_hash": "72269f73fe14cf92f9a3131e8e785975",
-    "semantic_hash": ""
+    "mtime": 1783506355.7277117,
+    "ast_hash": "e8c7be72e5796e1c3bb82b7c1f8c05bc",
+    "semantic_hash": "e8c7be72e5796e1c3bb82b7c1f8c05bc"
   },
   "src/engine/materials/formworkBeams.js": {
-    "mtime": 1784627399.5746958,
+    "mtime": 1784279690.4937282,
     "ast_hash": "e5ae47fbb938f3f70c9190b449430c9b",
     "semantic_hash": ""
   },
   "src/engine/materials/index.js": {
-    "mtime": 1784215648.2772532,
+    "mtime": 1783506403.983509,
     "ast_hash": "b10a2ab3038db5d49b7e4cfaaa9c3369",
     "semantic_hash": "b10a2ab3038db5d49b7e4cfaaa9c3369"
   },
   "src/engine/materials/sections.js": {
-    "mtime": 1784215648.2812548,
+    "mtime": 1783861867.6803603,
     "ast_hash": "d9319931d6c79cff2f6a78e1ee5c5ce7",
     "semantic_hash": "d9319931d6c79cff2f6a78e1ee5c5ce7"
   },
   "src/main.jsx": {
-    "mtime": 1784215648.2912621,
+    "mtime": 1783500786.886509,
     "ast_hash": "51fd21c378330142b61bf8d1ef3795ef",
     "semantic_hash": "51fd21c378330142b61bf8d1ef3795ef"
   },
   "src/pages/MultiBeamCalculator.jsx": {
-    "mtime": 1784627399.5877008,
+    "mtime": 1784215247.787331,
     "ast_hash": "41dcbeed43ece3158b47bcda4598a46e",
     "semantic_hash": ""
   },
   "src/pages/Projects.jsx": {
-    "mtime": 1784627399.599717,
-    "ast_hash": "ab6faa257ddecdc2e881ebf8093aa9d5",
+    "mtime": 1784293091.7998567,
+    "ast_hash": "5a72fc11109b30f91800de240c55bcc1",
     "semantic_hash": ""
   },
   "src/pages/SlabFormworkCalculator.jsx": {
-    "mtime": 1784627399.611319,
+    "mtime": 1784215255.2118192,
     "ast_hash": "ba4405f204fb6eaed02449b443f2c4fa",
     "semantic_hash": ""
   },
   "vite.config.js": {
-    "mtime": 1784215648.5243075,
+    "mtime": 1783500786.932738,
     "ast_hash": "dd4866521472febaf10eb14d131d645f",
     "semantic_hash": "dd4866521472febaf10eb14d131d645f"
   },
@@ -210,14 +210,14 @@
     "semantic_hash": "637776aa6f7496d069afe7520c845c8a"
   },
   "README.md": {
-    "mtime": 1784627399.996682,
-    "ast_hash": "34c207aeaecb01bd3e2f9002e73ffce0",
-    "semantic_hash": ""
+    "mtime": 1783500786.7276905,
+    "ast_hash": "8f88e53d72fef57027d43c68602558e5",
+    "semantic_hash": "8f88e53d72fef57027d43c68602558e5"
   },
   "index.html": {
-    "mtime": 1784215647.734825,
-    "ast_hash": "b6fc8cbfae97cf1e45f32ad1b50c17fd",
-    "semantic_hash": ""
+    "mtime": 1783860922.0723162,
+    "ast_hash": "9f922db744f5696565712f690c416d43",
+    "semantic_hash": "9f922db744f5696565712f690c416d43"
   },
   "legacy/index.html": {
     "mtime": 1783500786.7497418,
@@ -335,34 +335,34 @@
     "semantic_hash": ""
   },
   "src/components/SplashScreen.jsx": {
-    "mtime": 1784215648.1451058,
-    "ast_hash": "40a7a41f1244372d6cd4aa0ca67e712a",
-    "semantic_hash": ""
+    "mtime": 1783662960.2577152,
+    "ast_hash": "c5dbc89de8d6f746e91cb21c478feac4",
+    "semantic_hash": "c5dbc89de8d6f746e91cb21c478feac4"
   },
   "src/components/StandardChart.jsx": {
-    "mtime": 1784627399.5500658,
-    "ast_hash": "a539abc1e3187e3a85e47cdc1c5af328",
+    "mtime": 1784304356.1385322,
+    "ast_hash": "98880c82ed97467513ffeebd2a159266",
     "semantic_hash": ""
   },
   "src/engine/formwork/wallFormwork.js": {
-    "mtime": 1784215648.2098057,
+    "mtime": 1784214791.6644742,
     "ast_hash": "c88aae0dc8e9d5f82622b53985397b6f",
     "semantic_hash": ""
   },
   "src/pages/WallFormworkCalculator.jsx": {
-    "mtime": 1784627399.6163516,
+    "mtime": 1784215261.3644981,
     "ast_hash": "1bdb82da398084769e8ea35368e8c2b9",
     "semantic_hash": ""
   },
   "src/assets/slab-diagram.png": {
-    "mtime": 1784215647.9066484,
+    "mtime": 1783664332.9124758,
     "ast_hash": "9cb71023cab4ed26bfc6d2d6d61c0958",
     "semantic_hash": "9cb71023cab4ed26bfc6d2d6d61c0958"
   },
   "src/pages/NotFound.jsx": {
-    "mtime": 1784215648.3413076,
-    "ast_hash": "0d76201fd038bbdd5cdcee5e229dbf99",
-    "semantic_hash": ""
+    "mtime": 1783774907.5827353,
+    "ast_hash": "450df2b1eb38bbd6b5e7b513487b2290",
+    "semantic_hash": "450df2b1eb38bbd6b5e7b513487b2290"
   },
   "public/favicon.svg": {
     "mtime": 1783668432.6564665,
@@ -390,94 +390,94 @@
     "semantic_hash": ""
   },
   "src/components/ErrorBoundary.jsx": {
-    "mtime": 1784215648.0574703,
-    "ast_hash": "81a5506a3c9ee597aab2b765dd463124",
-    "semantic_hash": ""
+    "mtime": 1783779241.4784105,
+    "ast_hash": "d6d15ef4f1327b1e9bf47181147959dc",
+    "semantic_hash": "d6d15ef4f1327b1e9bf47181147959dc"
   },
   "src/components/RouteLoader.jsx": {
-    "mtime": 1784215648.1141942,
-    "ast_hash": "bf697df4a9ea48daee1b1871222ddac7",
-    "semantic_hash": ""
+    "mtime": 1783775115.796149,
+    "ast_hash": "53e393834f9b8e56ffc2ae1460c77c52",
+    "semantic_hash": "53e393834f9b8e56ffc2ae1460c77c52"
   },
   "src/pages/Home.jsx": {
-    "mtime": 1784627399.583493,
+    "mtime": 1784297950.0261543,
     "ast_hash": "bb3566689cc6d570089f5231fbf9bc91",
     "semantic_hash": ""
   },
   "src/engine/formwork/shoringTower.js": {
-    "mtime": 1784215648.1913102,
+    "mtime": 1783829018.7974555,
     "ast_hash": "8178d30907f76f2e451dfa07df17fbec",
     "semantic_hash": "8178d30907f76f2e451dfa07df17fbec"
   },
   "src/pages/ShoringTowerCalculator.jsx": {
-    "mtime": 1784627399.6080377,
+    "mtime": 1784277237.9604247,
     "ast_hash": "aae5926699a8e84f81e5b4a333939008",
     "semantic_hash": ""
   },
   "src/utils/reportPdf.js": {
-    "mtime": 1784215648.5183065,
+    "mtime": 1783988979.9109955,
     "ast_hash": "252715aab911c966d471773d18603e0f",
     "semantic_hash": "252715aab911c966d471773d18603e0f"
   },
   "src/components/CalcInstance.jsx": {
-    "mtime": 1784627399.5344076,
+    "mtime": 1784218098.3831925,
     "ast_hash": "a8147977fc4e8152489c9e156ada3acf",
     "semantic_hash": ""
   },
   "src/components/SavedDesigns.jsx": {
-    "mtime": 1784627399.5490499,
-    "ast_hash": "28eb6ec1bc0d1d5aac809ca0e50e4098",
+    "mtime": 1784284202.3644898,
+    "ast_hash": "7668dec87b2cf420ae4bbdabe84e1c84",
     "semantic_hash": ""
   },
   "src/pages/ProjectDashboard.jsx": {
-    "mtime": 1784627399.5951123,
-    "ast_hash": "c3cf3a1bb389af6b7199418bbceae14e",
+    "mtime": 1784284193.3331544,
+    "ast_hash": "673dabf72776e3c62d28ce575c03d3b2",
     "semantic_hash": ""
   },
   "src/services/pdfCompile.js": {
-    "mtime": 1784627399.6226456,
-    "ast_hash": "467f86869ea6fad8886b7ee8367ddbac",
+    "mtime": 1784219651.585899,
+    "ast_hash": "2d4223012e6b8543ddea6846dd2bcde0",
     "semantic_hash": ""
   },
   "src/services/pdfStore.js": {
-    "mtime": 1784627399.6266687,
+    "mtime": 1784219645.5370083,
     "ast_hash": "d45c648b0d18463a8eaf7af51c5134bf",
     "semantic_hash": ""
   },
   "src/services/projectStore.js": {
-    "mtime": 1784627399.6413474,
-    "ast_hash": "f8331b8d6ffb40f33b7573ac76c0a43c",
+    "mtime": 1784297950.031398,
+    "ast_hash": "855fd70d381ac26ca435010662b3641a",
     "semantic_hash": ""
   },
   "src/components/CoverPageEditor.jsx": {
-    "mtime": 1784215647.9700215,
-    "ast_hash": "4c4615b300375031369d2e4845810b2c",
-    "semantic_hash": ""
+    "mtime": 1784134473.1903763,
+    "ast_hash": "a4174050e50e0705a546340cace6a865",
+    "semantic_hash": "a4174050e50e0705a546340cace6a865"
   },
   "src/components/CoverPreview.jsx": {
-    "mtime": 1784215647.9950266,
-    "ast_hash": "884d6be979a09309254d5953e5d0050a",
-    "semantic_hash": ""
+    "mtime": 1784132861.168735,
+    "ast_hash": "2bf10b6200487abe4877028f97a84900",
+    "semantic_hash": "2bf10b6200487abe4877028f97a84900"
   },
   "src/components/ReportAutoRenderer.jsx": {
-    "mtime": 1784627399.5457997,
+    "mtime": 1784297950.0121987,
     "ast_hash": "6b3ea3e3cd10a6cdce5d9e75c68c9c92",
     "semantic_hash": ""
   },
   "src/pages/DrawingViewer.jsx": {
-    "mtime": 1784215648.3087678,
-    "ast_hash": "9cec1a494cd64636487b36bc13eb4729",
-    "semantic_hash": ""
+    "mtime": 1784131679.475899,
+    "ast_hash": "25c35bfa6598b2eca4e0e3359e15a68e",
+    "semantic_hash": "25c35bfa6598b2eca4e0e3359e15a68e"
   },
   "src/services/markupGeometry.js": {
-    "mtime": 1784215648.4147964,
-    "ast_hash": "c646b25d99a4c9b29977c1949a575a15",
-    "semantic_hash": ""
+    "mtime": 1784133368.049205,
+    "ast_hash": "3cb06bc203559b1fad845d3ff5858bc9",
+    "semantic_hash": "3cb06bc203559b1fad845d3ff5858bc9"
   },
   "src/services/markupGeometry.test.mjs": {
-    "mtime": 1784215648.4249043,
-    "ast_hash": "7fffb08dc1661634a67b981e1cef2e47",
-    "semantic_hash": ""
+    "mtime": 1784133425.4929638,
+    "ast_hash": "81132ee8f6dbb89e6107b1d7b6e60cff",
+    "semantic_hash": "81132ee8f6dbb89e6107b1d7b6e60cff"
   },
   "src/assets/plytec-logo.png": {
     "mtime": 1784131314.3386247,
@@ -485,238 +485,208 @@
     "semantic_hash": ""
   },
   "src/services/projectFiles.js": {
-    "mtime": 1784627399.6317759,
-    "ast_hash": "1993e91f70956f0c69eed8029b242c22",
+    "mtime": 1784291157.4090726,
+    "ast_hash": "8fbf58ec24a17e105e3afc346380853e",
     "semantic_hash": ""
   },
   "src/services/twFile.js": {
-    "mtime": 1784627399.6588738,
-    "ast_hash": "bc00752e5dbedfdb0cc7820205079290",
+    "mtime": 1784185379.664395,
+    "ast_hash": "5efaec329959de8bfdd51fb44ca32ea1",
     "semantic_hash": ""
   },
   "src/services/twFile.test.mjs": {
-    "mtime": 1784215648.4978378,
-    "ast_hash": "90bc40fae84a7f1d0c2f890456bd658b",
+    "mtime": 1784185412.879554,
+    "ast_hash": "75e1c515b70aecb89f8151e4d5c6ef91",
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1784215647.106586,
+    "mtime": 1784184011.5159347,
     "ast_hash": "8a6643a420fdad6bfb583523bc6cef16",
     "semantic_hash": ""
   },
   "src/components/DynamicBeamDiagram.jsx": {
-    "mtime": 1784627399.5354123,
+    "mtime": 1784213996.3297958,
     "ast_hash": "aa319febc2adb5ec3b0c6081b39f3219",
     "semantic_hash": ""
   },
   "src/services/projectSession.js": {
-    "mtime": 1784627399.6375978,
-    "ast_hash": "34a9e7db8204222784eb9fc98c0166de",
+    "mtime": 1784291098.2592914,
+    "ast_hash": "dc60ead3231b7b1e63935f52955b0942",
     "semantic_hash": ""
   },
   "src/services/undo.js": {
-    "mtime": 1784215648.5057697,
-    "ast_hash": "373517e8ac53cecd292042632cd5604a",
+    "mtime": 1784188284.9753885,
+    "ast_hash": "bcf3b8d867029868b09713aa2d8346ce",
     "semantic_hash": ""
   },
   "src/components/DialogHost.jsx": {
-    "mtime": 1784215648.0210443,
-    "ast_hash": "5da0538593fcb7192f17aabc69f5c401",
+    "mtime": 1784189636.2519445,
+    "ast_hash": "ae290cc68f013f8bd7e7305f38a015cc",
     "semantic_hash": ""
   },
   "src/services/dialog.js": {
-    "mtime": 1784215648.4021425,
-    "ast_hash": "6baa500b1dc9a9c7541ef1b0ff951df6",
+    "mtime": 1784189394.437482,
+    "ast_hash": "23054ca7afc02f2048669ca6336ceea4",
     "semantic_hash": ""
   },
   "src/contexts/AuthContext.jsx": {
-    "mtime": 1784215648.1546202,
-    "ast_hash": "14d8cc3460ff8410a722679957588097",
+    "mtime": 1784207484.6545527,
+    "ast_hash": "9dd3acf233ea4dca91e6a6390e6e8ec3",
     "semantic_hash": ""
   },
   "src/pages/Login.jsx": {
-    "mtime": 1784627399.5850103,
+    "mtime": 1784295644.6777508,
     "ast_hash": "a44bbfbe7912773a8cdb16cf0566a0d7",
     "semantic_hash": ""
   },
   "src/pages/Settings.jsx": {
-    "mtime": 1784627399.599717,
-    "ast_hash": "38f5eac6d28fabbf2b72641bbaae9426",
+    "mtime": 1784304341.8650331,
+    "ast_hash": "97c316325072f3ef6327b308b657bc4b",
     "semantic_hash": ""
   },
   "src/services/projectFiles.test.mjs": {
-    "mtime": 1784627399.634983,
-    "ast_hash": "a094e0ae024a033a3bd30435b914edcb",
+    "mtime": 1784291414.858818,
+    "ast_hash": "cdf982c03b4ffff3943fb6b45cd4960e",
     "semantic_hash": ""
   },
   "src/services/supabaseAuth.js": {
-    "mtime": 1784627399.6514206,
-    "ast_hash": "e53892b780915d339c5764281e2752f0",
+    "mtime": 1784295644.7144911,
+    "ast_hash": "42dd0ddf8b43a2c37ca29935feca8015",
     "semantic_hash": ""
   },
   "src/services/supabaseClient.js": {
-    "mtime": 1784215648.474028,
-    "ast_hash": "2d2a6e6d53f47e88e9d98582127c0d29",
+    "mtime": 1784207415.5962057,
+    "ast_hash": "4d35ecf2f5baaece91fe4863281fe513",
     "semantic_hash": ""
   },
   "src/services/supabaseDb.js": {
-    "mtime": 1784627399.6549442,
-    "ast_hash": "00ddf6ab5d9b764cc3f63724fa373ef5",
+    "mtime": 1784277237.9826481,
+    "ast_hash": "6fef33da6b3f2d0b56e0f0fd3c621b93",
     "semantic_hash": ""
   },
   "src/services/supabaseStorage.js": {
-    "mtime": 1784627399.6565323,
-    "ast_hash": "cc9cd9770d7723149fa39ed3da7069a4",
+    "mtime": 1784212326.9204462,
+    "ast_hash": "68db0282f515e986f6856c813fe12aa6",
     "semantic_hash": ""
   },
   "public/__t0.pdf": {
-    "mtime": 1784627399.5266774,
+    "mtime": 1784214255.2440414,
     "ast_hash": "d51f856b94c9db3743dbd8348173dcd0",
     "semantic_hash": ""
   },
   "public/__t90.pdf": {
-    "mtime": 1784627399.5283058,
+    "mtime": 1784214255.2527683,
     "ast_hash": "6c9954f105aec1d69148af883bb896a2",
     "semantic_hash": ""
   },
   "src/components/TermsModal.jsx": {
-    "mtime": 1784627399.5512364,
-    "ast_hash": "348fb765ada44da76b1b15f286272edc",
+    "mtime": 1784219009.8250322,
+    "ast_hash": "14168bbe0f0b817735eec1f06c24a82b",
     "semantic_hash": ""
   },
   "src/services/projectStatus.js": {
-    "mtime": 1784627399.6386878,
-    "ast_hash": "830fb6b700ef9cb609998390bbb6f011",
+    "mtime": 1784259765.5104866,
+    "ast_hash": "8be0a338202a88021c62571fd07ef6bf",
     "semantic_hash": ""
   },
   "supabase/migrations/20260717_project_status_rbac.sql": {
-    "mtime": 1784627399.6652992,
-    "ast_hash": "0139261f184b7f642599338f9419fac1",
+    "mtime": 1784259840.401036,
+    "ast_hash": "51c90eba5187c0f861c047989dafd229",
     "semantic_hash": ""
   },
   "src/engine/formwork/steelProp.js": {
-    "mtime": 1784627399.5703466,
+    "mtime": 1784277237.9470613,
     "ast_hash": "4eb345ee0f8541d955f18bc443ed370b",
     "semantic_hash": ""
   },
   "src/pages/ProjectOverview.jsx": {
-    "mtime": 1784627399.5951123,
-    "ast_hash": "79fa535b7ec98119ee80b2b0494b1177",
+    "mtime": 1784291551.6392572,
+    "ast_hash": "d64567bf869e6ae78b197e5a439ad72e",
     "semantic_hash": ""
   },
   "src/pages/SteelPropCalculator.jsx": {
-    "mtime": 1784627399.613345,
+    "mtime": 1784298450.067163,
     "ast_hash": "1c3f25c01974984c656fa1649b7f93be",
     "semantic_hash": ""
   },
   "src/services/projectTimeline.js": {
-    "mtime": 1784627399.6436782,
-    "ast_hash": "13e2b18df935e35adb80ca20217442ff",
+    "mtime": 1784291139.7860658,
+    "ast_hash": "89718c15559129866c231b9978824dbb",
     "semantic_hash": ""
   },
   "src/engine/formwork/wallFormworkDesign.js": {
-    "mtime": 1784627399.5723717,
+    "mtime": 1784279690.4888601,
     "ast_hash": "cb5e5117808860cb217f449194e01349",
     "semantic_hash": ""
   },
   "src/pages/WallPanelDesignCalculator.jsx": {
-    "mtime": 1784627399.617384,
+    "mtime": 1784279690.4991686,
     "ast_hash": "12ac1c12dcbe21a804cb8502651d4a8c",
     "semantic_hash": ""
   },
   "src/services/projectTimeline.test.mjs": {
-    "mtime": 1784627399.6447651,
-    "ast_hash": "1e6741e34131a47118ca0823b7188354",
+    "mtime": 1784291202.9352152,
+    "ast_hash": "c0285d98d83a0ff41e833ac9689ce372",
     "semantic_hash": ""
   },
   "supabase/migrations/20260717_profiles_for_assignee.sql": {
-    "mtime": 1784627399.6642866,
+    "mtime": 1784277237.984012,
     "ast_hash": "09d9673e6fc6405e3de90756acba69af",
     "semantic_hash": ""
   },
   "src/services/autosaveWiring.test.mjs": {
-    "mtime": 1784627399.6206453,
-    "ast_hash": "7620fa8ca162f75f9e9f9cb9e4bb5ed4",
+    "mtime": 1784283598.7452025,
+    "ast_hash": "35529676ed2b6ed7476e7956590e8257",
     "semantic_hash": ""
   },
   "src/components/ProjectContextBar.jsx": {
-    "mtime": 1784627399.5425632,
-    "ast_hash": "4aab1dc525ba1e0eb640ac8fc9b13e0b",
+    "mtime": 1784283775.3043478,
+    "ast_hash": "aa13b65e75f70ec776795a651c15c1c7",
     "semantic_hash": ""
   },
   "supabase/migrations/20260718_timeline_rbac.sql": {
-    "mtime": 1784627399.669053,
-    "ast_hash": "a91824f110c2b51f6085e3bbf14fcd5d",
+    "mtime": 1784284368.8049076,
+    "ast_hash": "ea876c30e186ed484092d2e3f869ed84",
     "semantic_hash": ""
   },
   "supabase/migrations/20260718_zones_column.sql": {
-    "mtime": 1784627399.670158,
-    "ast_hash": "5c2fabd71b0b11e4de98a28f2ee0587a",
+    "mtime": 1784291083.5494065,
+    "ast_hash": "915ff8636eee35cfd852d9006c4a4c7f",
     "semantic_hash": ""
   },
   "src/components/AuthPanel.jsx": {
-    "mtime": 1784627399.5323908,
+    "mtime": 1784295644.6663032,
     "ast_hash": "caf05437994ecbbe6e77345e58eb81ba",
     "semantic_hash": ""
   },
   "src/pages/ForgotPassword.jsx": {
-    "mtime": 1784627399.5809817,
+    "mtime": 1784295644.6728222,
     "ast_hash": "54d72f4d82105bb5348ad06a7e20e21c",
     "semantic_hash": ""
   },
   "src/pages/ResetPassword.jsx": {
-    "mtime": 1784627399.599717,
+    "mtime": 1784295644.7020328,
     "ast_hash": "6d5dfc85c0aab6048bbc4575d1974669",
     "semantic_hash": ""
   },
   "src/engine/formwork/backprop.js": {
-    "mtime": 1784627399.566786,
+    "mtime": 1784297950.0154982,
     "ast_hash": "6f843a867b2e50ea22abed487ede872d",
     "semantic_hash": ""
   },
   "src/pages/BackpropCalculator.jsx": {
-    "mtime": 1784627399.5789678,
+    "mtime": 1784298414.2663128,
     "ast_hash": "0ca62459538bc9e7460a3aa465b68139",
     "semantic_hash": ""
   },
   "src/pages/Overview.jsx": {
-    "mtime": 1784627399.5909748,
-    "ast_hash": "1c4faf08c0ea6bcfbaed102cf4495a7c",
+    "mtime": 1784304235.397344,
+    "ast_hash": "512d95d30c19b8888cfc5c8a8c570ad5",
     "semantic_hash": ""
   },
   "src/contexts/ThemeContext.jsx": {
-    "mtime": 1784627399.5592384,
-    "ast_hash": "cf31b6a82445b23db2d1e248756dbe0c",
-    "semantic_hash": ""
-  },
-  "src/components/ThemeToggle.jsx": {
-    "mtime": 1784627399.5563874,
-    "ast_hash": "2bd739f3bf97e1479899188b174feb8f",
-    "semantic_hash": ""
-  },
-  "src/services/roles.js": {
-    "mtime": 1784627399.646472,
-    "ast_hash": "7bee8bdcd2a9e03b6826507e05c085fe",
-    "semantic_hash": ""
-  },
-  "src/services/roles.test.mjs": {
-    "mtime": 1784627399.6480596,
-    "ast_hash": "6e4c30111a049d7f19a7419f31d7f5c1",
-    "semantic_hash": ""
-  },
-  "src/services/uploadLimits.js": {
-    "mtime": 1784627399.6610632,
-    "ast_hash": "5725a928d735f49051a264fd246f51a3",
-    "semantic_hash": ""
-  },
-  "src/services/uploadLimits.test.mjs": {
-    "mtime": 1784627399.6632032,
-    "ast_hash": "6dae4e11d49977799fb11b3532e3bf15",
-    "semantic_hash": ""
-  },
-  "supabase/migrations/20260718_storage_split_policies.sql": {
-    "mtime": 1784627399.6678586,
-    "ast_hash": "4bca5661b4b5090a78ca699d59984c0a",
+    "mtime": 1784304423.3391378,
+    "ast_hash": "649cdbcc0e3548cc972975b713dd41ca",
     "semantic_hash": ""
   }
 }
